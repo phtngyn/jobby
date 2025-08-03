@@ -2,17 +2,51 @@
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
-    '@nuxt/ui',
+    '@nuxt/ui-pro',
     '@vueuse/nuxt',
+    '@nuxtjs/mdc',
   ],
+
   devtools: {
     enabled: false,
   },
+
   css: ['~/assets/css/main.css'],
-  future: {
-    compatibilityVersion: 4,
+
+  mdc: {
+    highlight: {
+      shikiEngine: 'javascript',
+    },
   },
+
+  routeRules: {
+    '/': {
+      prerender: true,
+    },
+  },
+
+  experimental: {
+    viewTransition: true,
+  },
+
   compatibilityDate: '2025-05-01',
+
+  vite: {
+    optimizeDeps: {
+      include: ['debug'],
+    },
+
+    $server: {
+      build: {
+        rollupOptions: {
+          output: {
+            preserveModules: true,
+          },
+        },
+      },
+    },
+  },
+
   eslint: {
     config: {
       standalone: false,

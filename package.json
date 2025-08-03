@@ -17,25 +17,35 @@
     "typecheck": "nuxt typecheck"
   },
   "devDependencies": {
+    "@ai-sdk/google": "^2.0.0",
     "@antfu/eslint-config": "^5.1.0",
+    "@iconify-json/lucide": "^1.2.60",
     "@nuxt/eslint": "^1.7.1",
-    "@nuxt/ui": "^3.3.0",
+    "@nuxt/ui-pro": "^3.3.0",
+    "@nuxtjs/mdc": "^0.17.2",
+    "@types/pg": "^8.15.5",
     "@vueuse/core": "^13.6.0",
     "@vueuse/nuxt": "^13.6.0",
+    "drizzle-kit": "^0.31.4",
+    "drizzle-orm": "^0.44.4",
     "eslint": "^9.32.0",
     "eslint-plugin-format": "^1.0.1",
     "nano-staged": "^0.8.0",
     "nuxt": "^4.0.2",
+    "pg": "^8.16.3",
     "simple-git-hooks": "^2.13.1",
     "typescript": "^5.9.2",
-    "vue": "^3.5.18",
-    "vue-router": "^4.5.1",
-    "vue-tsc": "^3.0.5"
+    "vue-tsc": "^3.0.5",
+    "zod": "^4.0.14"
   },
   "pnpm": {
     "overrides": {
+      "@nuxt/kit": "^4.0.2",
       "typescript": "^5.9.2",
-      "vite": "^7.0.6"
+      "vite": "^7.0.6",
+      "vue": "^3.5.18",
+      "vue-router": "^4.5.1",
+      "zod": "^4.0.14"
     }
   },
   "simple-git-hooks": {
