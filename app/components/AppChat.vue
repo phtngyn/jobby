@@ -48,15 +48,12 @@ function copy(e: MouseEvent, message: UIMessage) {
   >
     <template #body>
       <UChatMessages
-        :messages="chat.messages"
+        :messages="chat.messages.map(m => ({
+          ...m,
+          content: '',
+        }))"
         :status="chat.status"
-        :user="{
-          icon: 'i-lucide-user',
-        }"
         :assistant="{
-          avatar: {
-            icon: 'i-lucide-sparkles',
-          },
           actions: [
             {
               label: 'Copy',
@@ -65,12 +62,8 @@ function copy(e: MouseEvent, message: UIMessage) {
             },
           ],
         }"
-        class="lg:pt-(--ui-header-height) pb-4 sm:pb-6"
         should-auto-scroll
         :spacing-offset="160"
-        :ui="{
-          indicator: 'py-0 h-auto *:size-auto *:bg-transparent [&>*:nth-child(1)]:animate-none [&>*:nth-child(2)]:animate-none [&>*:nth-child(3)]:animate-none',
-        }"
       >
         <template #content="{ message }">
           <UButton
@@ -83,30 +76,43 @@ function copy(e: MouseEvent, message: UIMessage) {
           >
             <AppChatTextGradient text="Thinking..." />
           </UButton>
+
           <div class="space-y-4">
-            <template v-for="(part, index) in message.parts as UIMessage['parts']" :key="`${part.type}-${index}-${message.id}`">
+            <template
+              v-for="(part, index) in message.parts as UIMessage['parts']"
+              :key="`${part.type}-${index}-${message.id}`"
+            >
+              <template v-if="part.type === 'step-start'" />
+
               <AppChatReasoning
                 v-if="part.type === 'reasoning'"
                 :state="part.state"
                 :text="part.text"
               />
-            </template>
 
-            <MDCCached
-              :value="getTextFromMessage(message as UIMessage)"
-              :cache-key="message.id"
-              unwrap="p"
-              :parser-options="{ highlight: false }"
-            />
+              <ToolFindJob
+                v-else-if="part.type === 'tool-find_job'"
+                v-bind="part as any"
+              />
 
-            <template
-              v-for="(part, index) in message.parts as UIMessage['parts']"
-              :key="`${part.type}-${index}-${message.id}`"
-            >
-              // TODO
+              <ToolFindFilter
+                v-else-if="part.type === 'tool-find_filter'"
+                v-bind="part as any"
+              />
+
+              <MDCCached
+                v-else-if="part.type === 'text'"
+                :value="part.text"
+                :cache-key="message.id"
+                unwrap="p"
+                :parser-options="{ highlight: false }"
+              />
+
+              <!-- <pre v-else>{{ part }}</pre> -->
             </template>
           </div>
         </template>
+
         <template #indicator>
           <UButton
             class="px-0 group"

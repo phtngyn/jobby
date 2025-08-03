@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '#ui/types'
 
-const collapsed = useLocalStorage('sidebar-collapsed', false)
+const collapsed = useCookie('sidebar-collapsed', { default: () => false })
 const colorMode = useColorMode()
 const isDark = computed(() => colorMode.preference === 'dark')
 const items = computed<NavigationMenuItem[]>(() => [
@@ -61,6 +61,7 @@ const items = computed<NavigationMenuItem[]>(() => [
               :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
               :block="collapsed"
               class="truncate h-10"
+              color="neutral"
               variant="ghost"
               @click="colorMode.preference = isDark ? 'light' : 'dark'"
             >
