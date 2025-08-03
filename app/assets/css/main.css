@@ -1,2 +1,8 @@
 @import 'tailwindcss';
 @import '@nuxt/ui-pro';
+
+@utility flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
