@@ -54,18 +54,3 @@ export const MetadataSchema = z.object({
   outputTokens: z.number().optional(),
   finishReason: z.string().optional(),
 })
-
-export const FilterEnum = z.enum([
-  'SELBSTAENDIGKEIT',
-  'PRAKTIKUM_TRAINEE',
-  'KUENSTLER',
-  'AUSBILDUNG',
-  'FULLTIME',
-  'PARTTIME',
-  'HOMEOFFICE',
-  'BEFRISTET',
-  'UNBEFRISTET',
-  'SUPERVISED',
-  'IN 7 DAYS',
-  'IN A MONTH',
-])

@@ -2,7 +2,7 @@ import type { Job } from '#shared/types'
 import { JobSchema } from '#shared/schemas'
 import { generateText, tool } from 'ai'
 import { z } from 'zod'
-import { LIGHT_MODEL } from '~~/shared/constants'
+import { LIGHT_MODEL_KEY } from '~~/shared/constants'
 import { provider } from '../llm'
 import { stringify } from '../utils'
 
@@ -93,7 +93,7 @@ async function generateSummary(results: { job: Job, score: number }[], query: an
   }).join('\n\n')
 
   const response = await generateText({
-    model: provider(LIGHT_MODEL),
+    model: provider(LIGHT_MODEL_KEY),
     messages: [{
       role: 'user',
       content: [

@@ -95,25 +95,6 @@ function seeDetail(r: typeof result['value']) {
           {{ props.output.summary }}
         </li>
       </ul>
-
-      <Dialog v-model:open="open">
-        <DialogContent v-if="result" class="sm:max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>{{ result.job.title }}</DialogTitle>
-            <DialogDescription>{{ result.job.occupation }}</DialogDescription>
-          </DialogHeader>
-
-          <div class="text-xs">
-            {{ result }}
-          </div>
-
-          <DialogFooter>
-            <DialogClose as-child>
-              <Button>Close</Button>
-            </DialogClose>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </template>
 
     <template v-else>

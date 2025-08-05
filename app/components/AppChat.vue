@@ -1,22 +1,28 @@
 <script setup lang="ts">
 import type { UIMessage } from 'ai'
+import type { Job } from '~~/shared/types'
 import { Chat } from '@ai-sdk/vue'
 import { DefaultChatTransport } from 'ai'
+import { MODELS } from '~~/shared/constants'
+import { MetadataSchema } from '~~/shared/schemas'
 import { getTextFromMessage } from '~~/shared/utils'
+
+const { data: jobs } = useNuxtData<Job[]>('jobs')
+const attachedJobs = ref<Job[]>([])
 
 const input = shallowRef('')
 const chat = new Chat({
-  // messageMetadataSchema: MetadataSchema,
+  messageMetadataSchema: MetadataSchema,
   transport: new DefaultChatTransport({
     api: '/api/chat',
     prepareSendMessagesRequest({ messages }) {
       const body = {
         messages,
-        // jobs: [...attachedJobs.value],
+        jobs: [...attachedJobs.value],
       }
 
       input.value = ''
-      // attachedJobs.value = []
+      attachedJobs.value = []
 
       return { body }
     },
@@ -38,14 +44,45 @@ function copy(e: MouseEvent, message: UIMessage) {
     copied.value = false
   }, 2000)
 }
+
+function drop(event: DragEvent) {
+  const id = event.dataTransfer?.getData('text/plain')
+  if (!id)
+    return
+
+  const job = jobs.value?.find(j => j.id === id)
+  if (!job)
+    return
+
+  if (attachedJobs.value.find(j => j.id === id))
+    return
+
+  attachedJobs.value.push(job)
+}
+
+function remove(job: Job) {
+  console.log(job)
+  attachedJobs.value = attachedJobs.value.filter(j => j.id !== job.id)
+}
 </script>
 
 <template>
   <UDashboardPanel
+    id="app-chat"
     :ui="{
+      root: 'max-w-1/3',
       body: 'sm:p-4',
     }"
   >
+    <template #header>
+      <div class="h-(--ui-header-height) shrink-0 flex items-center border-b border-default p-4 gap-3">
+        <UIcon name="i-lucide-bot" class="size-5" />
+        <p class="font-semibold text-highlighted truncate">
+          AI Assistant
+        </p>
+      </div>
+    </template>
+
     <template #body>
       <UChatMessages
         :messages="chat.messages.map(m => ({
@@ -95,11 +132,6 @@ function copy(e: MouseEvent, message: UIMessage) {
                 v-bind="part as any"
               />
 
-              <ToolFindFilter
-                v-else-if="part.type === 'tool-find_filter'"
-                v-bind="part as any"
-              />
-
               <MDCCached
                 v-else-if="part.type === 'text'"
                 :value="part.text"
@@ -107,8 +139,6 @@ function copy(e: MouseEvent, message: UIMessage) {
                 unwrap="p"
                 :parser-options="{ highlight: false }"
               />
-
-              <!-- <pre v-else>{{ part }}</pre> -->
             </template>
           </div>
         </template>
@@ -128,15 +158,38 @@ function copy(e: MouseEvent, message: UIMessage) {
     </template>
 
     <template #footer>
-      <div class="p-4 sm:pm-6">
+      <div
+        class="p-4"
+        @dragover.prevent
+        @drop="drop"
+      >
         <UChatPrompt
           v-model="input"
           :error="chat.error"
           :status="chat.status"
           variant="subtle"
           class="px-2 bg-white dark:bg-neutral-900"
+          :ui="{ body: 'my-1.5' }"
           @submit="handleSubmit"
         >
+          <template #header>
+            <ul
+              v-if="attachedJobs.length"
+              class="grid gap-2"
+            >
+              <li
+                v-for="job in attachedJobs"
+                :key="job.id"
+                class="group border border-muted px-2 py-1 rounded-md text-sm w-fit flex items-center gap-2"
+              >
+                <span>{{ job.title }}</span>
+
+                <button class="flex-center" @click="remove(job)">
+                  <UIcon name="i-lucide-x" class="size-3.5 text-muted group-hover:text-error transition-colors" />
+                </button>
+              </li>
+            </ul>
+          </template>
           <template #footer>
             <div class="flex gap-1">
               <UButton
@@ -154,15 +207,13 @@ function copy(e: MouseEvent, message: UIMessage) {
                 disabled
               />
             </div>
+
             <div class="flex items-center gap-1">
               <USelect
-                :items="[
-                  {
-                    label: 'GPT-4.1 Mini',
-                    company: 'OpenAI',
-                    value: 'openai/gpt-4.1-mini',
-                  },
-                ]"
+                default-value="gemini-2.0-flash"
+                :items="MODELS"
+                label-key="name"
+                value-key="key"
                 variant="ghost"
                 size="sm"
                 class="hover:bg-default focus:bg-default data-[state=open]:bg-default"
@@ -172,7 +223,7 @@ function copy(e: MouseEvent, message: UIMessage) {
                 }"
               >
                 <template #item-trailing="{ item }">
-                  <span class="text-sm text-muted">{{ item.company }}</span>
+                  <span class="text-xs text-muted">{{ item.company }}</span>
                 </template>
               </USelect>
 

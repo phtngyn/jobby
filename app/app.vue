@@ -13,8 +13,16 @@ const items = computed<NavigationMenuItem[]>(() => [
     tooltip: true,
   },
   {
-    label: 'Inbox',
-    icon: 'i-lucide-inbox',
+    label: 'Profile',
+    icon: 'i-lucide-user',
+    tooltip: true,
+    to: '/profile',
+  },
+  {
+    label: 'TODO',
+    icon: 'i-lucide-construction',
+    tooltip: true,
+    to: '/todo',
   },
 ],
 )
