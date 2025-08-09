@@ -17,7 +17,7 @@ const emit = defineEmits<{
     <div
       v-for="job of props.jobs"
       :key="job.id"
-      class="rounded-lg p-3 bg-sidebar-accent text-card-foreground border text-sm flex justify-between items-center"
+      class="rounded-md p-3 bg-sidebar-accent text-card-foreground border text-sm flex justify-between items-center"
     >
       <span>{{ job.title }}</span>
       <UButton

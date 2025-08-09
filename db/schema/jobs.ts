@@ -2,11 +2,11 @@ import { sql } from 'drizzle-orm'
 import { boolean, index, numeric, pgEnum, pgTable, serial, text, timestamp, varchar, vector } from 'drizzle-orm/pg-core'
 
 export const TypeEnum = pgEnum('job_type', [
-  'SELBSTAENDIGKEIT',
-  'PRAKTIKUM_TRAINEE',
-  'KUENSTLER',
-  'AUSBILDUNG',
   'ARBEIT',
+  'AUSBILDUNG',
+  'PRAKTIKUM_TRAINEE',
+  'SELBSTAENDIGKEIT',
+  'KUENSTLER',
 ])
 
 export const WorktimeEnum = pgEnum('job_worktime', [

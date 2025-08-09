@@ -43,7 +43,7 @@ const items = computed<NavigationMenuItem[]>(() => [
       >
         <template #header="{ collapsed }">
           <div
-            class="bg-primary rounded-lg size-10 flex-center shrink-0"
+            class="bg-primary/80 dark:bg-primary rounded-md size-10 flex-center shrink-0"
           >
             <UIcon name="i-lucide-briefcase-business" class="text-inverted size-4.5" />
           </div>

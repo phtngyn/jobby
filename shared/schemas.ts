@@ -54,3 +54,28 @@ export const MetadataSchema = z.object({
   outputTokens: z.number().optional(),
   finishReason: z.string().optional(),
 })
+
+export const FilterItemWithChildrenSchema = z.object({
+  label: z.string(),
+  children: z.array(
+    z.object({
+      label: z.string(),
+      value: z.string(),
+      checked: z.boolean(),
+    }),
+  ),
+})
+
+export const FilterItemWithoutChildrenSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+  checked: z.boolean(),
+})
+
+export const FiltersSchema = z.object({
+  search: z.string(),
+  worktime: FilterItemWithChildrenSchema,
+  duration: FilterItemWithChildrenSchema,
+  type: FilterItemWithChildrenSchema,
+  homeoffice: FilterItemWithoutChildrenSchema,
+})

@@ -3,6 +3,5 @@ export default defineAppConfig({
     colors: {
       neutral: 'neutral',
     },
-
   },
 })

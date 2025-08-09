@@ -32,7 +32,7 @@ function seeDetail(r: typeof result['value']) {
     data-tool
   >
     <template v-if="props.state === 'input-streaming'">
-      <div class="rounded-lg py-1.5">
+      <div class="rounded-md py-1.5">
         <div class="leading-none text-muted-foreground flex items-center gap-3">
           <RotateCw class="size-4 animate-spin" />
           <span>{{ (props?.input as any)?.input ?? 'Preparing request' }}</span>
@@ -50,7 +50,7 @@ function seeDetail(r: typeof result['value']) {
         <div
           v-for="i in 2"
           :key="i"
-          class="rounded-lg p-3 border border-accent-foreground/50 grid gap-3"
+          class="rounded-md p-3 border border-accent-foreground/50 grid gap-3"
         >
           <div class="grid gap-1.5">
             <Skeleton class="h-4 w-80" />
@@ -74,7 +74,7 @@ function seeDetail(r: typeof result['value']) {
         <li
           v-for="r of props.output.results"
           :key="r.job.id"
-          class="rounded-lg p-3 border border-accent-foreground/50 grid gap-3 bg-accent"
+          class="rounded-md p-3 border border-accent-foreground/50 grid gap-3 bg-accent"
         >
           <div class="grid gap-1.5">
             <span class="font-medium leading-none">{{ r.job.title }}</span>
@@ -98,7 +98,7 @@ function seeDetail(r: typeof result['value']) {
     </template>
 
     <template v-else>
-      <div class="rounded-lg p-3 border border-accent-foreground/50 grid gap-3 bg-accent">
+      <div class="rounded-md p-3 border border-accent-foreground/50 grid gap-3 bg-accent">
         <div class="grid gap-1.5">
           <div class="font-medium leading-none text-destructive">
             Error

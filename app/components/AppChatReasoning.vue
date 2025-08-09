@@ -141,7 +141,9 @@ function parseTextSegments(text: string) {
               <code
                 v-else-if="segment.type === 'code'"
                 class="bg-elevated px-1 py-0.5 rounded text-xs font-mono"
-              >{{ segment.content }}</code>
+              >
+                {{ segment.content }}
+              </code>
               <span v-else>{{ segment.content }}</span>
             </template>
           </div>
