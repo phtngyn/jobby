@@ -35,20 +35,23 @@ const filters = ref<Filters>({
   },
 })
 
-const { data: jobs, status, error, execute } = await useFetch('/api/jobs', {
-  key: 'jobs',
-  method: 'POST',
-  default: () => [] as Job[],
-  body: { filters },
-  lazy: true,
-})
+const { data: jobs, status, error, execute } = await useAsyncData(
+  'jobs',
+  () => $fetch('/api/jobs', {
+    method: 'POST',
+    body: { filters: filters.value },
+  }),
+  {
+    default: () => [] as Job[],
+    lazy: true,
+    immediate: false,
+  },
+)
 
 watchThrottled(
   filters,
-  () => {
-    execute()
-  },
-  { throttle: 1000, deep: true },
+  () => { execute() },
+  { throttle: 1000, deep: true, immediate: true },
 )
 
 function dragstart(event: DragEvent) {
