@@ -1,5 +1,6 @@
+import { eq } from 'drizzle-orm'
 import { z } from 'zod'
-import { db, eq } from '~~/server/uitls/drizzle'
+import { db } from '~~/server/uitls/drizzle'
 
 export default defineEventHandler(async (event) => {
   const { id } = await getValidatedRouterParams(

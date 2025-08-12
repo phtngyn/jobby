@@ -35,19 +35,6 @@ function dragstart(event: DragEvent) {
 }
 
 function clearFilters() {
-  // for (const [k, v] of Object.entries(filters.value)) {
-  //   if (typeof v === 'string') {
-  //     filters.value[k as keyof typeof filters['value']] = '' as any
-  //   }
-  //   else if ('children' in v) {
-  //     for (const c of v.children) {
-  //       c.checked = false
-  //     }
-  //   }
-  //   else {
-  //     v.checked = false
-  //   }
-  // }
 }
 </script>
 
@@ -199,7 +186,7 @@ function clearFilters() {
 
               <div class="flex gap-2 -ml-1 mb-2">
                 <UBadge
-                  v-for="(typ, i) in job.jobtypen"
+                  v-for="(typ, i) in job.jobtypen.split('|')"
                   :key="typ"
                   :color="i === 0 ? 'primary' : 'neutral'"
                   :variant="i === 0 ? 'subtle' : 'subtle'"
@@ -224,14 +211,14 @@ function clearFilters() {
                   <UBadge color="neutral" variant="outline">
                     <UIcon name="i-lucide-clock" />
                     <template v-if="job.arbeitszeitMin >= job.arbeitszeitMax">
-                      {{ job.arbeitszeitMax }}h
+                      {{ job.arbeitszeitMax }}h/week
                     </template>
                     <template v-else>
-                      {{ job.arbeitszeitMin }}-{{ job.arbeitszeitMax }}h
+                      {{ job.arbeitszeitMin }}-{{ job.arbeitszeitMax }}h/week
                     </template>
                   </UBadge>
-                  <UBadge v-if="job.homeoffice" color="neutral" variant="outline">
-                    <UIcon name="i-lucide-house" /> {{ job.homeoffice[0] }}
+                  <UBadge color="neutral" variant="outline">
+                    <UIcon name="i-lucide-house" /> {{ job.homeoffice }}
                   </UBadge>
                 </div>
               </div>
@@ -258,33 +245,37 @@ function clearFilters() {
         <template v-else>
           <div class="grid grid-cols-2 @min-6xl:grid-cols-3 gap-4">
             <div
-              v-for="i in 10"
-              :key="i"
-              class="p-4 flex flex-col bg-default border border-accented rounded-md"
+              v-for="j in 10"
+              :key="j"
+              class="p-4 flex flex-col bg-default border border-accented rounded-md h-full"
             >
-              <USkeleton class="h-4 w-full mb-4" />
+              <div class="flex gap-2 mb-2">
+                <USkeleton
+                  v-for="t in 2"
+                  :key="t"
+                  class="w-1/4 h-4"
+                />
+              </div>
+
+              <USkeleton class="w-full h-4 mb-4" />
 
               <div class="grid gap-1.5 text-sm mb-4">
-                <USkeleton class="h-4 w-50" />
-
-                <USkeleton class="h-4 w-50" />
+                <USkeleton class="w-2/5 h-4" />
+                <USkeleton class="w-3/5 h-4" />
 
                 <div class="flex items-center gap-2 my-1">
-                  <USkeleton class="h-4 w-25" />
-
-                  <USkeleton class="h-4 w-25" />
-
-                  <USkeleton class="h-4 w-25" />
+                  <USkeleton class="w-1/5 h-4" />
+                  <USkeleton class="w-1/5 h-4" />
                 </div>
               </div>
 
-              <div class="mt-auto">
-                <USkeleton class="h-4 w-full mb-2" />
-                <USkeleton class="h-4 w-full" />
+              <div class="grid gap-2 mb-4">
+                <USkeleton class="w-full h-4" />
+                <USkeleton class="w-full h-4" />
+              </div>
 
-                <div class="w-full h-px mt-4 mb-3 bg-accented" />
-
-                <USkeleton class="h-4 w-60" />
+              <div class="mt-auto border-t border-accented pt-4">
+                <USkeleton class="w-1/2 h-4" />
               </div>
             </div>
           </div>

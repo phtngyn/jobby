@@ -63,14 +63,10 @@ async function change() {
     spracheLand: String(x.SpracheLand) === '1',
     arbeitszeitMin: Number(x.ArbeitszeitMin || 0),
     arbeitszeitMax: Number(x.ArbeitszeitMax || 0),
-    berufsfelder: Array.isArray(x.berufsfelder) ? x.berufsfelder.map(String) : [],
-    fachbereiche: Array.isArray(x.fachbereiche) ? x.fachbereiche.map(String) : [],
-    homeoffice: (Array.isArray(x.homeoffice)
-      ? (x.homeoffice as any[]).map(v => String(v).trim() as any)
-      : []),
-    jobtypen: Array.isArray(x.jobtypen)
-      ? (x.jobtypen as any[]).map(v => String(v).trim() as any)
-      : [],
+    berufsfelder: x.berufsfelder,
+    fachbereiche: x.fachbereiche,
+    homeoffice: x.homeoffice,
+    jobtypen: x.jobtypen,
   }))
 
   const result = JobSchema.array().safeParse(_jobs)

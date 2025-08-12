@@ -1,6 +1,5 @@
 import type { UIMessage } from 'ai'
-import type { ChatConfig, Job, Metadata } from '~~/shared/types'
-import { CHAT_CONFIG_COOKIE, MODELS } from '#shared/constants'
+import type { Job, Metadata } from '~~/shared/types'
 import {
   convertToModelMessages,
   createUIMessageStream,
@@ -8,8 +7,8 @@ import {
   smoothStream,
   streamText,
 } from 'ai'
-import { destr } from 'destr'
 import { provider } from '../ai/llm'
+import { getConfig } from '../uitls/chat'
 
 export default defineEventHandler(async (event) => {
   const { messages } = await readBody<{
@@ -17,12 +16,7 @@ export default defineEventHandler(async (event) => {
     jobs?: Job[]
   }>(event)
 
-  const config = destr<ChatConfig>(getCookie(event, CHAT_CONFIG_COOKIE))
-
-  const model = config.model && MODELS.find(m => m.key === config.model)
-    ? config.model
-    : MODELS[0]!.key
-
+  const { model } = getConfig(event)
   const startTime = Date.now()
 
   const stream = createUIMessageStream({
@@ -40,7 +34,7 @@ export default defineEventHandler(async (event) => {
         messageMetadata({ part }): Metadata | undefined {
           if (part.type === 'finish-step') {
             return {
-              model: part.response.modelId.replaceAll('-', ' '),
+              model: part.response.modelId,
             }
           }
 

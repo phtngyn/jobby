@@ -1,33 +1,21 @@
+import type { SQL } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
+
 import {
   boolean,
+  customType,
+  index,
   integer,
-  pgEnum,
   pgTable,
   text,
   timestamp,
 } from 'drizzle-orm/pg-core'
 
-export const jobtypenEnum = pgEnum('jobtypen_enum', [
-  'Werkstudierendenstelle und HiWi-Stellen',
-  'Traineeprogramm',
-  'Berufserfahrene',
-  'DoktorandInnen',
-  'Arbeitsstelle',
-  'Duales Studium',
-  'MitgründerIn gesucht',
-  'Ausbildung',
-  'Berufseinstieg nach dem Studium',
-  'Nebenjob (fachfremd)',
-  'Abschlussarbeit',
-  'Praktikum',
-])
-
-export const homeofficeEnum = pgEnum('homeoffice_enum', [
-  '0% Homeoffice',
-  '0-49% Homeoffice',
-  '50-100% Homeoffice',
-  '100% Homeoffice',
-])
+export const tsvector = customType<{ data: string }>({
+  dataType() {
+    return `tsvector`
+  },
+})
 
 export const jobs = pgTable(
   'jobs',
@@ -55,9 +43,36 @@ export const jobs = pgTable(
     spracheLand: boolean('sprache_land').notNull(),
     arbeitszeitMin: integer('arbeitszeit_min').notNull(),
     arbeitszeitMax: integer('arbeitszeit_max').notNull(),
-    berufsfelder: text('berufsfelder').array().notNull(),
-    fachbereiche: text('fachbereiche').array().notNull(),
-    homeoffice: homeofficeEnum('homeoffice').array().notNull(),
-    jobtypen: jobtypenEnum('jobtypen').array().notNull(),
+    berufsfelder: text('berufsfelder').notNull(),
+    fachbereiche: text('fachbereiche').notNull(),
+    homeoffice: text('homeoffice').notNull(),
+    jobtypen: text('jobtypen').notNull(),
+
+    search: tsvector('search')
+      .notNull()
+      .generatedAlwaysAs(
+        (): SQL =>
+          sql`
+            setweight(to_tsvector('german', ${jobs.angebotstitel}), 'A')
+            ||
+            setweight(to_tsvector('german', ${jobs.kurzbeschreibung}), 'A')
+            ||
+            setweight(to_tsvector('german', ${jobs.aufgabenText}), 'B')
+            ||
+            setweight(to_tsvector('german', ${jobs.erwartungenText}), 'B')
+            ||
+            setweight(to_tsvector('german', ${jobs.firma}), 'B')
+            ||
+            setweight(to_tsvector('german', ${jobs.arbeitsort}), 'B')
+            ||
+            setweight(to_tsvector('german', ${jobs.anzeigeText}), 'C')
+            ||
+            setweight(to_tsvector('german', ${jobs.fachbereiche}), 'C')
+            ||
+            setweight(to_tsvector('german', ${jobs.berufsfelder}), 'C')`,
+      ),
   },
+  t => [
+    index('idx_jobs_search').using('gin', t.search),
+  ],
 )

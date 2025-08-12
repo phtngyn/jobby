@@ -1,35 +1,5 @@
 import { z } from 'zod'
 
-export const TypeEnum = z.enum([
-  'SELBSTAENDIGKEIT',
-  'PRAKTIKUM_TRAINEE',
-  'KUENSTLER',
-  'AUSBILDUNG',
-  'ARBEIT',
-])
-
-export const JobtypenEnumSchema = z.enum([
-  'Werkstudierendenstelle und HiWi-Stellen',
-  'Traineeprogramm',
-  'Berufserfahrene',
-  'DoktorandInnen',
-  'Arbeitsstelle',
-  'Duales Studium',
-  'MitgründerIn gesucht',
-  'Ausbildung',
-  'Berufseinstieg nach dem Studium',
-  'Nebenjob (fachfremd)',
-  'Abschlussarbeit',
-  'Praktikum',
-])
-
-export const HomeofficeEnumSchema = z.enum([
-  '0% Homeoffice',
-  '0-49% Homeoffice',
-  '50-100% Homeoffice',
-  '100% Homeoffice',
-])
-
 export const JobSchema = z.object({
   jobId: z.string(),
   angebotstitel: z.string(),
@@ -54,10 +24,10 @@ export const JobSchema = z.object({
   spracheLand: z.boolean(),
   arbeitszeitMin: z.number().int(),
   arbeitszeitMax: z.number().int(),
-  berufsfelder: z.array(z.string()),
-  fachbereiche: z.array(z.string()),
-  homeoffice: z.array(HomeofficeEnumSchema),
-  jobtypen: z.array(JobtypenEnumSchema),
+  berufsfelder: z.string(),
+  fachbereiche: z.string(),
+  homeoffice: z.string(),
+  jobtypen: z.string(),
 })
 
 export const MetadataSchema = z.object({

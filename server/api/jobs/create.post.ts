@@ -9,8 +9,8 @@ export default defineEventHandler(async (event) => {
     z.object({ jobs: JobSchema.array() }).parse,
   )
 
-  await db.insert(jobs).values(_jobs.map(j => ({
+  return await db.insert(jobs).values(_jobs.map(j => ({
     ...j,
     freigabedatum: new Date(j.freigabedatum),
-  })))
+  }))).returning()
 })
