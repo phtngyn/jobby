@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { db } from '~~/db'
 import { jobs } from '~~/db/schema/jobs'
+import { db } from '~~/server/uitls/drizzle'
 import { JobSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {

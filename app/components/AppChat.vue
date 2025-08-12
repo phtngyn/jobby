@@ -127,11 +127,6 @@ function remove(job: Job) {
                 :text="part.text"
               />
 
-              <ToolFindJob
-                v-else-if="part.type === 'tool-find_job'"
-                v-bind="part as any"
-              />
-
               <MDCCached
                 v-else-if="part.type === 'text'"
                 :value="part.text"
