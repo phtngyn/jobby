@@ -1,0 +1,559 @@
+{
+  "berufsfelder": [
+    {
+      "id": 341,
+      "name": "Dienstleistung, Tourismus, Gastro",
+      "options": [
+        {
+          "id": 342,
+          "name": "Gastronomie, Hotel, Tourismus"
+        },
+        {
+          "id": 343,
+          "name": "Regionalmanagement"
+        },
+        {
+          "id": 344,
+          "name": "Kosmetik, Körperpflege, Wellness"
+        },
+        {
+          "id": 345,
+          "name": "Messe- und Veranstaltung"
+        },
+        {
+          "id": 346,
+          "name": "Ver- und Entsorgung, Transport"
+        },
+        {
+          "id": 347,
+          "name": "Sonstige"
+        }
+      ]
+    },
+    {
+      "id": 348,
+      "name": "Gesundheit, Medizin und Psychologie",
+      "options": [
+        {
+          "id": 349,
+          "name": "Ernährung"
+        },
+        {
+          "id": 350,
+          "name": "Geburtshilfe"
+        },
+        {
+          "id": 351,
+          "name": "Medizin, Zahnmedizin"
+        },
+        {
+          "id": 352,
+          "name": "Medizin- und Rehatechnik"
+        },
+        {
+          "id": 353,
+          "name": "Pflege, Therapie"
+        },
+        {
+          "id": 354,
+          "name": "Psychologie"
+        },
+        {
+          "id": 355,
+          "name": "Sport und Bewegung"
+        },
+        {
+          "id": 356,
+          "name": "Pharmazie"
+        },
+        {
+          "id": 357,
+          "name": "Sonstige"
+        }
+      ]
+    },
+    {
+      "id": 358,
+      "name": "IT, Informatik",
+      "options": [
+        {
+          "id": 359,
+          "name": "Softwareentwicklung, Programmierung"
+        },
+        {
+          "id": 360,
+          "name": "Datenbankentwicklung"
+        },
+        {
+          "id": 361,
+          "name": "Webentwicklung"
+        },
+        {
+          "id": 362,
+          "name": "Systemadministration, Netzwerkadministration"
+        },
+        {
+          "id": 363,
+          "name": "IT Beratung, IT Consulting, IT Vertrieb"
+        },
+        {
+          "id": 364,
+          "name": "IT Projektmanagement, IT Leitung, IT Architektur"
+        },
+        {
+          "id": 365,
+          "name": "IT Sicherheit"
+        },
+        {
+          "id": 366,
+          "name": "IT Support, Helpdesk"
+        },
+        {
+          "id": 367,
+          "name": "IT Testing"
+        },
+        {
+          "id": 368,
+          "name": "Big Data, Data Science, Business Intelligence, Wirtschaftsinformatik"
+        },
+        {
+          "id": 369,
+          "name": "Medieninformatik, Geoinformatik, Bioinformatik"
+        },
+        {
+          "id": 370,
+          "name": "Geoinformatik"
+        },
+        {
+          "id": 371,
+          "name": "Bioingenieurw., Biotechnologie, Bioinformatik"
+        },
+        {
+          "id": 372,
+          "name": "Sonstige"
+        }
+      ]
+    },
+    {
+      "id": 373,
+      "name": "Design, Kunst, Kultur, Medien",
+      "options": [
+        {
+          "id": 374,
+          "name": "Film, Funk, Fernsehen"
+        },
+        {
+          "id": 375,
+          "name": "Fotografie"
+        },
+        {
+          "id": 376,
+          "name": "Kunst und Kultur"
+        },
+        {
+          "id": 377,
+          "name": "Grafik, Design, Mediendesign, Webdesign, Multimedia"
+        },
+        {
+          "id": 378,
+          "name": "Druck, Medienproduktion"
+        },
+        {
+          "id": 379,
+          "name": "Mode"
+        },
+        {
+          "id": 380,
+          "name": "Museen, Restaurierung, Denkmalschutz"
+        },
+        {
+          "id": 381,
+          "name": "Verlagswesen, Bibliothek, Archiv"
+        },
+        {
+          "id": 382,
+          "name": "Landschaftsarchitektur, Gartenbau"
+        },
+        {
+          "id": 383,
+          "name": "Sonstige"
+        }
+      ]
+    },
+    {
+      "id": 384,
+      "name": "Landwirtschaft, Natur, Umwelt, Erneuerbare, Lebensmittel",
+      "options": [
+        {
+          "id": 385,
+          "name": "Agrartechnik"
+        },
+        {
+          "id": 386,
+          "name": "Agrarwirtschaft, Landwirtschaft"
+        },
+        {
+          "id": 387,
+          "name": "Erneuerbare Energien, nachwachsende Rohstoffe"
+        },
+        {
+          "id": 388,
+          "name": "Forstwirtschaft, Waldwirtschaft, Holzwirtschaft"
+        },
+        {
+          "id": 389,
+          "name": "Klimawandel, Naturschutz, Umweltplanung"
+        },
+        {
+          "id": 390,
+          "name": "Wasserwirtschaft, Wassertechnologie"
+        },
+        {
+          "id": 391,
+          "name": "Lebensmittelwirtschaft"
+        },
+        {
+          "id": 392,
+          "name": "Lebensmitteltechnologie, Brautechnologie, Getränketechnologie"
+        },
+        {
+          "id": 393,
+          "name": "Landschaftsarchitektur, Gartenbau"
+        },
+        {
+          "id": 394,
+          "name": "Tiergesundheit, Tiermedizin"
+        },
+        {
+          "id": 395,
+          "name": "Sonstige"
+        }
+      ]
+    },
+    {
+      "id": 396,
+      "name": "Naturwissenschaften",
+      "options": [
+        {
+          "id": 397,
+          "name": "Bioingenieurw., Biotechnologie, Bioinformatik"
+        },
+        {
+          "id": 398,
+          "name": "Chemie, Pharma, Biologie"
+        },
+        {
+          "id": 399,
+          "name": "Labor, Forschung und Entwicklung"
+        },
+        {
+          "id": 400,
+          "name": "Mathematik, Statistik"
+        },
+        {
+          "id": 401,
+          "name": "Physik"
+        },
+        {
+          "id": 402,
+          "name": "Sonstige"
+        }
+      ]
+    },
+    {
+      "id": 403,
+      "name": "Soziale Arbeit, Pädagogik, Bildung",
+      "options": [
+        {
+          "id": 404,
+          "name": "Erwachsenenbildung"
+        },
+        {
+          "id": 405,
+          "name": "Geschlechtersensible Soziale Arbeit"
+        },
+        {
+          "id": 406,
+          "name": "Gesundheitshilfen, einschließlich Suchthilfe"
+        },
+        {
+          "id": 407,
+          "name": "Jugendhilfe, Familienhilfe"
+        },
+        {
+          "id": 408,
+          "name": "Jugendarbeit, Jugendsozialarbeit"
+        },
+        {
+          "id": 409,
+          "name": "Resozialisierung"
+        },
+        {
+          "id": 410,
+          "name": "Soziale Arbeit im Bereich Migration"
+        },
+        {
+          "id": 411,
+          "name": "Soziale Arbeit mit Menschen mit Behinderung und psychischer Erkrankung"
+        },
+        {
+          "id": 412,
+          "name": "Soziale Arbeit mit und für ältere Menschen"
+        },
+        {
+          "id": 413,
+          "name": "Kindergarten, Schule"
+        },
+        {
+          "id": 414,
+          "name": "Bildungswesen, Lehrtätigkeit, Schule, Coaching, Training"
+        },
+        {
+          "id": 415,
+          "name": "Sonstiges"
+        }
+      ]
+    },
+    {
+      "id": 416,
+      "name": "Ingenieurwesen und Technik",
+      "options": [
+        {
+          "id": 417,
+          "name": "Bau, Vermessung, Gebäudetechnik und Architektur"
+        },
+        {
+          "id": 418,
+          "name": "Landschaftsarchitektur, Gartenbau"
+        },
+        {
+          "id": 419,
+          "name": "Energietechnik, Elektrotechnik, Energieerzeugung, Automatisierungstechnik"
+        },
+        {
+          "id": 420,
+          "name": "Mechatronik, Feinwerktechnik, Robotik"
+        },
+        {
+          "id": 421,
+          "name": "Maschinenbau, Fahrzeugtechnik, Verkehrstechnik, Agrartechnik"
+        },
+        {
+          "id": 422,
+          "name": "Bioingenieurw., Biotechnologie, Bioinformatik"
+        },
+        {
+          "id": 423,
+          "name": "Gebäudetechnik, Versorgungstechnik, Sicherheitstechnik"
+        },
+        {
+          "id": 424,
+          "name": "Lebensmitteltechnologie, Brautechnologie, Getränketechnologie"
+        },
+        {
+          "id": 425,
+          "name": "Produktion, Fertigung, Qualitätswesen"
+        },
+        {
+          "id": 426,
+          "name": "Technische Traineeprogramme"
+        },
+        {
+          "id": 427,
+          "name": "Umweltingenieurwesen"
+        },
+        {
+          "id": 428,
+          "name": "Technische Entwicklung, Konstruktion, CAD"
+        },
+        {
+          "id": 429,
+          "name": "Techn. Management, Projektplanung, Technischer Vertrieb"
+        },
+        {
+          "id": 430,
+          "name": "Verfahrenstechnik, Chemieingenieurwesen"
+        },
+        {
+          "id": 431,
+          "name": "Materials Engineering, Werkstofftechnik, Materialwissenschaft"
+        },
+        {
+          "id": 432,
+          "name": "Wirtschaftsingenieurwesen"
+        },
+        {
+          "id": 433,
+          "name": "Hardwareentwicklung"
+        },
+        {
+          "id": 434,
+          "name": "Sonstige"
+        }
+      ]
+    },
+    {
+      "id": 435,
+      "name": "Betriebswirtschaft, Verwaltung, Recht, Steuern",
+      "options": [
+        {
+          "id": 436,
+          "name": "Verwaltung, Assistenz, Organisation, Sekretariat"
+        },
+        {
+          "id": 437,
+          "name": "Management und Beratung, Consulting"
+        },
+        {
+          "id": 438,
+          "name": "Banken, Finanzdienstleister, Versicherungen, Immobilien"
+        },
+        {
+          "id": 439,
+          "name": "Finanzen, Controlling, Buchhaltung, Finance"
+        },
+        {
+          "id": 440,
+          "name": "Rechtswesen, Steuerwesen, Wirtschaftsprüfung, Steuerberatung"
+        },
+        {
+          "id": 441,
+          "name": "Marketing, Werbung, Kommunikation, PR, Online Marketing, Eventmanagement"
+        },
+        {
+          "id": 442,
+          "name": "Personalwesen, HR, Recruiting"
+        },
+        {
+          "id": 443,
+          "name": "Vertrieb, Verkauf, Handel, Sales, E-Commerce"
+        },
+        {
+          "id": 444,
+          "name": "Einkauf, Materialwirtschaft, Logistik, SCM, Qualitätswesen"
+        },
+        {
+          "id": 445,
+          "name": "IT und Telekommunikation, IT Beratung, IT Vertrieb, Wirtschaftsinformatik"
+        },
+        {
+          "id": 446,
+          "name": "Wirtschaftsingenieurwesen"
+        },
+        {
+          "id": 447,
+          "name": "Sonstige"
+        }
+      ]
+    },
+    {
+      "id": 448,
+      "name": "Öffentlicher Dienst, Verwaltung",
+      "options": [
+        {
+          "id": 449,
+          "name": "Forschende und Lehrende, Promotion, HiWi, PostDoc"
+        },
+        {
+          "id": 450,
+          "name": "Öffentlicher Dienst, Verwaltung, Behörden"
+        },
+        {
+          "id": 451,
+          "name": "Sonstige"
+        }
+      ]
+    },
+    {
+      "id": 452,
+      "name": "Andere Berufsfelder",
+      "options": []
+    }
+  ],
+  "anstellungsarten": [
+    {
+      "id": 131,
+      "name": "Festanstellung"
+    },
+    {
+      "id": 132,
+      "name": "Befristet"
+    },
+    {
+      "id": 133,
+      "name": "Freie Mitarbeit"
+    },
+    {
+      "id": 340,
+      "name": "Minijob"
+    }
+  ],
+  "jobTypen": [
+    {
+      "id": 3,
+      "name": "Berufseinstieg nach dem Studium"
+    },
+    {
+      "id": 6,
+      "name": "Nebenjob (fachfremd)"
+    },
+    {
+      "id": 7,
+      "name": "Abschlussarbeit"
+    },
+    {
+      "id": 9,
+      "name": "Praktikum"
+    },
+    {
+      "id": 10,
+      "name": "Werkstudierendenstelle und HiWi-Stellen"
+    },
+    {
+      "id": 11,
+      "name": "Traineeprogramm"
+    },
+    {
+      "id": 12,
+      "name": "Berufserfahrene"
+    },
+    {
+      "id": 15,
+      "name": "DoktorandInnen"
+    },
+    {
+      "id": 19,
+      "name": "Arbeitsstelle"
+    },
+    {
+      "id": 20,
+      "name": "Duales Studium"
+    },
+    {
+      "id": 26,
+      "name": "MitgründerIn gesucht"
+    },
+    {
+      "id": 27,
+      "name": "Ausbildung"
+    }
+  ],
+  "homeOffice": [
+    {
+      "id": 336,
+      "name": "0% Homeoffice"
+    },
+    {
+      "id": 337,
+      "name": "0-49% Homeoffice"
+    },
+    {
+      "id": 338,
+      "name": "50-100% Homeoffice"
+    },
+    {
+      "id": 339,
+      "name": "100% Homeoffice"
+    }
+  ]
+}

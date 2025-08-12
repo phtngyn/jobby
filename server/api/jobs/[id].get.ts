@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
   )
 
   const job = await db.query.jobs.findFirst({
-    where: job => eq(job.id, id),
+    where: job => eq(job.jobId, id),
   })
 
   return job

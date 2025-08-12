@@ -1,6 +1,6 @@
 export const connection = {
   host: 'localhost',
-  database: 'ba',
+  database: 'hochschuljobs',
   port: 5432,
   user: 'phatnguyen',
   ssl: false,

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '#ui/types'
 
-const collapsed = useCookie('sidebar-collapsed', { default: () => false })
+const isSidebarCollapsed = useCookie('sidebar-collapsed', { default: () => false })
 const colorMode = useColorMode()
 const isDark = computed(() => colorMode.preference === 'dark')
 const items = computed<NavigationMenuItem[]>(() => [
@@ -19,6 +19,12 @@ const items = computed<NavigationMenuItem[]>(() => [
     to: '/profile',
   },
   {
+    label: 'Ingest',
+    icon: 'i-lucide-import',
+    tooltip: true,
+    to: '/ingest',
+  },
+  {
     label: 'TODO',
     icon: 'i-lucide-construction',
     tooltip: true,
@@ -32,13 +38,13 @@ const items = computed<NavigationMenuItem[]>(() => [
   <UApp>
     <UDashboardGroup>
       <UDashboardSidebar
-        v-model:collapsed="collapsed"
+        v-model:collapsed="isSidebarCollapsed"
         collapsible
         :resizable="false"
         :ui="{
           root: 'min-w-20',
-          header: collapsed ? 'gap-3 justify-center' : 'gap-3',
-          body: collapsed ? 'py-4 items-center' : 'py-4',
+          header: isSidebarCollapsed ? 'gap-3 justify-center' : 'gap-3',
+          body: isSidebarCollapsed ? 'py-4 items-center' : 'py-4',
         }"
       >
         <template #header="{ collapsed }">

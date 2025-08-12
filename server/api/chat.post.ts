@@ -5,19 +5,14 @@ import {
   convertToModelMessages,
   createUIMessageStream,
   createUIMessageStreamResponse,
-  hasToolCall,
   smoothStream,
-  stepCountIs,
   streamText,
 } from 'ai'
 import { destr } from 'destr'
 import { provider } from '../ai/llm'
-import { find_job } from '../ai/tools/find_job'
-import { stringify } from '../ai/utils'
-import { CHAT_SYSTEM_PROMPT } from '../prompts'
 
 export default defineEventHandler(async (event) => {
-  const { messages, jobs: attachedJobs = [] } = await readBody<{
+  const { messages } = await readBody<{
     messages: UIMessage[]
     jobs?: Job[]
   }>(event)
@@ -28,41 +23,15 @@ export default defineEventHandler(async (event) => {
     ? config.model
     : MODELS[0]!.key
 
-  const tools = { find_job }
-
-  if (attachedJobs.length > 0) {
-    messages.push({
-      id: `${Date.now()}`,
-      role: 'user',
-      parts: [{
-        type: 'text',
-        text: [
-          'The user has provided the following job posting details:',
-          '',
-          attachedJobs.map((j, i) => `Job ${i + 1}:\n${stringify(j)}`).join('\n\n'),
-          '',
-          'Please consider this information when answering the user\'s query.',
-        ].join('\n'),
-      }],
-    })
-  }
-
   const startTime = Date.now()
 
   const stream = createUIMessageStream({
     execute({ writer }) {
       const result = streamText({
         model: provider(model),
-        system: CHAT_SYSTEM_PROMPT,
         messages: convertToModelMessages(messages),
         experimental_transform: smoothStream({ chunking: 'word' }),
-        activeTools: ['find_job'],
         providerOptions: { google: {} },
-        tools,
-        stopWhen: [
-          stepCountIs(1),
-          hasToolCall('find_job'),
-        ],
       })
 
       result.consumeStream()

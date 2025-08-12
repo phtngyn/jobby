@@ -50,11 +50,11 @@ function drop(event: DragEvent) {
   if (!id)
     return
 
-  const job = jobs.value?.find(j => j.id === id)
+  const job = jobs.value?.find(j => j.jobId === id)
   if (!job)
     return
 
-  if (attachedJobs.value.find(j => j.id === id))
+  if (attachedJobs.value.find(j => j.jobId === id))
     return
 
   attachedJobs.value.push(job)
@@ -62,7 +62,7 @@ function drop(event: DragEvent) {
 
 function remove(job: Job) {
   console.log(job)
-  attachedJobs.value = attachedJobs.value.filter(j => j.id !== job.id)
+  attachedJobs.value = attachedJobs.value.filter(j => j.jobId !== job.jobId)
 }
 </script>
 
@@ -179,10 +179,10 @@ function remove(job: Job) {
             >
               <li
                 v-for="job in attachedJobs"
-                :key="job.id"
+                :key="job.jobId"
                 class="group border border-muted px-2 py-1 rounded-md text-sm w-fit flex items-center gap-2"
               >
-                <span>{{ job.title }}</span>
+                <span>{{ job.angebotstitel }}</span>
 
                 <button class="flex-center" @click="remove(job)">
                   <UIcon name="i-lucide-x" class="size-3.5 text-muted group-hover:text-error transition-colors" />

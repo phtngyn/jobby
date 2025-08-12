@@ -1,43 +1,13 @@
 <script setup lang="ts">
-import type { Job } from '~~/shared/schemas'
-import type { Filters } from '~~/shared/types'
+import type { Job } from '~~/shared/types'
 
-const filters = ref<Filters>({
+const filters = ref({
   search: '',
-  type: {
-    label: 'Type',
-    children: [
-      { label: 'Arbeit', value: 'ARBEIT', checked: false },
-      { label: 'Ausbildung', value: 'AUSBILDUNG', checked: false },
-      { label: 'Praktikum', value: 'PRAKTIKUM_TRAINEE', checked: false },
-      { label: 'Selbständigkeit', value: 'SELBSTAENDIGKEIT', checked: false },
-      { label: 'Künstler', value: 'KUENSTLER', checked: false },
-    ],
-  },
-  worktime: {
-    label: 'Worktime',
-    children: [
-      { label: 'Full-time', value: 'FULLTIME', checked: false },
-      { label: 'Part-time', value: 'PARTTIME', checked: false },
-    ],
-  },
-  duration: {
-    label: 'Duration',
-    children: [
-      { label: 'Temporary', value: 'BEFRISTET', checked: false },
-      { label: 'Permanent', value: 'UNBEFRISTET', checked: false },
-    ],
-  },
-  homeoffice: {
-    label: 'Homeoffice',
-    value: 'true',
-    checked: false,
-  },
 })
 
 const { data: jobs, status, error, execute } = await useAsyncData(
   'jobs',
-  () => $fetch('/api/jobs', {
+  () => $fetch<Job[]>('/api/jobs', {
     method: 'POST',
     body: { filters: filters.value },
   }),
@@ -65,19 +35,19 @@ function dragstart(event: DragEvent) {
 }
 
 function clearFilters() {
-  for (const [k, v] of Object.entries(filters.value)) {
-    if (typeof v === 'string') {
-      filters.value[k as keyof typeof filters['value']] = '' as any
-    }
-    else if ('children' in v) {
-      for (const c of v.children) {
-        c.checked = false
-      }
-    }
-    else {
-      v.checked = false
-    }
-  }
+  // for (const [k, v] of Object.entries(filters.value)) {
+  //   if (typeof v === 'string') {
+  //     filters.value[k as keyof typeof filters['value']] = '' as any
+  //   }
+  //   else if ('children' in v) {
+  //     for (const c of v.children) {
+  //       c.checked = false
+  //     }
+  //   }
+  //   else {
+  //     v.checked = false
+  //   }
+  // }
 }
 </script>
 
@@ -125,37 +95,11 @@ function clearFilters() {
 
             <template #content>
               <div class="p-4 max-w-96 grid gap-2">
-                <template
+                <!-- <template
                   v-for="[k, v] in Object.entries(filters)"
                   :key="k"
                 >
-                  <template v-if="typeof v !== 'string'">
-                    <template v-if="'children' in v">
-                      <div class="grid gap-1">
-                        <span class="text-xs font-medium">{{ v.label }}</span>
-                        <div class="grid gap-1.5">
-                          <UCheckbox
-                            v-for="c in v.children"
-                            :key="c.label"
-                            v-model="c.checked"
-                            :label="c.label"
-                            :value="c.value"
-                          />
-                        </div>
-                      </div>
-                    </template>
-
-                    <template v-else>
-                      <UCheckbox
-                        v-model="v.checked"
-                        :label="v.label"
-                        :value="v.value"
-                      />
-                    </template>
-
-                    <USeparator orientation="horizontal" class="h-1 last:hidden" :ui="{ container: 'my-0' }" />
-                  </template>
-                </template>
+                </template> -->
               </div>
             </template>
           </UPopover>
@@ -172,7 +116,7 @@ function clearFilters() {
               Search: {{ filters.search }}
             </UBadge>
 
-            <template
+            <!-- <template
               v-for="[k, v] in Object.entries(filters)"
               :key="k"
             >
@@ -223,7 +167,7 @@ function clearFilters() {
                   </UBadge>
                 </template>
               </template>
-            </template>
+            </template> -->
 
             <UButton
               size="sm"
@@ -242,50 +186,63 @@ function clearFilters() {
           <div class="grid grid-cols-2 @min-6xl:grid-cols-3 gap-4">
             <NuxtLink
               v-for="job in jobs"
-              :key="job.id"
-              class="p-4 flex flex-col bg-default border border-accented rounded-md h-full hover:border-inverted/80 transition-colors"
-              :to="`/jobs/${job.id}`"
-              :data-id="job.id"
+              :key="job.jobId"
+              class="group relative p-4 flex flex-col bg-default border border-accented rounded-md h-full hover:border-inverted/80 transition-colors"
+              :to="`/jobs/${job.jobId}`"
+              :data-id="job.jobId"
               draggable="true"
               @dragstart="dragstart"
             >
+              <div class="absolute top-4 right-4">
+                <UIcon name="i-lucide-grip-vertical" class="text-dimmed group-hover:text-(--ui-text) transition-colors" />
+              </div>
+
+              <div class="flex gap-2 -ml-1 mb-2">
+                <UBadge
+                  v-for="(typ, i) in job.jobtypen"
+                  :key="typ"
+                  :color="i === 0 ? 'primary' : 'neutral'"
+                  :variant="i === 0 ? 'subtle' : 'subtle'"
+                >
+                  {{ typ }}
+                </UBadge>
+              </div>
+
               <h2 class="font-semibold text-lg leading-tight line-clamp-2 text-balance h-[calc(1.125rem*var(--leading-tight)*2)] mb-4">
-                {{ job.title }}
+                {{ job.angebotstitel }}
               </h2>
 
               <div class="grid gap-1.5 text-sm mb-4">
                 <div class="flex items-center gap-2">
-                  <UIcon name="i-lucide-building-2" /> {{ job.employer }}
+                  <UIcon name="i-lucide-building-2" /> {{ job.firma }}
                 </div>
                 <div class="flex items-center gap-2">
-                  <UIcon name="i-lucide-map-pin" /> {{ job.region }}, {{ job.country }}
+                  <UIcon name="i-lucide-map-pin" /> {{ job.arbeitsort }}
                 </div>
 
                 <div class="flex items-center gap-2 my-1">
-                  <UBadge v-if="job.type" color="neutral" variant="outline">
-                    <UIcon name="i-lucide-briefcase-business" /> {{ job.type }}
-                  </UBadge>
-                  <UBadge v-if="job.worktime" color="neutral" variant="outline">
-                    <UIcon name="i-lucide-hourglass" /> {{ job.worktime }}
-                  </UBadge>
-                  <UBadge v-if="job.duration" color="neutral" variant="outline">
-                    <UIcon name="i-lucide-briefcase-business" /> {{ job.duration }}
+                  <UBadge color="neutral" variant="outline">
+                    <UIcon name="i-lucide-clock" />
+                    <template v-if="job.arbeitszeitMin >= job.arbeitszeitMax">
+                      {{ job.arbeitszeitMax }}h
+                    </template>
+                    <template v-else>
+                      {{ job.arbeitszeitMin }}-{{ job.arbeitszeitMax }}h
+                    </template>
                   </UBadge>
                   <UBadge v-if="job.homeoffice" color="neutral" variant="outline">
-                    <UIcon name="i-lucide-house" /> Homeoffice
+                    <UIcon name="i-lucide-house" /> {{ job.homeoffice[0] }}
                   </UBadge>
                 </div>
               </div>
 
-              <div class="mt-auto">
-                <div class="text-sm line-clamp-2 text-balance">
-                  {{ job.description?.substring(0, 250) }}
-                </div>
+              <div class="text-sm text-muted line-clamp-2 mb-4">
+                {{ job.kurzbeschreibung }}
+              </div>
 
-                <div class="w-full h-px my-4 bg-accented" />
-
-                <div class="flex items-center gap-2 text-xs text-muted">
-                  <UIcon name="i-lucide-calendar" /> Update {{ job.modifiedAt }}
+              <div class="mt-auto border-t border-accented pt-4">
+                <div class="flex items-center gap-2 text-xs text-dimmed">
+                  <UIcon name="i-lucide-calendar" /> Update {{ job.freigabedatum }}
                 </div>
               </div>
             </NuxtLink>
