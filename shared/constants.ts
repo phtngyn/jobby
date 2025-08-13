@@ -203,3 +203,5 @@ export const JOB_HOMEOFFICES = [
   '50-100% Homeoffice',
   '100% Homeoffice',
 ]
+
+export const JOB_WORKINGTIMES = { min: 0, max: 60 }

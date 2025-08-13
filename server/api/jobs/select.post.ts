@@ -1,8 +1,8 @@
 import type { SQL } from 'drizzle-orm'
 import type { PgColumn } from 'drizzle-orm/pg-core'
-import { and, gte, lte, or, sql } from 'drizzle-orm'
+import { and, gte, lte, sql } from 'drizzle-orm'
 import { z } from 'zod'
-import { jobs } from '~~/db/schema/jobs'
+import { jobs } from '~~/server/db/schema/jobs'
 import { db } from '~~/server/uitls/drizzle'
 import { FiltersSchema } from '~~/shared/schemas'
 
@@ -41,16 +41,16 @@ export default defineEventHandler(async (event) => {
   }
 
   if (filters.workingtimes.length === 2) {
-    const min = filters.workingtimes[0]
-    const max = filters.workingtimes[1]
-    const condition = and(gte(jobs.arbeitszeitMin, min), lte(jobs.arbeitszeitMax, max))
+    const min = filters.workingtimes[0]!
+    const max = filters.workingtimes[1]!
+    const condition = and(lte(jobs.arbeitszeitMin, max), gte(jobs.arbeitszeitMax, min))
     conditions.push(condition)
   }
 
   const result = await db
     .select()
     .from(jobs)
-    .where(conditions.length > 0 ? or(...conditions) : sql`TRUE`)
+    .where(conditions.length > 0 ? and(...conditions) : sql`TRUE`)
     .limit(100)
 
   return result

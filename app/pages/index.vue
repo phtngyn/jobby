@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Filters, Job } from '~~/shared/types'
-import { JOB_DOMAINS, JOB_FIELDS, JOB_HOMEOFFICES, JOB_TYPES } from '~~/shared/constants'
+import { JOB_DOMAINS, JOB_FIELDS, JOB_HOMEOFFICES, JOB_TYPES, JOB_WORKINGTIMES } from '~~/shared/constants'
 
 const filters = ref<Filters>({
   search: '',
@@ -8,7 +8,7 @@ const filters = ref<Filters>({
   fields: [],
   domains: [],
   homeoffices: [],
-  workingtimes: [0, 60],
+  workingtimes: [JOB_WORKINGTIMES.min, JOB_WORKINGTIMES.max],
 })
 
 const { data: jobs, status, error, execute } = await useAsyncData(
@@ -41,6 +41,14 @@ function dragstart(event: DragEvent) {
 }
 
 function clearFilters() {
+  filters.value = {
+    search: '',
+    types: [],
+    fields: [],
+    domains: [],
+    homeoffices: [],
+    workingtimes: [JOB_WORKINGTIMES.min, JOB_WORKINGTIMES.max],
+  }
 }
 </script>
 
@@ -141,7 +149,11 @@ function clearFilters() {
                       ({{ filters.workingtimes[0] }}-{{ filters.workingtimes[1] }}h)
                     </span>
                   </legend>
-                  <USlider v-model="filters.workingtimes" :min="0" :max="60" />
+                  <USlider
+                    v-model="filters.workingtimes"
+                    :min="JOB_WORKINGTIMES.min"
+                    :max="JOB_WORKINGTIMES.max"
+                  />
                 </fieldset>
               </div>
             </template>
@@ -152,65 +164,69 @@ function clearFilters() {
           <div class="group flex items-center gap-2 h-7">
             <UBadge
               v-if="filters.search"
+              data-slot="badge"
+              color="neutral"
               variant="subtle"
               size="lg"
-              data-slot="badge"
             >
               Search: {{ filters.search }}
             </UBadge>
 
-            <!-- <template
-              v-for="[k, v] in Object.entries(filters)"
+            <template
+              v-for="[k, v] in Object.entries(filters) as [keyof Filters, Filters[keyof Filters]][]"
               :key="k"
             >
-              <template v-if="typeof v !== 'string'">
-                <template v-if="'children' in v">
-                  <template
-                    v-for="c in v.children"
-                    :key="c.label"
-                  >
-                    <UBadge
-                      v-if="c.checked"
-                      variant="subtle"
-                      size="lg"
-                      data-slot="badge"
-                      class="items-center"
+              <template v-if="k === 'search'" />
+              <template v-else-if="k === 'workingtimes'">
+                <UBadge
+                  v-if="v[0] !== JOB_WORKINGTIMES.min || v[1] !== JOB_WORKINGTIMES.max "
+                  data-slot="badge"
+                  class="items-center"
+                  color="neutral"
+                  variant="subtle"
+                  size="lg"
+                >
+                  {{ `${v[0]} - ${v[1]}h` }}
+
+                  <template #trailing>
+                    <button
+                      class="flex-center"
+                      @click="filters.workingtimes = [
+                        JOB_WORKINGTIMES.min,
+                        JOB_WORKINGTIMES.max,
+                      ]"
                     >
-                      {{ c.label }}
-
-                      <template #trailing>
-                        <button
-                          class="flex-center"
-                          @click="c.checked = false"
-                        >
-                          <UIcon name="i-lucide-x" />
-                        </button>
-                      </template>
-                    </UBadge>
+                      <UIcon name="i-lucide-x" />
+                    </button>
                   </template>
-                </template>
-
-                <template v-else>
-                  <UBadge
-                    v-if="v.checked"
-                    variant="subtle"
-                    size="lg"
-                    data-slot="badge"
-                  >
-                    {{ v.label }}
-
-                    <template #trailing>
-                      <button
-                        class="flex-center"
-                        @click="v.checked = false"
-                      >
-                        <UIcon name="i-lucide-x" />
-                      </button>
-                    </template>
-                  </UBadge>
-                </template>
+                </UBadge>
               </template>
-            </template> -->
+
+              <template
+                v-for="x in v"
+                v-else
+                :key="x"
+              >
+                <UBadge
+                  data-slot="badge"
+                  class="items-center"
+                  color="neutral"
+                  variant="subtle"
+                  size="lg"
+                >
+                  {{ x }}
+
+                  <template #trailing>
+                    <button
+                      class="flex-center"
+                      @click="filters[k] = filters[k].filter(f => f !== x)"
+                    >
+                      <UIcon name="i-lucide-x" />
+                    </button>
+                  </template>
+                </UBadge>
+              </template>
+            </template>
 
             <UButton
               size="sm"
@@ -248,7 +264,7 @@ function clearFilters() {
                   v-for="(typ, i) in job.jobtypen.split('|')"
                   :key="typ"
                   :color="i === 0 ? 'primary' : 'neutral'"
-                  :variant="i === 0 ? 'subtle' : 'subtle'"
+                  variant="subtle"
                 >
                   {{ typ }}
                 </UBadge>

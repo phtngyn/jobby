@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { jobs } from '~~/db/schema/jobs'
+import { jobs } from '~~/server/db/schema/jobs'
 import { db } from '~~/server/uitls/drizzle'
 import { JobSchema } from '~~/shared/schemas'
 

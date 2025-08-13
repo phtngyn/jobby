@@ -3,7 +3,7 @@ import { connection } from './configs/db'
 
 export default defineConfig({
   dialect: 'postgresql',
-  out: './db',
-  schema: './db/schema',
+  out: './server/db',
+  schema: './server/db/schema',
   dbCredentials: connection,
 })
