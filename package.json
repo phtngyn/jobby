@@ -20,8 +20,8 @@
     "db:generate": "pnpm exec drizzle-kit generate"
   },
   "devDependencies": {
-    "@ai-sdk/google": "^2.0.4",
-    "@ai-sdk/vue": "^2.0.10",
+    "@ai-sdk/google": "^2.0.6",
+    "@ai-sdk/vue": "^2.0.12",
     "@antfu/eslint-config": "^5.2.1",
     "@iconify-json/lucide": "^1.2.62",
     "@nuxt/eslint": "^1.8.0",
@@ -30,7 +30,7 @@
     "@types/pg": "^8.15.5",
     "@vueuse/core": "^13.6.0",
     "@vueuse/nuxt": "^13.6.0",
-    "ai": "^5.0.10",
+    "ai": "^5.0.12",
     "drizzle-kit": "^0.31.4",
     "drizzle-orm": "^0.44.4",
     "eslint": "^9.33.0",
@@ -45,7 +45,7 @@
   },
   "pnpm": {
     "overrides": {
-      "@ai-sdk/vue": "^2.0.10",
+      "@ai-sdk/vue": "^2.0.12",
       "@nuxt/kit": "^4.0.3",
       "typescript": "^5.9.2",
       "vite": "^7.1.2",

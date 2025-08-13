@@ -1,7 +1,7 @@
 import type { createGoogleGenerativeAI } from '@ai-sdk/google'
 import type { ToolUIPart } from 'ai'
 import type { z, ZodType } from 'zod'
-import type { FilterItemWithChildrenSchema, FilterItemWithoutChildrenSchema, FiltersSchema, JobSchema, MetadataSchema } from './schemas'
+import type { FiltersSchema, JobSchema, MetadataSchema } from './schemas'
 
 export type Job = z.infer<typeof JobSchema>
 
@@ -21,6 +21,4 @@ type GetToolUIPartState<T extends ZodType> = ToolUIPart & {
   output?: z.infer<T>
 }
 
-export type FilterItemWithChildren = z.infer<typeof FilterItemWithChildrenSchema>
-export type FilterItemWithoutChildren = z.infer<typeof FilterItemWithoutChildrenSchema>
 export type Filters = z.infer<typeof FiltersSchema>

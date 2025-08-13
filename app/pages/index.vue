@@ -1,13 +1,19 @@
 <script setup lang="ts">
-import type { Job } from '~~/shared/types'
+import type { Filters, Job } from '~~/shared/types'
+import { JOB_DOMAINS, JOB_FIELDS, JOB_HOMEOFFICES, JOB_TYPES } from '~~/shared/constants'
 
-const filters = ref({
+const filters = ref<Filters>({
   search: '',
+  types: [],
+  fields: [],
+  domains: [],
+  homeoffices: [],
+  workingtimes: [0, 60],
 })
 
 const { data: jobs, status, error, execute } = await useAsyncData(
   'jobs',
-  () => $fetch<Job[]>('/api/jobs', {
+  () => $fetch<Job[]>('/api/jobs/select', {
     method: 'POST',
     body: { filters: filters.value },
   }),
@@ -71,7 +77,9 @@ function clearFilters() {
             </template>
           </UInput>
 
-          <UPopover :content="{ align: 'end' }">
+          <UPopover
+            :content="{ align: 'end' }"
+          >
             <UButton
               label="Filter"
               color="neutral"
@@ -81,12 +89,60 @@ function clearFilters() {
             />
 
             <template #content>
-              <div class="p-4 max-w-96 grid gap-2">
-                <!-- <template
-                  v-for="[k, v] in Object.entries(filters)"
-                  :key="k"
-                >
-                </template> -->
+              <div class="p-4 grid gap-4">
+                <UCheckboxGroup
+                  v-model="filters.types"
+                  size="lg"
+                  legend="Types"
+                  :items="JOB_TYPES"
+                  :ui="{ item: 'mb-1', legend: 'mb-2' }"
+                />
+
+                <fieldset>
+                  <legend class="block font-medium text-sm mb-2">
+                    Fields
+                  </legend>
+                  <USelectMenu
+                    v-model="filters.fields"
+                    placeholder="Select fields"
+                    class="w-80"
+                    icon="i-lucide-search"
+                    multiple
+                    :items="JOB_FIELDS"
+                  />
+                </fieldset>
+
+                <fieldset>
+                  <legend class="block font-medium text-sm mb-2">
+                    Domains
+                  </legend>
+                  <USelectMenu
+                    v-model="filters.domains"
+                    placeholder="Select domains"
+                    class="w-80"
+                    icon="i-lucide-search"
+                    multiple
+                    :items="JOB_DOMAINS"
+                  />
+                </fieldset>
+
+                <UCheckboxGroup
+                  v-model="filters.homeoffices"
+                  size="lg"
+                  legend="Homeoffice"
+                  :items="JOB_HOMEOFFICES"
+                  :ui="{ item: 'mb-1', legend: 'mb-2' }"
+                />
+
+                <fieldset>
+                  <legend class="block font-medium text-sm mb-4">
+                    Working time
+                    <span class="text-dimmed">
+                      ({{ filters.workingtimes[0] }}-{{ filters.workingtimes[1] }}h)
+                    </span>
+                  </legend>
+                  <USlider v-model="filters.workingtimes" :min="0" :max="60" />
+                </fieldset>
               </div>
             </template>
           </UPopover>
@@ -170,7 +226,10 @@ function clearFilters() {
         </div>
 
         <template v-if="status === 'success'">
-          <div class="grid grid-cols-2 @min-6xl:grid-cols-3 gap-4">
+          <div
+            v-if="jobs.length"
+            class="grid grid-cols-2 @min-6xl:grid-cols-3 gap-4"
+          >
             <NuxtLink
               v-for="job in jobs"
               :key="job.jobId"
@@ -184,7 +243,7 @@ function clearFilters() {
                 <UIcon name="i-lucide-grip-vertical" class="text-dimmed group-hover:text-(--ui-text) transition-colors" />
               </div>
 
-              <div class="flex gap-2 -ml-1 mb-2">
+              <div class="flex flex-wrap gap-2 -ml-1 mb-2">
                 <UBadge
                   v-for="(typ, i) in job.jobtypen.split('|')"
                   :key="typ"
@@ -234,6 +293,15 @@ function clearFilters() {
               </div>
             </NuxtLink>
           </div>
+
+          <UAlert
+            v-else
+            color="warning"
+            variant="subtle"
+            icon="i-lucide-refresh-cw"
+            title="No jobs found"
+            description="We couldn't find any jobs with your current filters. Try changing them to see more options."
+          />
         </template>
 
         <template v-else-if="status === 'error'">

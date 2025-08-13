@@ -83,7 +83,7 @@ const items = computed<NavigationMenuItem[]>(() => [
 
       <NuxtPage />
 
-      <AppChat />
+      <!-- <AppChat /> -->
     </UDashboardGroup>
   </UApp>
 </template>
