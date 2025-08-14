@@ -19,27 +19,7 @@ export default defineNuxtConfig({
     },
   },
 
-  experimental: {
-    viewTransition: true,
-  },
-
   compatibilityDate: '2025-05-01',
-
-  vite: {
-    optimizeDeps: {
-      include: ['debug'],
-    },
-
-    $server: {
-      build: {
-        rollupOptions: {
-          output: {
-            preserveModules: true,
-          },
-        },
-      },
-    },
-  },
 
   eslint: {
     config: {

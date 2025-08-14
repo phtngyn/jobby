@@ -1,6 +1,6 @@
 import type { SQL } from 'drizzle-orm'
 import type { PgColumn } from 'drizzle-orm/pg-core'
-import { and, gte, lte, sql } from 'drizzle-orm'
+import { and, desc, getTableColumns, gte, lte, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { jobs } from '~~/server/db/schema/jobs'
 import { db } from '~~/server/uitls/drizzle'
@@ -13,11 +13,14 @@ export default defineEventHandler(async (event) => {
   )
 
   const conditions: (SQL | undefined)[] = []
+  let rank: SQL.Aliased | undefined
 
   if (filters.search?.trim()) {
     const query = filters.search.trim().split(/\s+/).map(x => `${x}:*`).join(' | ')
     const condition = sql`${jobs.search} @@ to_tsquery('german', ${query})`
     conditions.push(condition)
+
+    rank = sql`ts_rank_cd(${jobs.search}, to_tsquery('german', ${query}))`.as('rank')
   }
 
   if (filters.types.length) {
@@ -48,10 +51,30 @@ export default defineEventHandler(async (event) => {
   }
 
   const result = await db
-    .select()
+    .select(
+      rank
+        ? { ...getTableColumns(jobs), rank }
+        : getTableColumns(jobs),
+    )
     .from(jobs)
     .where(conditions.length > 0 ? and(...conditions) : sql`TRUE`)
+    .orderBy(rank ? sql`rank DESC` : desc(jobs.freigabedatum))
     .limit(100)
+
+  if (import.meta.dev) {
+    const analyse = await db.execute(
+      sql`EXPLAIN ANALYZE ${db
+        .select(rank ? { ...getTableColumns(jobs), rank } : getTableColumns(jobs))
+        .from(jobs)
+        .where(conditions.length > 0 ? and(...conditions) : sql`TRUE`)
+        .orderBy(rank ? sql`rank DESC` : desc(jobs.freigabedatum))
+        .limit(100)}`,
+    )
+    const lines = analyse.rows.map(row => row['QUERY PLAN'])
+    console.log('\n=== QUERY PLAN ===')
+    console.log(lines.join('\n'))
+    console.log('==================\n')
+  }
 
   return result
 })

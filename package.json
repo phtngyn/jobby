@@ -17,6 +17,7 @@
     "typecheck": "nuxt typecheck",
     "db:push": "pnpm exec drizzle-kit push",
     "db:pull": "pnpm exec drizzle-kit pull",
+    "db:migrate": "pnpm exec drizzle-kit migrate",
     "db:generate": "pnpm exec drizzle-kit generate"
   },
   "devDependencies": {

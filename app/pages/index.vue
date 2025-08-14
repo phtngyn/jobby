@@ -69,7 +69,7 @@ function clearFilters() {
           <UInput
             v-model="filters.search"
             leading-icon="i-lucide-search"
-            placeholder="Search: title, company, keyword"
+            placeholder="Search for title, company, keyword"
             class="w-full max-w-sm"
             variant="subtle"
           >
@@ -160,7 +160,7 @@ function clearFilters() {
           </UPopover>
         </div>
 
-        <div class="flex items-center">
+        <div class="group flex items-center">
           <div class="group flex items-center gap-2 h-7">
             <UBadge
               v-if="filters.search"
@@ -231,14 +231,14 @@ function clearFilters() {
             <UButton
               size="sm"
               variant="ghost"
-              class="hidden group-has-[[data-slot=badge]]:inline-flex "
+              class="hidden group-has-[[data-slot=badge]]:inline-flex"
               @click="clearFilters"
             >
               Clear all
             </UButton>
           </div>
 
-          <span class="ml-auto text-sm text-muted font-medium">Show {{ jobs?.length }} results</span>
+          <span class="group-has-[[data-slot=badge]]:ml-auto text-sm text-muted font-medium">Show {{ jobs?.length }} results</span>
         </div>
 
         <template v-if="status === 'success'">
@@ -304,7 +304,7 @@ function clearFilters() {
 
               <div class="mt-auto border-t border-accented pt-4">
                 <div class="flex items-center gap-2 text-xs text-dimmed">
-                  <UIcon name="i-lucide-calendar" /> Update {{ job.freigabedatum }}
+                  <UIcon name="i-lucide-calendar" /> Updated {{ job.freigabedatum }}
                 </div>
               </div>
             </NuxtLink>
