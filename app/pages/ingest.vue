@@ -3,6 +3,8 @@ import type { TabsItem } from '#ui/types'
 import type { Job } from '~~/shared/types'
 import { JobSchema } from '~~/shared/schemas'
 
+const toast = useToast()
+
 const state = ref<{
   file: File | undefined
   raw: string | undefined
@@ -12,8 +14,6 @@ const state = ref<{
   raw: undefined,
   parsed: undefined,
 })
-
-const container = useTemplateRef('container')
 
 const tabs = ref<TabsItem[]>([
   {
@@ -28,8 +28,14 @@ const tabs = ref<TabsItem[]>([
 
 async function change() {
   const file = state.value.file
-  if (!file)
+  if (!file) {
+    state.value = {
+      file: undefined,
+      raw: undefined,
+      parsed: undefined,
+    }
     return
+  }
 
   const raw = await file.text()
   const parsed = JSON.parse(raw)
@@ -80,11 +86,15 @@ async function ingest() {
   if (!state.value.parsed)
     return
 
-  await $fetch('/api/jobs/create', {
+  const created = await $fetch<Job[]>('/api/jobs/create', {
     method: 'POST',
     body: {
       jobs: state.value.parsed,
     },
+  })
+
+  toast.add({
+    title: `${created.length} were inserted into database!`,
   })
 }
 </script>
@@ -105,7 +115,7 @@ async function ingest() {
     </template>
 
     <template #body>
-      <div ref="container" class="grid gap-2">
+      <div class="grid gap-2">
         <div class="flex justify-between">
           <p class="font-medium">
             Upload JSON for JOBS table
@@ -132,10 +142,7 @@ async function ingest() {
 
         <UTabs
           :items="tabs"
-          class="max-h-125"
-          :style="{
-            maxWidth: container?.offsetWidth ? `${container!.offsetWidth}px` : 'none',
-          }"
+          class="max-h-[50vh] max-w-[50vw]"
           color="neutral"
         >
           <template

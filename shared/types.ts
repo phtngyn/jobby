@@ -11,6 +11,10 @@ export type JobHomeoffice = NonNullable<Job['homeoffice']>
 export type ModelKey = Parameters<ReturnType<typeof createGoogleGenerativeAI>>[0]
 export interface Model { key: ModelKey, name: string, company: string }
 
+export interface EmbeddingConfig {
+  type?: 'RETRIEVAL_QUERY' | 'RETRIEVAL_DOCUMENT'
+}
+
 export interface ChatConfig { model: ModelKey, search: boolean }
 
 export type Metadata = z.infer<typeof MetadataSchema>

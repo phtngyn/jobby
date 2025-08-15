@@ -7,47 +7,20 @@ import {
   text,
   vector,
 } from 'drizzle-orm/pg-core'
+import { JOB_CHUNK_EMBEDDING_OUTPUT, JOB_CHUNK_TYPES } from '../../../shared/constants'
 import { jobs } from './jobs'
 
-const jobChunkTypeEnum = pgEnum('job_chunk_type', [
-  'jobId',
-  'angebotstitel',
-  'kurzbeschreibung',
-  'firma',
-  'emailAnsprechpartner',
-  'freigabedatum',
-  'arbeitsort',
-  'anzeigeText',
-  'country',
-  'einleitungTitel',
-  'einleitungText',
-  'aufgabenTitel',
-  'aufgabenText',
-  'erwartungenTitel',
-  'erwartungenText',
-  'angebotTitel',
-  'angebotText',
-  'kontaktTitel',
-  'kontaktText',
-  'spracheDeutsch',
-  'spracheLand',
-  'arbeitszeitMin',
-  'arbeitszeitMax',
-  'berufsfelder',
-  'fachbereiche',
-  'homeoffice',
-  'jobtypen',
-])
+export const jobChunkTypeEnum = pgEnum('job_chunk_type', JOB_CHUNK_TYPES)
 
 export const jobChunks = pgTable(
   'job_chunks',
   {
     id: serial('id').primaryKey(),
-    jobId: text('job_id').notNull().references(() => jobs.jobId),
+    jobId: text('job_id').notNull().references(() => jobs.jobId, { onDelete: 'cascade' }),
     type: jobChunkTypeEnum('type').notNull(),
     chunkIndex: integer('chunk_index').notNull().default(0),
     content: text('content').notNull(),
-    embedding: vector('embedding', { dimensions: 768 }).notNull(),
+    embedding: vector('embedding', { dimensions: JOB_CHUNK_EMBEDDING_OUTPUT }).notNull(),
   },
   t => [
     index('idx_job_chunks_embedding')

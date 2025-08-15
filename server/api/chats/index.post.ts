@@ -7,8 +7,8 @@ import {
   smoothStream,
   streamText,
 } from 'ai'
-import { provider } from '../ai/llm'
-import { getConfig } from '../uitls/chat'
+import { provider } from '~~/server/ai/llm'
+import { getConfig } from '~~/server/uitls/chat'
 
 export default defineEventHandler(async (event) => {
   const { messages } = await readBody<{

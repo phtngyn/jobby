@@ -22,9 +22,9 @@ const items = computed<NavigationMenuItem[]>(() => [
     to: '/ingest',
   },
   {
-    label: 'TODO',
+    label: 'Playground',
     icon: 'i-lucide-construction',
-    to: '/todo',
+    to: '/playground',
   },
 ],
 )
@@ -83,7 +83,7 @@ const items = computed<NavigationMenuItem[]>(() => [
 
       <NuxtPage />
 
-      <AppChat />
+      <!-- <AppChat /> -->
     </UDashboardGroup>
   </UApp>
 </template>

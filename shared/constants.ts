@@ -23,7 +23,7 @@ export const JOB_TYPES = [
   'Praktikum',
   'Traineeprogramm',
   'Werkstudierendenstelle und HiWi-Stellen',
-]
+] as const
 
 export const JOB_FIELDS = [
   'Agrartechnik',
@@ -113,7 +113,7 @@ export const JOB_FIELDS = [
   'Wasserwirtschaft, Wassertechnologie',
   'Webentwicklung',
   'Wirtschaftsingenieurwesen',
-]
+] as const
 
 export const JOB_DOMAINS = [
   'Agrarwirtschaft / Agrartechnik',
@@ -195,13 +195,28 @@ export const JOB_DOMAINS = [
   'Wirtschaftsingenieurwesen',
   'Wirtschaftsingenieurwesen und Gesundheit',
   'Wirtschaftswissenschaften',
-]
+] as const
 
 export const JOB_HOMEOFFICES = [
   '0% Homeoffice',
   '0-49% Homeoffice',
   '50-100% Homeoffice',
   '100% Homeoffice',
-]
+] as const
 
-export const JOB_WORKINGTIMES = { min: 0, max: 60 }
+export const JOB_WORKINGTIMES = {
+  min: 0,
+  max: 60,
+} as const
+
+export const JOB_CHUNK_TYPES = [
+  'angebotstitel',
+  'kurzbeschreibung',
+  'aufgabenText',
+  'erwartungenText',
+  'anzeigeText',
+  'fachbereiche',
+  'berufsfelder',
+] as const
+
+export const JOB_CHUNK_EMBEDDING_OUTPUT = 1536

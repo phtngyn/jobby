@@ -26,7 +26,7 @@
     "@antfu/eslint-config": "^5.2.1",
     "@iconify-json/lucide": "^1.2.62",
     "@nuxt/eslint": "^1.8.0",
-    "@nuxt/ui": "https://pkg.pr.new/@nuxt/ui@de4c8a9",
+    "@nuxt/ui": "4.0.0-alpha.0",
     "@nuxtjs/mdc": "^0.17.2",
     "@types/pg": "^8.15.5",
     "@vueuse/core": "^13.6.0",
