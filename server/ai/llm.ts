@@ -8,7 +8,7 @@ export const provider = createGoogleGenerativeAI({
 
 export async function embed(value: string, taskType: 'RETRIEVAL_DOCUMENT' | 'RETRIEVAL_QUERY') {
   const { embedding } = await _embed({
-    model: provider.textEmbeddingModel('text-embedding-004'),
+    model: provider.textEmbeddingModel('gemini-embedding-001'),
     value,
     providerOptions: {
       google: {

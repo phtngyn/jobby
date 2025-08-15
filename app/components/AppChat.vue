@@ -2,10 +2,10 @@
 import type { UIMessage } from 'ai'
 import type { Job } from '~~/shared/types'
 import { Chat } from '@ai-sdk/vue'
+import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 import { DefaultChatTransport } from 'ai'
 import { MODELS } from '~~/shared/constants'
 import { MetadataSchema } from '~~/shared/schemas'
-import { getTextFromMessage } from '~~/shared/utils'
 
 const { data: jobs } = useNuxtData<Job[]>('jobs')
 const attachedJobs = ref<Job[]>([])
@@ -27,6 +27,9 @@ const chat = new Chat({
       return { body }
     },
   }),
+  onError(error) {
+    console.error(error)
+  },
 })
 
 function handleSubmit(e: Event) {
@@ -85,22 +88,23 @@ function remove(job: Job) {
 
     <template #body>
       <UChatMessages
-        :messages="chat.messages.map(m => ({
-          ...m,
-          content: '',
-        }))"
+        :messages="chat.messages"
         :status="chat.status"
         :assistant="{
           actions: [
             {
               label: 'Copy',
               icon: copied ? 'i-lucide-copy-check' : 'i-lucide-copy',
-              onClick: (e, message) => copy(e, message as UIMessage),
+              onClick: (e, message) => copy(e, message),
             },
           ],
         }"
+        class="lg:pt-(--ui-header-height) pb-4 sm:pb-6"
         should-auto-scroll
         :spacing-offset="160"
+        :ui="{
+          indicator: 'py-0 h-auto *:size-auto *:bg-transparent [&>*:nth-child(1)]:animate-none [&>*:nth-child(2)]:animate-none [&>*:nth-child(3)]:animate-none',
+        }"
       >
         <template #content="{ message }">
           <UButton
@@ -119,22 +123,19 @@ function remove(job: Job) {
               v-for="(part, index) in message.parts as UIMessage['parts']"
               :key="`${part.type}-${index}-${message.id}`"
             >
-              <template v-if="part.type === 'step-start'" />
-
               <AppChatReasoning
                 v-if="part.type === 'reasoning'"
                 :state="part.state"
                 :text="part.text"
               />
-
-              <MDCCached
-                v-else-if="part.type === 'text'"
-                :value="part.text"
-                :cache-key="message.id"
-                unwrap="p"
-                :parser-options="{ highlight: false }"
-              />
             </template>
+
+            <MDCCached
+              :value="getTextFromMessage(message)"
+              :cache-key="message.id"
+              unwrap="p"
+              :parser-options="{ highlight: false }"
+            />
           </div>
         </template>
 
