@@ -10,136 +10,7 @@ const jobs = ref<Job[]>([])
 
 const input = shallowRef('')
 const chat = new Chat<AppUIMessage>({
-  messages: [
-    {
-      parts: [
-        {
-          type: 'text',
-          text: 'hi',
-        },
-      ],
-      id: '2TRew57knIu90YVd',
-      role: 'user',
-    },
-    {
-      id: 'V5H6AAR7bonHt29Q',
-      metadata: {
-        model: 'gemini-2.0-flash',
-        totalTokens: 14,
-        inputTokens: 4,
-        outputTokens: 10,
-        duration: 0.761,
-        finishReason: 'stop',
-      },
-      role: 'assistant',
-      parts: [
-        {
-          type: 'step-start',
-        },
-        {
-          type: 'text',
-          text: 'Hi! How can I help you today?\n',
-          state: 'done',
-        },
-      ],
-    },
-    {
-      parts: [
-        {
-          type: 'text',
-          text: 'can you list some good foods',
-        },
-      ],
-      id: 'hczks36AKPcitfAP',
-      role: 'user',
-    },
-    {
-      id: '8mngfCXvrUVVAnEB',
-      metadata: {
-        model: 'gemini-2.0-flash',
-        totalTokens: 43,
-        inputTokens: 20,
-        outputTokens: 23,
-        duration: 0.597,
-        finishReason: 'stop',
-      },
-      role: 'assistant',
-      parts: [
-        {
-          type: 'step-start',
-        },
-        {
-          type: 'text',
-          text: 'I am sorry, I cannot fulfill this request. The available tools lack the functionality to provide information about food.\n',
-          state: 'done',
-        },
-      ],
-    },
-    {
-      parts: [
-        {
-          type: 'text',
-          text: 'what about raw materials',
-        },
-      ],
-      id: 'QF5etDoE4DrrJqdx',
-      role: 'user',
-    },
-    {
-      id: 'HhZ9vqGnbkCtpTK2',
-      metadata: {
-        model: 'gemini-2.0-flash',
-        totalTokens: 71,
-        inputTokens: 47,
-        outputTokens: 24,
-        duration: 0.76,
-        finishReason: 'stop',
-      },
-      role: 'assistant',
-      parts: [
-        {
-          type: 'step-start',
-        },
-        {
-          type: 'text',
-          text: 'I am sorry, I cannot fulfill this request. The available tools lack the functionality to provide information about raw materials.\n',
-          state: 'done',
-        },
-      ],
-    },
-    {
-      parts: [
-        {
-          type: 'text',
-          text: 'just tell a story',
-        },
-      ],
-      id: 'D2AIBg6tWajf5ai5',
-      role: 'user',
-    },
-    {
-      id: 'vDZnXdmlUtot6OG1',
-      metadata: {
-        model: 'gemini-2.0-flash',
-        totalTokens: 288,
-        inputTokens: 75,
-        outputTokens: 213,
-        duration: 2.576,
-        finishReason: 'stop',
-      },
-      role: 'assistant',
-      parts: [
-        {
-          type: 'step-start',
-        },
-        {
-          type: 'text',
-          text: 'Okay, here\'s a short story for you:\n\nThe old lighthouse keeper, Silas, had seen a thousand storms lash against the jagged cliffs. He knew the rhythm of the sea like his own heartbeat. One day, a dense fog rolled in, thicker than he\'d ever witnessed. The foghorn blared, a mournful sound swallowed by the grayness. Suddenly, a small sailboat emerged from the mist, its mast broken, a lone figure clinging to the wreckage. Silas, his weathered face etched with concern, knew he had to act fast. He launched his small rescue boat, battling the waves and the blinding fog. After what seemed like an eternity, he reached the sailor, pulling him aboard. As they made their way back to the lighthouse, the fog began to dissipate, revealing a calm, star-filled sky. The sailor, shivering but safe, looked at Silas with gratitude. "You saved my life," he whispered. Silas simply nodded, his eyes reflecting the light of the lighthouse, a beacon of hope in the vast darkness.\n',
-          state: 'done',
-        },
-      ],
-    },
-  ],
+  messages: [{ parts: [{ type: 'text', text: 'Generate some heading, link, and table with markdown format. Dont wrap in codeblock\n\n' }], id: 'TeFu2yIVEDqz4yT9', role: 'user' }, { id: 'H35F1VgmvMH9eO4r', metadata: { model: 'gemini-2.0-flash', totalTokens: 119, inputTokens: 18, outputTokens: 101, duration: 1.278, finishReason: 'stop' }, role: 'assistant', parts: [{ type: 'step-start' }, { type: 'text', text: '## Heading 1\n\n### Heading 3\n\n[Example Link](https://www.example.com)\n\n[Another Link with Title](https://www.example.com "Example Title")\n\n| Header 1 | Header 2 | Header 3 |\n|---|---|---|\n| Cell 1 | Cell 2 | Cell 3 |\n| Cell 4 | Cell 5 | Cell 6 |\n| Cell 7 | Cell 8 | Cell 9 |\n', state: 'done' }] }],
 
   messageMetadataSchema: MetadataSchema,
   transport: new DefaultChatTransport({
@@ -229,7 +100,7 @@ function remove(job: Job) {
               <template v-if="part.type === 'step-start'" />
               <template v-if="part.type === 'text'">
                 <div class="group grid gap-2">
-                  <div class="text-pretty min-w-0 bg-elevated/50 ring ring-default px-3 py-1.5 rounded-md w-fit">
+                  <div class="text-pretty min-w-0 rounded-md">
                     <MDCCached
                       :value="part.text"
                       :cache-key="`${message.id}-${message.role}-${part.type}`"
@@ -318,9 +189,18 @@ function remove(job: Job) {
             </template>
           </template>
         </template>
-        <div class="p-4 mt-auto border border-accented rounded-md text-xs max-h-200 h-full overflow-scroll">
-          <pre>{{ JSON.stringify(chat.messages, null, 2) }}</pre>
-        </div>
+
+        <MDC
+          class="mt-8"
+          :value="`
+<details>
+  <summary>Debug Messages</summary>
+
+  \`\`\`json
+  ${JSON.stringify(chat.messages, null, 2)}
+  \`\`\`
+</details>`"
+        />
       </div>
     </template>
 

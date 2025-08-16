@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     }).parse,
   )
 
-  const tools = {
+  const _tools = {
     get_job: get_job_tool(jobs),
   }
 
@@ -33,7 +33,6 @@ export default defineEventHandler(async (event) => {
       const result = streamText({
         model: provider(model),
         messages: convertToModelMessages(messages),
-        tools,
         experimental_transform: smoothStream({ chunking: 'word' }),
         providerOptions: { google: {} },
       })

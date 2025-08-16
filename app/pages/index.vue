@@ -310,14 +310,29 @@ function clearFilters() {
             </NuxtLink>
           </div>
 
-          <UAlert
+          <div
             v-else
-            color="warning"
-            variant="subtle"
-            icon="i-lucide-refresh-cw"
-            title="No jobs found"
-            description="We couldn't find any jobs with your current filters. Try changing them to see more options."
-          />
+            class="flex-center mt-10"
+          >
+            <UCard class="max-w-1/4 text-center" :ui="{ body: 'flex-center flex-col gap-2' }">
+              <div class="size-16 rounded-full bg-accented flex-center">
+                <UIcon name="i-lucide-funnel" class="size-6" />
+              </div>
+              <p class="text-lg font-medium">
+                No jobs match your filters
+              </p>
+              <p class="text-sm text-muted text-pretty">
+                Try adjusting your search criteria or clearing some filters to see more results.
+              </p>
+
+              <UButton
+                class="mt-2"
+                @click="clearFilters"
+              >
+                Clear all filters
+              </UButton>
+            </UCard>
+          </div>
         </template>
 
         <template v-else-if="status === 'error'">
