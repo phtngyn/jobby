@@ -12,7 +12,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare && npx simple-git-hooks",
+    "postinstall": "nuxt prepare",
     "lint": "npx eslint .",
     "typecheck": "nuxt typecheck",
     "db:push": "pnpm exec drizzle-kit push",

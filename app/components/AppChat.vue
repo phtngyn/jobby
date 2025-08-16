@@ -1,28 +1,157 @@
 <script setup lang="ts">
-import type { UIMessage } from 'ai'
-import type { Job } from '~~/shared/types'
+import type { AppUIMessage, Job, Metadata } from '~~/shared/types'
 import { Chat } from '@ai-sdk/vue'
-import { getTextFromMessage } from '@nuxt/ui/utils/ai'
 import { DefaultChatTransport } from 'ai'
 import { MODELS } from '~~/shared/constants'
 import { MetadataSchema } from '~~/shared/schemas'
 
-const { data: jobs } = useNuxtData<Job[]>('jobs')
-const attachedJobs = ref<Job[]>([])
+const { data } = useNuxtData<Job[]>('jobs')
+const jobs = ref<Job[]>([])
 
 const input = shallowRef('')
-const chat = new Chat({
+const chat = new Chat<AppUIMessage>({
+  messages: [
+    {
+      parts: [
+        {
+          type: 'text',
+          text: 'hi',
+        },
+      ],
+      id: '2TRew57knIu90YVd',
+      role: 'user',
+    },
+    {
+      id: 'V5H6AAR7bonHt29Q',
+      metadata: {
+        model: 'gemini-2.0-flash',
+        totalTokens: 14,
+        inputTokens: 4,
+        outputTokens: 10,
+        duration: 0.761,
+        finishReason: 'stop',
+      },
+      role: 'assistant',
+      parts: [
+        {
+          type: 'step-start',
+        },
+        {
+          type: 'text',
+          text: 'Hi! How can I help you today?\n',
+          state: 'done',
+        },
+      ],
+    },
+    {
+      parts: [
+        {
+          type: 'text',
+          text: 'can you list some good foods',
+        },
+      ],
+      id: 'hczks36AKPcitfAP',
+      role: 'user',
+    },
+    {
+      id: '8mngfCXvrUVVAnEB',
+      metadata: {
+        model: 'gemini-2.0-flash',
+        totalTokens: 43,
+        inputTokens: 20,
+        outputTokens: 23,
+        duration: 0.597,
+        finishReason: 'stop',
+      },
+      role: 'assistant',
+      parts: [
+        {
+          type: 'step-start',
+        },
+        {
+          type: 'text',
+          text: 'I am sorry, I cannot fulfill this request. The available tools lack the functionality to provide information about food.\n',
+          state: 'done',
+        },
+      ],
+    },
+    {
+      parts: [
+        {
+          type: 'text',
+          text: 'what about raw materials',
+        },
+      ],
+      id: 'QF5etDoE4DrrJqdx',
+      role: 'user',
+    },
+    {
+      id: 'HhZ9vqGnbkCtpTK2',
+      metadata: {
+        model: 'gemini-2.0-flash',
+        totalTokens: 71,
+        inputTokens: 47,
+        outputTokens: 24,
+        duration: 0.76,
+        finishReason: 'stop',
+      },
+      role: 'assistant',
+      parts: [
+        {
+          type: 'step-start',
+        },
+        {
+          type: 'text',
+          text: 'I am sorry, I cannot fulfill this request. The available tools lack the functionality to provide information about raw materials.\n',
+          state: 'done',
+        },
+      ],
+    },
+    {
+      parts: [
+        {
+          type: 'text',
+          text: 'just tell a story',
+        },
+      ],
+      id: 'D2AIBg6tWajf5ai5',
+      role: 'user',
+    },
+    {
+      id: 'vDZnXdmlUtot6OG1',
+      metadata: {
+        model: 'gemini-2.0-flash',
+        totalTokens: 288,
+        inputTokens: 75,
+        outputTokens: 213,
+        duration: 2.576,
+        finishReason: 'stop',
+      },
+      role: 'assistant',
+      parts: [
+        {
+          type: 'step-start',
+        },
+        {
+          type: 'text',
+          text: 'Okay, here\'s a short story for you:\n\nThe old lighthouse keeper, Silas, had seen a thousand storms lash against the jagged cliffs. He knew the rhythm of the sea like his own heartbeat. One day, a dense fog rolled in, thicker than he\'d ever witnessed. The foghorn blared, a mournful sound swallowed by the grayness. Suddenly, a small sailboat emerged from the mist, its mast broken, a lone figure clinging to the wreckage. Silas, his weathered face etched with concern, knew he had to act fast. He launched his small rescue boat, battling the waves and the blinding fog. After what seemed like an eternity, he reached the sailor, pulling him aboard. As they made their way back to the lighthouse, the fog began to dissipate, revealing a calm, star-filled sky. The sailor, shivering but safe, looked at Silas with gratitude. "You saved my life," he whispered. Silas simply nodded, his eyes reflecting the light of the lighthouse, a beacon of hope in the vast darkness.\n',
+          state: 'done',
+        },
+      ],
+    },
+  ],
+
   messageMetadataSchema: MetadataSchema,
   transport: new DefaultChatTransport({
-    api: '/api/chat',
+    api: '/api/chats',
     prepareSendMessagesRequest({ messages }) {
       const body = {
         messages,
-        jobs: [...attachedJobs.value],
+        jobs: [...jobs.value],
       }
 
       input.value = ''
-      attachedJobs.value = []
+      jobs.value = []
 
       return { body }
     },
@@ -40,8 +169,8 @@ function handleSubmit(e: Event) {
 
 const clipboard = useClipboard()
 const copied = shallowRef(false)
-function copy(e: MouseEvent, message: UIMessage) {
-  clipboard.copy(getTextFromMessage(message))
+function copy(text: string) {
+  clipboard.copy(text)
   copied.value = true
   setTimeout(() => {
     copied.value = false
@@ -53,19 +182,19 @@ function drop(event: DragEvent) {
   if (!id)
     return
 
-  const job = jobs.value?.find(j => j.jobId === id)
+  const job = data.value?.find(j => j.jobId === id)
   if (!job)
     return
 
-  if (attachedJobs.value.find(j => j.jobId === id))
+  if (jobs.value.find(j => j.jobId === id))
     return
 
-  attachedJobs.value.push(job)
+  jobs.value.push(job)
 }
 
 function remove(job: Job) {
   console.log(job)
-  attachedJobs.value = attachedJobs.value.filter(j => j.jobId !== job.jobId)
+  jobs.value = jobs.value.filter(j => j.jobId !== job.jobId)
 }
 </script>
 
@@ -87,70 +216,112 @@ function remove(job: Job) {
     </template>
 
     <template #body>
-      <UChatMessages
-        :messages="chat.messages"
-        :status="chat.status"
-        :assistant="{
-          actions: [
-            {
-              label: 'Copy',
-              icon: copied ? 'i-lucide-copy-check' : 'i-lucide-copy',
-              onClick: (e, message) => copy(e, message),
-            },
-          ],
-        }"
-        class="lg:pt-(--ui-header-height) pb-4 sm:pb-6"
-        should-auto-scroll
-        :spacing-offset="160"
-        :ui="{
-          indicator: 'py-0 h-auto *:size-auto *:bg-transparent [&>*:nth-child(1)]:animate-none [&>*:nth-child(2)]:animate-none [&>*:nth-child(3)]:animate-none',
-        }"
-      >
-        <template #content="{ message }">
-          <UButton
-            v-if="message.parts?.length === 0 && message.role === 'assistant'"
-            class="px-0 group"
-            color="neutral"
-            variant="link"
-            loading
-            loading-icon="i-lucide-loader"
-          >
-            <AppChatTextGradient text="Thinking..." />
-          </UButton>
-
-          <div class="space-y-4">
+      <div>
+        <template
+          v-for="message in chat.messages"
+          :key="message.id"
+        >
+          <template v-if="message.role === 'assistant'">
             <template
-              v-for="(part, index) in message.parts as UIMessage['parts']"
-              :key="`${part.type}-${index}-${message.id}`"
+              v-for="part in message.parts"
+              :key="`${message.id}-${message.role}-${part.type}`"
             >
-              <AppChatReasoning
-                v-if="part.type === 'reasoning'"
-                :state="part.state"
-                :text="part.text"
-              />
+              <template v-if="part.type === 'step-start'" />
+              <template v-if="part.type === 'text'">
+                <div class="group grid gap-2">
+                  <div class="text-pretty min-w-0 bg-elevated/50 ring ring-default px-3 py-1.5 rounded-md w-fit">
+                    <MDCCached
+                      :value="part.text"
+                      :cache-key="`${message.id}-${message.role}-${part.type}`"
+                      unwrap="p"
+                    />
+                  </div>
+
+                  <div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-4">
+                    <div class="flex item-center gap-2">
+                      <UButton
+                        :icon="copied ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                        square
+                        variant="ghost"
+                        color="neutral"
+                        size="sm"
+                        @click="copy(part.text)"
+                      />
+
+                      <UButton
+                        icon="i-lucide-refresh-ccw"
+                        square
+                        variant="ghost"
+                        color="neutral"
+                        size="sm"
+                        @click="chat.regenerate({ messageId: message.id })"
+                      />
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                      <span
+                        v-if="(message.metadata as Metadata)?.model"
+                        class="text-sm font-medium"
+                      >
+                        {{ (message.metadata as Metadata)?.model }}
+                      </span>
+
+                      <span
+                        v-if="(message.metadata as Metadata)?.duration"
+                        class="flex items-center gap-1 text-sm"
+                      >
+                        <UIcon name="i-lucide-zap" class="size-3" />
+                        {{ (message.metadata as Metadata)?.duration }}s
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </template>
             </template>
+          </template>
 
-            <MDCCached
-              :value="getTextFromMessage(message)"
-              :cache-key="message.id"
-              unwrap="p"
-              :parser-options="{ highlight: false }"
-            />
-          </div>
-        </template>
+          <template v-if="message.role === 'user'">
+            <template
+              v-for="part in message.parts"
+              :key="`${message.id}-${message.role}-${part.type}`"
+            >
+              <template v-if="part.type === 'step-start'" />
+              <template v-if="part.type === 'text'">
+                <div class="group grid gap-2">
+                  <div class="text-pretty min-w-0 bg-elevated/50 px-3 py-1.5 rounded-md w-fit ms-auto">
+                    {{ part.text }}
+                  </div>
 
-        <template #indicator>
-          <UButton
-            class="px-0 group"
-            color="neutral"
-            variant="link"
-            loading
-            loading-icon="i-lucide-loader"
-          >
-            <AppChatTextGradient text="Thinking..." />
-          </UButton>
+                  <div class="opacity-0 group-hover:opacity-100 transition-opacity  flex items-center w-fit ms-auto">
+                    <div class="flex item-center gap-2">
+                      <UButton
+                        icon="i-lucide-refresh-ccw"
+                        square
+                        variant="ghost"
+                        color="neutral"
+                        size="sm"
+                        @click="chat.regenerate({ messageId: message.id })"
+                      />
+
+                      <UButton
+                        :icon="copied ? 'i-lucide-copy-check' : 'i-lucide-copy'"
+                        square
+                        variant="ghost"
+                        color="neutral"
+                        size="sm"
+                        @click="copy(part.text)"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </template>
+          </template>
         </template>
-      </UChatMessages>
+        <div class="p-4 mt-auto border border-accented rounded-md text-xs max-h-200 h-full overflow-scroll">
+          <pre>{{ JSON.stringify(chat.messages, null, 2) }}</pre>
+        </div>
+      </div>
     </template>
 
     <template #footer>
@@ -170,11 +341,11 @@ function remove(job: Job) {
         >
           <template #header>
             <ul
-              v-if="attachedJobs.length"
+              v-if="jobs.length"
               class="grid gap-2"
             >
               <li
-                v-for="job in attachedJobs"
+                v-for="job in jobs"
                 :key="job.jobId"
                 class="group border border-muted px-2 py-1 rounded-md text-sm w-fit flex items-center gap-2"
               >

@@ -10,5 +10,5 @@ export function getConfig(event: H3Event) {
     ? config.model
     : MODELS[0]!.key
 
-  return { model }
+  return { ...config, model }
 }

@@ -1,5 +1,5 @@
 import type { createGoogleGenerativeAI } from '@ai-sdk/google'
-import type { ToolUIPart } from 'ai'
+import type { ToolUIPart, UIMessage } from 'ai'
 import type { z, ZodType } from 'zod'
 import type { FiltersSchema, JobSchema, MetadataSchema } from './schemas'
 
@@ -14,6 +14,7 @@ export interface Model { key: ModelKey, name: string, company: string }
 export interface ChatConfig { model: ModelKey, search: boolean }
 
 export type Metadata = z.infer<typeof MetadataSchema>
+export type AppUIMessage = UIMessage<Metadata>
 
 // eslint-disable-next-line unused-imports/no-unused-vars
 type GetToolUIPartState<T extends ZodType> = ToolUIPart & {
