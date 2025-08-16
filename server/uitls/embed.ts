@@ -49,6 +49,8 @@ export function clean(html: string) {
   return html
     .replace(/<[^>]*>/g, ' ')
     .replace(/\|/g, ' ')
+    .replace(/\?/g, ' ')
+    .replace(/•/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
 }

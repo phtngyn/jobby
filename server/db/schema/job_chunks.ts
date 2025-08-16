@@ -7,7 +7,7 @@ import {
   text,
   vector,
 } from 'drizzle-orm/pg-core'
-import { JOB_CHUNK_EMBEDDING_OUTPUT, JOB_CHUNK_TYPES } from '../../../shared/constants'
+import { JOB_CHUNK_TYPES } from '../../../shared/constants'
 import { jobs } from './jobs'
 
 export const jobChunkTypeEnum = pgEnum('job_chunk_type', JOB_CHUNK_TYPES)
@@ -20,7 +20,7 @@ export const jobChunks = pgTable(
     type: jobChunkTypeEnum('type').notNull(),
     chunkIndex: integer('chunk_index').notNull().default(0),
     content: text('content').notNull(),
-    embedding: vector('embedding', { dimensions: JOB_CHUNK_EMBEDDING_OUTPUT }).notNull(),
+    embedding: vector('embedding', { dimensions: 1024 }).notNull(),
   },
   t => [
     index('idx_job_chunks_embedding')

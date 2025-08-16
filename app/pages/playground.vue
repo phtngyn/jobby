@@ -11,7 +11,7 @@ async function selectChunk() {
     method: 'POST',
     body: { input: state.value.chunk.input },
   })
-
+  console.log(result)
   state.value.chunk.result = result
 }
 </script>
@@ -43,16 +43,20 @@ async function selectChunk() {
               @submit.prevent="selectChunk"
             >
               <UInput
+                v-model="state.chunk.input"
                 class="w-full"
                 placeholder="Some input here..."
-                name="input"
               />
               <UButton type="submit">
-                Submit
+                send
               </UButton>
             </form>
 
-            <pre>{{ state.chunk.result }}</pre>
+            <ul class="text-xs mt-4 p-2 overflow-y-auto border rounded-md min-h-10 max-h-50 grid gap-2">
+              <li v-for="(x, i) in state.chunk.result" :key="i">
+                {{ x }}
+              </li>
+            </ul>
           </template>
         </UCard>
       </div>

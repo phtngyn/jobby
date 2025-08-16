@@ -1,3 +1,4 @@
+import type { Job } from '~~/shared/types'
 import { z } from 'zod'
 import { embedMany } from '~~/server/ai/llm'
 import { jobChunks } from '~~/server/db/schema/job_chunks'
@@ -17,29 +18,45 @@ export default defineEventHandler(async (event) => {
     ...j,
     freigabedatum: new Date(j.freigabedatum),
   }))
-  const created = await db.insert(jobs).values(parsed).returning()
 
-  for (const job of created) {
-    for (const type of JOB_CHUNK_TYPES) {
-      const raw = job[type]
-      if (!raw)
-        continue
+  let created: Job[] | undefined
+  await db.transaction(async (tx) => {
+    created = await tx
+      .insert(jobs)
+      .values(parsed)
+      .onConflictDoNothing({ target: jobs.jobId })
+      .returning() as any
 
-      const cleaning = clean(raw)
-      if (!cleaning)
-        continue
+    if (!created)
+      return
 
-      const chunks = chunk(cleaning)
-      const embeddings = await embedMany(chunks, { type: 'RETRIEVAL_DOCUMENT' })
-      for (let i = 0; i < embeddings.length; i++) {
-        await db.insert(jobChunks).values({
-          jobId: job.jobId,
-          type,
-          chunkIndex: i,
-          content: chunks[i],
-          embedding: embeddings[i],
-        })
+    const promises = created.map(async (job) => {
+      for (const type of JOB_CHUNK_TYPES) {
+        const raw = job[type]
+        if (!raw)
+          continue
+
+        const cleaning = clean(raw)
+        if (!cleaning)
+          continue
+
+        const chunks = chunk(cleaning)
+        const embeddings = await embedMany(chunks)
+
+        await tx.insert(jobChunks).values(
+          chunks.map((c, i) => ({
+            jobId: job.jobId,
+            type,
+            chunkIndex: i,
+            content: c,
+            embedding: embeddings[i],
+          })),
+        )
       }
-    }
-  }
+    })
+
+    await Promise.all(promises)
+  })
+
+  return created
 })

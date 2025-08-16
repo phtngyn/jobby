@@ -61,21 +61,6 @@ export default defineEventHandler(async (event) => {
     .orderBy(rank ? sql`rank DESC` : desc(jobs.freigabedatum))
     .limit(100)
 
-  if (import.meta.dev) {
-    const analyse = await db.execute(
-      sql`EXPLAIN ANALYZE ${db
-        .select(rank ? { ...getTableColumns(jobs), rank } : getTableColumns(jobs))
-        .from(jobs)
-        .where(conditions.length > 0 ? and(...conditions) : sql`TRUE`)
-        .orderBy(rank ? sql`rank DESC` : desc(jobs.freigabedatum))
-        .limit(100)}`,
-    )
-    const lines = analyse.rows.map(row => row['QUERY PLAN'])
-    console.log('\n=== QUERY PLAN ===')
-    console.log(lines.join('\n'))
-    console.log('==================\n')
-  }
-
   return result
 })
 

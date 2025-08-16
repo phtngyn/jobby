@@ -218,5 +218,3 @@ export const JOB_CHUNK_TYPES = [
   'fachbereiche',
   'berufsfelder',
 ] as const
-
-export const JOB_CHUNK_EMBEDDING_OUTPUT = 1536
