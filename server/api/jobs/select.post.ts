@@ -50,11 +50,13 @@ export default defineEventHandler(async (event) => {
     conditions.push(condition)
   }
 
+  const { search, ...rest } = getTableColumns(jobs)
+
   const result = await db
     .select(
       rank
-        ? { ...getTableColumns(jobs), rank }
-        : getTableColumns(jobs),
+        ? { ...rest, rank }
+        : { ...rest },
     )
     .from(jobs)
     .where(conditions.length > 0 ? and(...conditions) : sql`TRUE`)

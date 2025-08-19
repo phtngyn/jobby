@@ -30,7 +30,16 @@ export const JobSchema = z.object({
   jobtypen: z.string(),
 })
 
-export const MetadataSchema = z.object({
+export const FiltersSchema = z.object({
+  search: z.string(),
+  types: z.array(z.string()),
+  fields: z.array(z.string()),
+  domains: z.array(z.string()),
+  homeoffices: z.array(z.string()),
+  workingtimes: z.array(z.number()).length(2),
+})
+
+export const ChatMetadataSchema = z.object({
   model: z.string().optional(),
   duration: z.number().optional(),
   totalTokens: z.number().optional(),
@@ -39,11 +48,19 @@ export const MetadataSchema = z.object({
   finishReason: z.string().optional(),
 })
 
-export const FiltersSchema = z.object({
-  search: z.string(),
-  types: z.array(z.string()),
-  fields: z.array(z.string()),
-  domains: z.array(z.string()),
-  homeoffices: z.array(z.string()),
-  workingtimes: z.array(z.number()).length(2),
+export const ChatDataPartStatus = z.enum(['loading', 'done'])
+
+export const ChatDataPartClassificationSchema = z.object({
+  reasoning: z.string().max(200),
+  type: z.enum(['general', 'job_search', 'update_filters']),
+  confidence: z.number().min(0).max(1),
+  status: ChatDataPartStatus,
+})
+
+export const ChatDataPartSchema = z.object({
+  classification: ChatDataPartClassificationSchema,
+  notification: z.object({
+    message: z.string(),
+    level: z.enum(['info', 'warning', 'error']),
+  }),
 })

@@ -1,20 +1,30 @@
 import type { createGoogleGenerativeAI } from '@ai-sdk/google'
-import type { ToolUIPart, UIMessage } from 'ai'
+import type { InferUITools, ToolUIPart, UIMessage, UIMessagePart, UIMessageStreamWriter } from 'ai'
 import type { z, ZodType } from 'zod'
-import type { FiltersSchema, JobSchema, MetadataSchema } from './schemas'
+import type { getTools } from '~~/server/ai/tools'
+import type { ChatDataPartSchema, ChatMetadataSchema, FiltersSchema, JobSchema } from './schemas'
 
 export type Job = z.infer<typeof JobSchema>
 
 export type JobType = NonNullable<Job['jobtypen']>
 export type JobHomeoffice = NonNullable<Job['homeoffice']>
 
-export type ModelKey = Parameters<ReturnType<typeof createGoogleGenerativeAI>>[0]
-export interface Model { key: ModelKey, name: string, company: string }
+export type ChatModelKey = Parameters<ReturnType<typeof createGoogleGenerativeAI>>[0]
+export interface ChatModel { key: ChatModelKey, name: string, company: string }
 
-export interface ChatConfig { model: ModelKey, search: boolean }
+export interface ChatConfig { model: ChatModelKey, filters: Filters }
 
-export type Metadata = z.infer<typeof MetadataSchema>
-export type AppUIMessage = UIMessage<Metadata>
+export type ChatMetadata = z.infer<typeof ChatMetadataSchema>
+
+export type ChatDataPart = z.infer<typeof ChatDataPartSchema>
+
+export type ChatTools = ReturnType<typeof getTools>
+export type ChatToolKeys = keyof ChatTools
+export type ChatToolSet = InferUITools<{ [K in ChatToolKeys]: ReturnType<ChatTools[K]>; }>
+
+export type ChatUIMessagePart = UIMessagePart<ChatDataPart, ChatToolSet>
+export type ChatUIMessage = UIMessage<ChatMetadata, ChatDataPart>
+export type ChatWriter = UIMessageStreamWriter<ChatUIMessage>
 
 // eslint-disable-next-line unused-imports/no-unused-vars
 type GetToolUIPartState<T extends ZodType> = ToolUIPart & {

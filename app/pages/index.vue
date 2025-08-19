@@ -11,7 +11,7 @@ const filters = ref<Filters>({
   workingtimes: [JOB_WORKINGTIMES.min, JOB_WORKINGTIMES.max],
 })
 
-const { data: jobs, status, error, execute } = await useAsyncData(
+const { data, status, error, execute } = await useAsyncData(
   'jobs',
   () => $fetch<Job[]>('/api/jobs/select', {
     method: 'POST',
@@ -26,7 +26,9 @@ const { data: jobs, status, error, execute } = await useAsyncData(
 
 watchThrottled(
   filters,
-  () => { execute() },
+  async () => {
+    await execute()
+  },
   { throttle: 1000, deep: true, immediate: true },
 )
 
@@ -238,16 +240,16 @@ function clearFilters() {
             </UButton>
           </div>
 
-          <span class="group-has-[[data-slot=badge]]:ml-auto text-sm text-muted font-medium">Show {{ jobs?.length }} results</span>
+          <span class="group-has-[[data-slot=badge]]:ml-auto text-sm text-muted font-medium">Show {{ data?.length }} results</span>
         </div>
 
         <template v-if="status === 'success'">
           <div
-            v-if="jobs.length"
+            v-if="data.length"
             class="grid grid-cols-2 @min-6xl:grid-cols-3 gap-4"
           >
             <NuxtLink
-              v-for="job in jobs"
+              v-for="job in data"
               :key="job.jobId"
               class="group relative p-4 flex flex-col bg-default border border-accented rounded-md h-full hover:border-inverted/80 transition-colors"
               :to="`/jobs/${job.jobId}`"

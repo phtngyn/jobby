@@ -1,18 +1,14 @@
 <script setup lang="ts">
-import type { AppUIMessage, Job, Metadata } from '~~/shared/types'
+import type { ChatMetadata, ChatUIMessage, Job } from '~~/shared/types'
 import { Chat } from '@ai-sdk/vue'
 import { DefaultChatTransport } from 'ai'
 import { MODELS } from '~~/shared/constants'
-import { MetadataSchema } from '~~/shared/schemas'
 
 const { data } = useNuxtData<Job[]>('jobs')
 const jobs = ref<Job[]>([])
 
 const input = shallowRef('')
-const chat = new Chat<AppUIMessage>({
-  messages: [{ parts: [{ type: 'text', text: 'Generate some heading, link, and table with markdown format. Dont wrap in codeblock\n\n' }], id: 'TeFu2yIVEDqz4yT9', role: 'user' }, { id: 'H35F1VgmvMH9eO4r', metadata: { model: 'gemini-2.0-flash', totalTokens: 119, inputTokens: 18, outputTokens: 101, duration: 1.278, finishReason: 'stop' }, role: 'assistant', parts: [{ type: 'step-start' }, { type: 'text', text: '## Heading 1\n\n### Heading 3\n\n[Example Link](https://www.example.com)\n\n[Another Link with Title](https://www.example.com "Example Title")\n\n| Header 1 | Header 2 | Header 3 |\n|---|---|---|\n| Cell 1 | Cell 2 | Cell 3 |\n| Cell 4 | Cell 5 | Cell 6 |\n| Cell 7 | Cell 8 | Cell 9 |\n', state: 'done' }] }],
-
-  messageMetadataSchema: MetadataSchema,
+const chat = new Chat<ChatUIMessage>({
   transport: new DefaultChatTransport({
     api: '/api/chats',
     prepareSendMessagesRequest({ messages }) {
@@ -27,6 +23,9 @@ const chat = new Chat<AppUIMessage>({
       return { body }
     },
   }),
+  onData({ type, data }) {
+    console.log({ type, data })
+  },
   onError(error) {
     console.error(error)
   },
@@ -87,7 +86,7 @@ function remove(job: Job) {
     </template>
 
     <template #body>
-      <div>
+      <div class="grid gap-4 text-sm">
         <template
           v-for="message in chat.messages"
           :key="message.id"
@@ -98,13 +97,15 @@ function remove(job: Job) {
               :key="`${message.id}-${message.role}-${part.type}`"
             >
               <template v-if="part.type === 'step-start'" />
+
               <template v-if="part.type === 'text'">
                 <div class="group grid gap-2">
-                  <div class="text-pretty min-w-0 rounded-md">
+                  <div class="text-pretty min-w-0 rounded-md text-sm">
                     <MDCCached
                       :value="part.text"
                       :cache-key="`${message.id}-${message.role}-${part.type}`"
                       unwrap="p"
+                      :parser-options="{ highlight: false }"
                     />
                   </div>
 
@@ -129,22 +130,51 @@ function remove(job: Job) {
                       />
                     </div>
 
-                    <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-3 text-xs">
                       <span
-                        v-if="(message.metadata as Metadata)?.model"
-                        class="text-sm font-medium"
+                        v-if="(message.metadata as ChatMetadata)?.model"
+                        class="font-medium"
                       >
-                        {{ (message.metadata as Metadata)?.model }}
+                        {{ (message.metadata as ChatMetadata)?.model }}
                       </span>
 
                       <span
-                        v-if="(message.metadata as Metadata)?.duration"
-                        class="flex items-center gap-1 text-sm"
+                        v-if="(message.metadata as ChatMetadata)?.duration"
+                        class="flex items-center gap-1"
                       >
                         <UIcon name="i-lucide-zap" class="size-3" />
-                        {{ (message.metadata as Metadata)?.duration }}s
+                        {{ (message.metadata as ChatMetadata)?.duration }}s
                       </span>
                     </div>
+                  </div>
+                </div>
+              </template>
+
+              <template v-if="part.type === 'data-classification'">
+                <div class="ring ring-default rounded-md px-3 py-1.5">
+                  <div
+                    v-if="part.data.status === 'loading'"
+                    class="flex items-center gap-1"
+                  >
+                    <UButton
+                      loading
+                      loading-icon="i-lucide-rotate-cw"
+                      size="xs"
+                      variant="link"
+                      color="neutral"
+                    />
+                    <span class="text-dimmed">Classifying</span>
+                  </div>
+                  <div
+                    v-else
+                    class="grid gap-1"
+                  >
+                    <UBadge variant="subtle" color="neutral" class="w-fit">
+                      Type: "{{ part.data.type.toUpperCase() }}" | {{ part.data.confidence }}
+                    </UBadge>
+                    <p class="text-dimmed text-xs">
+                      {{ part.data.reasoning }}
+                    </p>
                   </div>
                 </div>
               </template>
@@ -159,11 +189,11 @@ function remove(job: Job) {
               <template v-if="part.type === 'step-start'" />
               <template v-if="part.type === 'text'">
                 <div class="group grid gap-2">
-                  <div class="text-pretty min-w-0 bg-elevated/50 px-3 py-1.5 rounded-md w-fit ms-auto">
+                  <div class="text-pretty min-w-0 bg-elevated/50 px-3 py-1.5 rounded-md w-fit ms-auto ring ring-default">
                     {{ part.text }}
                   </div>
 
-                  <div class="opacity-0 group-hover:opacity-100 transition-opacity  flex items-center w-fit ms-auto">
+                  <div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-center w-fit ms-auto">
                     <div class="flex item-center gap-2">
                       <UButton
                         icon="i-lucide-refresh-ccw"
@@ -227,7 +257,7 @@ function remove(job: Job) {
               <li
                 v-for="job in jobs"
                 :key="job.jobId"
-                class="group border border-muted px-2 py-1 rounded-md text-sm w-fit flex items-center gap-2"
+                class="group border border-muted px-2 py-1 rounded-md w-fit flex items-center gap-2"
               >
                 <span>{{ job.angebotstitel }}</span>
 
