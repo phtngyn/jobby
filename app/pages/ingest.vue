@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { TabsItem } from '#ui/types'
 import type { Job } from '~~/shared/types'
 import { JobSchema } from '~~/shared/schemas'
 
@@ -15,16 +14,7 @@ const state = ref<{
   parsed: undefined,
 })
 
-const tabs = ref<TabsItem[]>([
-  {
-    slot: 'parsed',
-    label: 'Parsed',
-  },
-  {
-    slot: 'raw',
-    label: 'Raw',
-  },
-])
+const container = useTemplateRef('container')
 
 async function change() {
   const file = state.value.file
@@ -86,7 +76,7 @@ async function ingest() {
   if (!state.value.parsed)
     return
 
-  const created = await $fetch<Job[]>('/api/jobs/create', {
+  await $fetch<Job[]>('/api/jobs/create', {
     method: 'POST',
     body: {
       jobs: state.value.parsed,
@@ -94,7 +84,7 @@ async function ingest() {
   })
 
   toast.add({
-    title: `${created.length} were inserted into database!`,
+    title: `JSON data was inserted into database!`,
   })
 }
 </script>
@@ -115,7 +105,7 @@ async function ingest() {
     </template>
 
     <template #body>
-      <div class="grid gap-2">
+      <div ref="container" class="grid gap-2">
         <div class="flex justify-between">
           <p class="font-medium">
             Upload JSON for JOBS table
@@ -141,16 +131,21 @@ async function ingest() {
         />
 
         <UTabs
-          :items="tabs"
-          class="max-h-[50vh] max-w-[50vw]"
+          :items="[
+            { slot: 'parsed', label: 'Parsed' },
+            { slot: 'raw', label: 'Raw' },
+          ]"
           color="neutral"
         >
           <template
             v-if="state.parsed"
             #parsed
           >
-            <div class="overflow-auto border rounded-md">
-              <UTable :data="state.parsed" />
+            <div
+              class="max-h-125 border rounded-md"
+              :style="{ maxWidth: `${container?.offsetWidth}px` }"
+            >
+              <UTable :data="state.parsed.slice(0, 1)" />
             </div>
           </template>
 

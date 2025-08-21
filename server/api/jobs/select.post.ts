@@ -1,67 +1,75 @@
 import type { SQL } from 'drizzle-orm'
 import type { PgColumn } from 'drizzle-orm/pg-core'
-import { and, desc, getTableColumns, gte, lte, sql } from 'drizzle-orm'
+import { and, desc, getTableColumns, gte, inArray, lte, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { jobs } from '~~/server/db/schema/jobs'
 import { db } from '~~/server/uitls/drizzle'
 import { FiltersSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
-  const { filters } = await readValidatedBody(
+  const body = await readValidatedBody(
     event,
-    z.object({ filters: FiltersSchema }).parse,
+    z.object({
+      filters: FiltersSchema.optional(),
+      jobIds: z.array(z.string()).optional(),
+    }).parse,
   )
 
   const conditions: (SQL | undefined)[] = []
-  let rank: SQL.Aliased | undefined
+  let score: SQL.Aliased<number> | undefined
 
-  if (filters.search?.trim()) {
-    const query = filters.search.trim().split(/\s+/).map(x => `${x}:*`).join(' | ')
-    const condition = sql`${jobs.search} @@ to_tsquery('german', ${query})`
-    conditions.push(condition)
+  if (body.filters) {
+    if (body.filters.search?.trim()) {
+      const query = body.filters.search.trim().split(/\s+/).map(x => `${x}:*`).join(' | ')
+      const condition = sql`${jobs.search} @@ to_tsquery('german', ${query})`
+      conditions.push(condition)
 
-    rank = sql`ts_rank_cd(${jobs.search}, to_tsquery('german', ${query}))`.as('rank')
+      score = sql<number>`ts_rank_cd(${jobs.search}, to_tsquery('german', ${query}), 32 | 64)`.as('score')
+    }
+
+    if (body.filters.types?.length) {
+      const condition = buildArrayIncludeCondition(body.filters.types, jobs.jobtypen)
+      conditions.push(condition)
+    }
+
+    if (body.filters.fields?.length) {
+      const condition = buildArrayIncludeCondition(body.filters.fields, jobs.berufsfelder)
+      conditions.push(condition)
+    }
+
+    if (body.filters.domains?.length) {
+      const condition = buildArrayIncludeCondition(body.filters.domains, jobs.fachbereiche)
+      conditions.push(condition)
+    }
+
+    if (body.filters.homeoffices?.length) {
+      const condition = buildArrayIncludeCondition(body.filters.homeoffices, jobs.homeoffice)
+      conditions.push(condition)
+    }
+
+    if (body.filters.workingtimes?.length) {
+      const min = body.filters.workingtimes[0]!
+      const max = body.filters.workingtimes[1]!
+      const condition = and(lte(jobs.arbeitszeitMin, max), gte(jobs.arbeitszeitMax, min))
+      conditions.push(condition)
+    }
   }
 
-  if (filters.types.length) {
-    const condition = buildArrayIncludeCondition(filters.types, jobs.jobtypen)
-    conditions.push(condition)
-  }
-
-  if (filters.fields.length) {
-    const condition = buildArrayIncludeCondition(filters.fields, jobs.berufsfelder)
-    conditions.push(condition)
-  }
-
-  if (filters.domains.length) {
-    const condition = buildArrayIncludeCondition(filters.domains, jobs.fachbereiche)
-    conditions.push(condition)
-  }
-
-  if (filters.homeoffices.length) {
-    const condition = buildArrayIncludeCondition(filters.homeoffices, jobs.homeoffice)
-    conditions.push(condition)
-  }
-
-  if (filters.workingtimes.length === 2) {
-    const min = filters.workingtimes[0]!
-    const max = filters.workingtimes[1]!
-    const condition = and(lte(jobs.arbeitszeitMin, max), gte(jobs.arbeitszeitMax, min))
-    conditions.push(condition)
+  if (body.jobIds) {
+    conditions.push(inArray(jobs.jobId, body.jobIds))
   }
 
   const { search, ...rest } = getTableColumns(jobs)
 
   const result = await db
     .select(
-      rank
-        ? { ...rest, rank }
+      score
+        ? { ...rest, score }
         : { ...rest },
     )
     .from(jobs)
     .where(conditions.length > 0 ? and(...conditions) : sql`TRUE`)
-    .orderBy(rank ? sql`rank DESC` : desc(jobs.freigabedatum))
-    .limit(100)
+    .orderBy(score ? sql`score DESC` : desc(jobs.freigabedatum))
 
   return result
 })

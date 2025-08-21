@@ -52,7 +52,7 @@ const favorited = shallowRef(false)
                 v-for="(typ, i) in job.jobtypen.split('|')"
                 :key="typ"
                 :color="i === 0 ? 'primary' : 'neutral'"
-                :variant="i === 0 ? 'subtle' : 'subtle'"
+                variant="subtle"
               >
                 {{ typ }}
               </UBadge>

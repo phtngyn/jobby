@@ -1,10 +1,10 @@
 import type { ChatWriter } from '~~/shared/types'
 import { getFilters } from './filter'
-import { getRecommendedJobs } from './job'
+import { getJobs } from './job'
 
 export function getTools(writer: ChatWriter) {
   return {
-    getRecommendedJobs: getRecommendedJobs(writer),
-    getFilters: getFilters(writer),
+    get_jobs: getJobs(writer),
+    get_filters: getFilters(writer),
   }
 }

@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
   const stream = createUIMessageStream<ChatUIMessage>({
     originalMessages: messages,
     async execute({ writer }) {
-      const _classification = await classify(writer, query)
+      const classification = await classify(writer, query)
 
       const tools = getTools(writer)
 
@@ -41,18 +41,19 @@ export default defineEventHandler(async (event) => {
         messages: convertToModelMessages(messages),
         experimental_transform: smoothStream({ chunking: 'word' }),
         activeTools: (() => {
-          return []
+          const arr: ChatToolKeys[] = []
 
-          const arr: ChatToolKeys[] = ['getFilters']
+          if (classification.type === 'job_search')
+            arr.push('get_jobs')
 
-          if (jobs?.length)
-            arr.push('getRecommendedJobs')
+          if (classification.type === 'update_filters')
+            arr.push('get_filters')
 
           return arr
         })(),
         tools: {
-          getRecommendedJobs: tools.getRecommendedJobs(jobs),
-          getFilters: tools.getFilters(filters),
+          get_jobs: tools.get_jobs({ jobs }),
+          get_filters: tools.get_filters(filters),
         },
       })
 

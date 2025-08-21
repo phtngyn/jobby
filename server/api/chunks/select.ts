@@ -23,8 +23,6 @@ export default defineEventHandler(async (event) => {
       jobId: jobChunks.jobId,
       type: jobChunks.type,
       chunkIndex: jobChunks.chunkIndex,
-      content: jobChunks.content,
-      title: jobs.angebotstitel,
       similarity,
     })
     .from(jobChunks)
@@ -36,7 +34,6 @@ export default defineEventHandler(async (event) => {
     string,
     {
       jobId: string
-      title: string
       best: number
       chunks: typeof chunks
     }
@@ -54,7 +51,6 @@ export default defineEventHandler(async (event) => {
     else {
       entries.set(c.jobId, {
         jobId: c.jobId,
-        title: c.title,
         best: c.similarity,
         chunks: [c],
       })

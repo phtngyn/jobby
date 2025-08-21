@@ -2,9 +2,10 @@ import type { createGoogleGenerativeAI } from '@ai-sdk/google'
 import type { InferUITools, ToolUIPart, UIMessage, UIMessagePart, UIMessageStreamWriter } from 'ai'
 import type { z, ZodType } from 'zod'
 import type { getTools } from '~~/server/ai/tools'
-import type { ChatDataPartSchema, ChatMetadataSchema, FiltersSchema, JobSchema } from './schemas'
+import type { ChatDataPartSchema, ChatMetadataSchema, FiltersSchema, JobSchema, JobWithScoreSchema } from './schemas'
 
 export type Job = z.infer<typeof JobSchema>
+export type JobWithScore = z.infer<typeof JobWithScoreSchema>
 
 export type JobType = NonNullable<Job['jobtypen']>
 export type JobHomeoffice = NonNullable<Job['homeoffice']>
@@ -23,7 +24,7 @@ export type ChatToolKeys = keyof ChatTools
 export type ChatToolSet = InferUITools<{ [K in ChatToolKeys]: ReturnType<ChatTools[K]>; }>
 
 export type ChatUIMessagePart = UIMessagePart<ChatDataPart, ChatToolSet>
-export type ChatUIMessage = UIMessage<ChatMetadata, ChatDataPart>
+export type ChatUIMessage = UIMessage<ChatMetadata, ChatDataPart, ChatToolSet>
 export type ChatWriter = UIMessageStreamWriter<ChatUIMessage>
 
 // eslint-disable-next-line unused-imports/no-unused-vars

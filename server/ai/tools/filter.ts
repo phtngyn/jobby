@@ -10,11 +10,6 @@ export function getFilters(writer: ChatWriter) {
     inputSchema: z.object({ prompt: z.string() }),
     outputSchema: z.object(),
     async execute({ prompt }, { toolCallId: id }) {
-      // writer.write({
-      //   type: 'data-weather',
-      //   data: { city: prompt, weather: '', status: 'loading' },
-      //   id,
-      // })
       return {}
     },
   })

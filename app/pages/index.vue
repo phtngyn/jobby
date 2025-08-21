@@ -75,7 +75,7 @@ function clearFilters() {
             class="w-full max-w-sm"
             variant="subtle"
           >
-            <template v-if="filters.search.length" #trailing>
+            <template v-if="filters?.search?.length" #trailing>
               <UButton
                 color="neutral"
                 variant="link"
@@ -148,7 +148,7 @@ function clearFilters() {
                   <legend class="block font-medium text-sm mb-4">
                     Working time
                     <span class="text-dimmed">
-                      ({{ filters.workingtimes[0] }}-{{ filters.workingtimes[1] }}h)
+                      ({{ filters?.workingtimes?.[0] }}-{{ filters?.workingtimes?.[1] }}h)
                     </span>
                   </legend>
                   <USlider
@@ -181,14 +181,14 @@ function clearFilters() {
               <template v-if="k === 'search'" />
               <template v-else-if="k === 'workingtimes'">
                 <UBadge
-                  v-if="v[0] !== JOB_WORKINGTIMES.min || v[1] !== JOB_WORKINGTIMES.max "
+                  v-if="v?.[0] !== JOB_WORKINGTIMES.min || v?.[1] !== JOB_WORKINGTIMES.max "
                   data-slot="badge"
                   class="items-center"
                   color="neutral"
                   variant="subtle"
                   size="lg"
                 >
-                  {{ `${v[0]} - ${v[1]}h` }}
+                  {{ `${v?.[0]} - ${v?.[1]}h` }}
 
                   <template #trailing>
                     <button
@@ -221,7 +221,7 @@ function clearFilters() {
                   <template #trailing>
                     <button
                       class="flex-center"
-                      @click="filters[k] = filters[k].filter(f => f !== x)"
+                      @click="filters[k] = filters[k]?.filter(f => f !== x)"
                     >
                       <UIcon name="i-lucide-x" />
                     </button>
@@ -246,7 +246,7 @@ function clearFilters() {
         <template v-if="status === 'success'">
           <div
             v-if="data.length"
-            class="grid grid-cols-2 @min-6xl:grid-cols-3 gap-4"
+            class="grid grid-cols-1 @min-3xl:grid-cols-2 @min-6xl:grid-cols-3 gap-4"
           >
             <NuxtLink
               v-for="job in data"
