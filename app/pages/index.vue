@@ -27,7 +27,7 @@ const { data, status, error, execute } = await useAsyncData(
 watchThrottled(
   filters,
   async () => {
-    await execute()
+    await execute({ dedupe: 'cancel' })
   },
   { throttle: 1000, deep: true, immediate: true },
 )

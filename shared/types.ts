@@ -2,10 +2,9 @@ import type { createGoogleGenerativeAI } from '@ai-sdk/google'
 import type { InferUITools, ToolUIPart, UIMessage, UIMessagePart, UIMessageStreamWriter } from 'ai'
 import type { z, ZodType } from 'zod'
 import type { getTools } from '~~/server/ai/tools'
-import type { ChatDataPartSchema, ChatMetadataSchema, FiltersSchema, JobSchema, JobWithScoreSchema } from './schemas'
+import type { ChatDataPartSchema, ChatMetadataSchema, FiltersSchema, JobSchema } from './schemas'
 
 export type Job = z.infer<typeof JobSchema>
-export type JobWithScore = z.infer<typeof JobWithScoreSchema>
 
 export type JobType = NonNullable<Job['jobtypen']>
 export type JobHomeoffice = NonNullable<Job['homeoffice']>

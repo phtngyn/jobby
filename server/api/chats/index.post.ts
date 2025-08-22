@@ -11,7 +11,7 @@ import {
 import { z } from 'zod'
 import { provider } from '~~/server/ai/llm'
 import { getTools } from '~~/server/ai/tools'
-import { getConfig } from '~~/server/uitls/chat'
+import { getConfig } from '~~/server/utils/chat'
 import { LIGHT_MODEL } from '~~/shared/constants'
 import { ChatDataPartClassificationSchema, JobSchema } from '~~/shared/schemas'
 

@@ -142,10 +142,10 @@ async function ingest() {
             #parsed
           >
             <div
-              class="max-h-125 border rounded-md"
+              class="max-h-125 border rounded-md overflow-auto"
               :style="{ maxWidth: `${container?.offsetWidth}px` }"
             >
-              <UTable :data="state.parsed.slice(0, 1)" />
+              <UTable :data="state.parsed" />
             </div>
           </template>
 

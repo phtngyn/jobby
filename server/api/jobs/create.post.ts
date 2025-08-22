@@ -1,11 +1,11 @@
 import type { Job } from '~~/shared/types'
+import sentencize from '@stdlib/nlp-sentencize'
 import { z } from 'zod'
 import { embedMany } from '~~/server/ai/llm'
-import { jobChunks } from '~~/server/db/schema/job_chunks'
-import { jobs } from '~~/server/db/schema/jobs'
-import { db } from '~~/server/uitls/drizzle'
-import { chunk, clean } from '~~/server/uitls/embed'
-import { JOB_CHUNK_TYPES } from '~~/shared/constants'
+import { JobChunksTable } from '~~/server/db/schema/job_chunks'
+import { JobsTable } from '~~/server/db/schema/jobs'
+import { db } from '~~/server/utils/drizzle'
+import { JOB_SEARCH_TARGET_COLUMNS } from '~~/shared/constants'
 import { JobSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
@@ -22,17 +22,17 @@ export default defineEventHandler(async (event) => {
   let created: Job[] | undefined
   await db.transaction(async (tx) => {
     created = await tx
-      .insert(jobs)
+      .insert(JobsTable)
       .values(parsed)
-      .onConflictDoNothing({ target: jobs.jobId })
+      .onConflictDoNothing({ target: JobsTable.jobId })
       .returning() as any
 
     if (!created)
       return
 
     const promises = created.map(async (job) => {
-      for (const type of JOB_CHUNK_TYPES) {
-        const raw = job[type]
+      for (const col of JOB_SEARCH_TARGET_COLUMNS) {
+        const raw = job[col]
         if (!raw)
           continue
 
@@ -40,13 +40,13 @@ export default defineEventHandler(async (event) => {
         if (!cleaning)
           continue
 
-        const chunks = chunk(cleaning)
+        const chunks = sentencize(cleaning)
         const embeddings = await embedMany(chunks)
 
-        await tx.insert(jobChunks).values(
+        await tx.insert(JobChunksTable).values(
           chunks.map((c, i) => ({
             jobId: job.jobId,
-            type,
+            type: col,
             chunkIndex: i,
             content: c,
             embedding: embeddings[i],
@@ -60,3 +60,16 @@ export default defineEventHandler(async (event) => {
 
   return created
 })
+
+function clean(html: string) {
+  if (!html)
+    return ''
+
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\|/g, ' ')
+    .replace(/\?/g, ' ')
+    .replace(/•/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}

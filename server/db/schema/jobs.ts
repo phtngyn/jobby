@@ -1,9 +1,5 @@
-import type { SQL } from 'drizzle-orm'
-import { sql } from 'drizzle-orm'
-
 import {
   boolean,
-  customType,
   index,
   integer,
   pgTable,
@@ -11,13 +7,7 @@ import {
   timestamp,
 } from 'drizzle-orm/pg-core'
 
-const tsvector = customType<{ data: string }>({
-  dataType() {
-    return `tsvector`
-  },
-})
-
-export const jobs = pgTable(
+export const JobsTable = pgTable(
   'jobs',
   {
     jobId: text('job_id').primaryKey(),
@@ -47,32 +37,22 @@ export const jobs = pgTable(
     fachbereiche: text('fachbereiche').notNull(),
     homeoffice: text('homeoffice').notNull(),
     jobtypen: text('jobtypen').notNull(),
-
-    search: tsvector('search')
-      .notNull()
-      .generatedAlwaysAs(
-        (): SQL =>
-          sql`
-            setweight(to_tsvector('german', ${jobs.angebotstitel}), 'A')
-            ||
-            setweight(to_tsvector('german', ${jobs.kurzbeschreibung}), 'A')
-            ||
-            setweight(to_tsvector('german', ${jobs.aufgabenText}), 'B')
-            ||
-            setweight(to_tsvector('german', ${jobs.erwartungenText}), 'B')
-            ||
-            setweight(to_tsvector('german', ${jobs.firma}), 'B')
-            ||
-            setweight(to_tsvector('german', ${jobs.arbeitsort}), 'B')
-            ||
-            setweight(to_tsvector('german', ${jobs.anzeigeText}), 'C')
-            ||
-            setweight(to_tsvector('german', ${jobs.fachbereiche}), 'C')
-            ||
-            setweight(to_tsvector('german', ${jobs.berufsfelder}), 'C')`,
-      ),
   },
   t => [
-    index('idx_jobs_search').using('gin', t.search),
+    index('idx_job_search')
+      .using(
+        'bm25',
+        t.jobId,
+        t.angebotstitel,
+        t.kurzbeschreibung,
+        t.aufgabenText,
+        t.erwartungenText,
+        t.firma,
+        t.arbeitsort,
+        t.anzeigeText,
+        t.fachbereiche,
+        t.berufsfelder,
+      )
+      .with({ key_field: 'job_id' }),
   ],
 )

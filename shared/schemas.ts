@@ -30,12 +30,8 @@ export const JobSchema = z.object({
   jobtypen: z.string(),
 })
 
-export const JobWithScoreSchema = JobSchema.extend({
-  score: z.number(),
-})
-
 export const FiltersSchema = z.object({
-  search: z.string().optional(),
+  search: z.string().trim().optional(),
   types: z.array(z.string()).optional(),
   fields: z.array(z.string()).optional(),
   domains: z.array(z.string()).optional(),

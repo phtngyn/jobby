@@ -1,31 +1,32 @@
-import {
-  index,
-  integer,
-  pgEnum,
-  pgTable,
-  serial,
-  text,
-  vector,
-} from 'drizzle-orm/pg-core'
-import { JOB_CHUNK_TYPES } from '../../../shared/constants'
-import { jobs } from './jobs'
+import { index, integer, pgEnum, pgTable, serial, text, vector } from 'drizzle-orm/pg-core'
+import { JOB_SEARCH_TARGET_COLUMNS } from '../../../shared/constants'
+import { JobsTable } from './jobs'
 
-export const jobChunkTypeEnum = pgEnum('job_chunk_type', JOB_CHUNK_TYPES)
+export const JobChunkTypeEnum = pgEnum('job_chunk_type', JOB_SEARCH_TARGET_COLUMNS)
 
-export const jobChunks = pgTable(
+export const JobChunksTable = pgTable(
   'job_chunks',
   {
     id: serial('id').primaryKey(),
-    jobId: text('job_id').notNull().references(() => jobs.jobId, { onDelete: 'cascade' }),
-    type: jobChunkTypeEnum('type').notNull(),
+    jobId: text('job_id').notNull().references(() => JobsTable.jobId, { onDelete: 'cascade' }),
+    type: JobChunkTypeEnum('type').notNull(),
     chunkIndex: integer('chunk_index').notNull().default(0),
     content: text('content').notNull(),
     embedding: vector('embedding', { dimensions: 1024 }).notNull(),
   },
   t => [
+    index('idx_job_chunks_job_id').on(t.jobId),
+
     index('idx_job_chunks_embedding')
       .using('hnsw', t.embedding.op('vector_cosine_ops'))
       .with({ m: 16, ef_construction: 200 }),
-    index('idx_job_chunks_job_id').on(t.jobId),
+
+    index('idx_job_chunk_search')
+      .using(
+        'bm25',
+        t.id,
+        t.content,
+      )
+      .with({ key_field: 'id' }),
   ],
 )

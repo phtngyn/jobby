@@ -9,9 +9,8 @@ const state = ref({
 async function selectChunk() {
   const result = await $fetch('/api/chunks/select', {
     method: 'POST',
-    body: { input: state.value.chunk.input },
+    body: { query: state.value.chunk.input },
   })
-  console.log(result)
   state.value.chunk.result = result
 }
 </script>
@@ -32,7 +31,7 @@ async function selectChunk() {
     </template>
 
     <template #body>
-      <div class="grid grid-cols-3">
+      <div class="grid grid-cols-1">
         <UCard>
           <template #header>
             Chunk

@@ -2,8 +2,9 @@ import type { SQL } from 'drizzle-orm'
 import type { PgColumn } from 'drizzle-orm/pg-core'
 import { and, desc, getTableColumns, gte, inArray, lte, sql } from 'drizzle-orm'
 import { z } from 'zod'
-import { jobs } from '~~/server/db/schema/jobs'
-import { db } from '~~/server/uitls/drizzle'
+import { JobsTable } from '~~/server/db/schema/jobs'
+import { db } from '~~/server/utils/drizzle'
+import { JOB_SEARCH_TARGET_ORIGIN_COLUMNS } from '~~/shared/constants'
 import { FiltersSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
@@ -19,57 +20,62 @@ export default defineEventHandler(async (event) => {
   let score: SQL.Aliased<number> | undefined
 
   if (body.filters) {
-    if (body.filters.search?.trim()) {
-      const query = body.filters.search.trim().split(/\s+/).map(x => `${x}:*`).join(' | ')
-      const condition = sql`${jobs.search} @@ to_tsquery('german', ${query})`
-      conditions.push(condition)
+    if (body.filters.search) {
+      const query = body.filters.search
 
-      score = sql<number>`ts_rank_cd(${jobs.search}, to_tsquery('german', ${query}), 32 | 64)`.as('score')
+      const condition = sql.join(
+        JOB_SEARCH_TARGET_ORIGIN_COLUMNS.map(
+          c => sql`${sql.identifier(c)} @@@ ${query}`,
+        ),
+        sql` OR `,
+      )
+
+      conditions.push(sql`(${condition})`)
+
+      score = sql<number>`paradedb.score(job_id)`.as('score')
     }
 
     if (body.filters.types?.length) {
-      const condition = buildArrayIncludeCondition(body.filters.types, jobs.jobtypen)
+      const condition = buildArrayIncludeCondition(body.filters.types, JobsTable.jobtypen)
       conditions.push(condition)
     }
 
     if (body.filters.fields?.length) {
-      const condition = buildArrayIncludeCondition(body.filters.fields, jobs.berufsfelder)
+      const condition = buildArrayIncludeCondition(body.filters.fields, JobsTable.berufsfelder)
       conditions.push(condition)
     }
 
     if (body.filters.domains?.length) {
-      const condition = buildArrayIncludeCondition(body.filters.domains, jobs.fachbereiche)
+      const condition = buildArrayIncludeCondition(body.filters.domains, JobsTable.fachbereiche)
       conditions.push(condition)
     }
 
     if (body.filters.homeoffices?.length) {
-      const condition = buildArrayIncludeCondition(body.filters.homeoffices, jobs.homeoffice)
+      const condition = buildArrayIncludeCondition(body.filters.homeoffices, JobsTable.homeoffice)
       conditions.push(condition)
     }
 
     if (body.filters.workingtimes?.length) {
       const min = body.filters.workingtimes[0]!
       const max = body.filters.workingtimes[1]!
-      const condition = and(lte(jobs.arbeitszeitMin, max), gte(jobs.arbeitszeitMax, min))
+      const condition = and(lte(JobsTable.arbeitszeitMin, max), gte(JobsTable.arbeitszeitMax, min))
       conditions.push(condition)
     }
   }
 
   if (body.jobIds) {
-    conditions.push(inArray(jobs.jobId, body.jobIds))
+    conditions.push(inArray(JobsTable.jobId, body.jobIds))
   }
-
-  const { search, ...rest } = getTableColumns(jobs)
 
   const result = await db
     .select(
       score
-        ? { ...rest, score }
-        : { ...rest },
+        ? { score, ...getTableColumns(JobsTable) }
+        : getTableColumns(JobsTable),
     )
-    .from(jobs)
+    .from(JobsTable)
     .where(conditions.length > 0 ? and(...conditions) : sql`TRUE`)
-    .orderBy(score ? sql`score DESC` : desc(jobs.freigabedatum))
+    .orderBy(score ? desc(score) : desc(JobsTable.freigabedatum))
 
   return result
 })

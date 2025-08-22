@@ -209,11 +209,25 @@ export const JOB_WORKINGTIMES = {
   max: 60,
 }
 
-export const JOB_CHUNK_TYPES = [
+export const JOB_SEARCH_TARGET_ORIGIN_COLUMNS = [
+  'angebotstitel',
+  'kurzbeschreibung',
+  'aufgaben_text',
+  'erwartungen_text',
+  'firma',
+  'arbeitsort',
+  'anzeige_text',
+  'fachbereiche',
+  'berufsfelder',
+] as const
+
+export const JOB_SEARCH_TARGET_COLUMNS = [
   'angebotstitel',
   'kurzbeschreibung',
   'aufgabenText',
   'erwartungenText',
+  'firma',
+  'arbeitsort',
   'anzeigeText',
   'fachbereiche',
   'berufsfelder',
