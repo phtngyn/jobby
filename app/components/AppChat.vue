@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { ChatMetadata, ChatUIMessage, Job } from '~~/shared/types'
+import type { ChatUIMessage, Job } from '~~/shared/types'
 import { Chat } from '@ai-sdk/vue'
 import { DefaultChatTransport } from 'ai'
-import { MODELS } from '~~/shared/constants'
+import { LIGHT_MODEL, MODELS } from '~~/shared/constants'
 
 const { data } = useNuxtData<Job[]>('jobs')
 const jobs = ref<Job[]>([])
@@ -31,8 +31,11 @@ const chat = new Chat<ChatUIMessage>({
   },
 
   messages: [],
-
 })
+
+watch(() => chat.messages, (v) => {
+  console.log(JSON.parse(JSON.stringify(v)))
+}, { deep: true })
 
 function handleSubmit(e: Event) {
   e.preventDefault()
@@ -173,170 +176,44 @@ function remove(job: Job) {
 
                     <div class="flex items-center gap-3 text-xs">
                       <span
-                        v-if="(message.metadata as ChatMetadata)?.model"
+                        v-if="message.metadata?.model"
                         class="font-medium"
                       >
-                        {{ (message.metadata as ChatMetadata)?.model }}
+                        {{ message.metadata?.model }}
                       </span>
 
                       <span
-                        v-if="(message.metadata as ChatMetadata)?.duration"
+                        v-if="message.metadata?.duration"
                         class="flex items-center gap-1"
                       >
                         <UIcon name="i-lucide-zap" class="size-3" />
-                        {{ (message.metadata as ChatMetadata)?.duration }}s
+                        {{ message.metadata?.duration }}s
                       </span>
                     </div>
                   </div>
                 </div>
               </template>
 
-              <template v-if="part.type === 'data-classification'">
-                <UAccordion
-                  v-if="part.data.status === 'loading'"
-                  :items="[{ label: 'Classifying', icon: 'i-lucide-rotate-cw' }]"
-                  :ui="{
-                    root: 'text-muted',
-                    leadingIcon: 'size-4 animate-spin me-1',
-                    trailingIcon: 'hidden',
-                    trigger: 'py-2',
-                  }"
-                />
+              <DataClassification
+                v-if="part.type === 'data-classification'"
+                :data="part.data"
+              />
 
-                <UAccordion
-                  v-else
-                  :items="[{ label: `${part.data.type.toUpperCase()} - ${part.data.confidence}`, icon: 'i-lucide-check' }]"
-                  :ui="{
-                    root: 'text-muted',
-                    leadingIcon: 'size-4 me-1 text-primary',
-                    trigger: 'py-2',
-                  }"
-                >
-                  <template #content>
-                    <p class="text-dimmed text-sm">
-                      {{ part.data.reasoning }}
-                    </p>
-                  </template>
-                </UAccordion>
-              </template>
-
-              <template v-if="part.type === 'tool-get_jobs'">
-                <div class="grid gap-2">
-                  <p class="p-4 border border-accented rounded-md">
-                    Input: <span class="font-medium text-info">"{{ part.input?.query }}"</span>
-                  </p>
-
-                  <ul
-                    v-if="part.output"
-                    class="grid gap-4"
-                  >
-                    <li
-                      v-for="job in part.output"
-                      :key="job.jobId"
-                    >
-                      <div class="grid gap-4 p-4 bg border border-accented rounded-md">
-                        <div class="flex items-center justify-between">
-                          <UBadge
-                            size="md"
-                            variant="subtle"
-                            :color="job.score >= 75 ? 'success' : job.score >= 50 ? 'warning' : 'error'"
-                          >
-                            {{ `${job.score}% Match` }}
-                          </UBadge>
-
-                          <UButton
-                            variant="link"
-                            icon="i-lucide-external-link"
-                            square
-                            size="sm"
-                            color="neutral"
-                            :to="`/jobs/${job.jobId}`"
-                          />
-                        </div>
-
-                        <p class="font-semibold text-lg leading-tight line-clamp-1">
-                          {{ job.angebotstitel }}
-                        </p>
-
-                        <div class="grid gap-1.5 text-sm">
-                          <div class="flex items-center gap-2">
-                            <UIcon name="i-lucide-building-2" /> {{ job.firma }}
-                          </div>
-                          <div class="flex items-center gap-2">
-                            <UIcon name="i-lucide-map-pin" /> {{ job.arbeitsort }}
-                          </div>
-
-                          <div class="flex items-center flex-wrap gap-2 my-1">
-                            <UBadge
-                              v-for="typ in job.jobtypen.split('|')"
-                              :key="typ"
-                              color="neutral"
-                              variant="subtle"
-                            >
-                              <UIcon name="i-lucide-briefcase" /> {{ typ }}
-                            </UBadge>
-
-                            <UBadge color="neutral" variant="outline">
-                              <UIcon name="i-lucide-clock" />
-                              <template v-if="job.arbeitszeitMin >= job.arbeitszeitMax">
-                                {{ job.arbeitszeitMax }}h/week
-                              </template>
-                              <template v-else>
-                                {{ job.arbeitszeitMin }}-{{ job.arbeitszeitMax }}h/week
-                              </template>
-                            </UBadge>
-                            <UBadge color="neutral" variant="outline">
-                              <UIcon name="i-lucide-house" /> {{ job.homeoffice }}
-                            </UBadge>
-                          </div>
-                        </div>
-
-                        <UAccordion
-                          v-if="job.chunks.length"
-                          :items="[{ label: `References (${job.chunks.length})`, icon: 'i-lucide-file-text' }]"
-                          :ui="{
-                            root: 'text-muted',
-                            trigger: 'pt-2 pb-4',
-                            leadingIcon: 'size-4 me-1',
-                          }"
-                        >
-                          <template #content>
-                            <ul class="grid gap-2">
-                              <li
-                                v-for="c in job.chunks"
-                                :key="c.id"
-                                class="text-sm text-default border border-accented px-2.5 py-1 rounded-sm"
-                              >
-                                <div class="flex gap-1">
-                                  <span class="font-medium">{{ c.type }}</span>
-                                  <span class="text-dimmed">({{ c.score.toFixed(2) }})</span>
-                                </div>
-                                <p class="text-muted">
-                                  {{ c.content }}
-                                </p>
-                              </li>
-                            </ul>
-                          </template>
-                        </UAccordion>
-                      </div>
-                    </li>
-                  </ul>
-                </div>
-              </template>
+              <ToolGetJob
+                v-if="part.type === 'tool-get_jobs'"
+                :state="part.state"
+                :input="part.input"
+                :output="part.output"
+                :error-text="part.errorText"
+                @regenerate="chat.regenerate({ messageId: message.id })"
+              />
             </template>
           </template>
         </template>
 
         <MDC
           class="mt-8"
-          :value="`
-<details>
-  <summary>Debug Messages</summary>
-
-  \`\`\`json
-  ${JSON.stringify(chat.messages, null, 2)}
-  \`\`\`
-</details>`"
+          :value="`<details><summary>Debug Messages</summary>\n\n\`\`\`json\n${JSON.stringify(chat.messages, null, 2)}\n\`\`\`</details>`"
         />
       </div>
     </template>
@@ -376,25 +253,18 @@ function remove(job: Job) {
           </template>
           <template #footer>
             <div class="flex gap-1">
-              <UButton
+              <!-- <UButton
                 icon="i-lucide-paperclip"
                 color="neutral"
                 size="sm"
                 variant="ghost"
                 disabled
-              />
-              <UButton
-                icon="i-lucide-globe"
-                color="neutral"
-                size="sm"
-                variant="ghost"
-                disabled
-              />
+              /> -->
             </div>
 
             <div class="flex items-center gap-1">
               <USelect
-                default-value="gemini-2.0-flash"
+                :default-value="LIGHT_MODEL"
                 :items="MODELS"
                 label-key="name"
                 value-key="key"
