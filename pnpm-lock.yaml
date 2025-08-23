@@ -10,7 +10,7 @@ overrides:
   vite: ^7.1.3
   vue: ^3.5.19
   vue-router: ^4.5.1
-  zod: ^4.0.17
+  zod: ^4.1.0
 
 importers:
 
@@ -18,10 +18,10 @@ importers:
     devDependencies:
       '@ai-sdk/google':
         specifier: ^2.0.8
-        version: 2.0.8(zod@4.0.17)
+        version: 2.0.8(zod@4.1.0)
       '@ai-sdk/vue':
         specifier: ^2.0.22
-        version: 2.0.22(vue@3.5.19(typescript@5.9.2))(zod@4.0.17)
+        version: 2.0.22(vue@3.5.19(typescript@5.9.2))(zod@4.1.0)
       '@antfu/eslint-config':
         specifier: ^5.2.1
         version: 5.2.1(@vue/compiler-sfc@3.5.19)(eslint-plugin-format@1.0.1(eslint@9.34.0(jiti@2.5.1)))(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2)
@@ -33,13 +33,13 @@ importers:
         version: 1.9.0(@typescript-eslint/utils@8.39.1(eslint@9.34.0(jiti@2.5.1))(typescript@5.9.2))(@vue/compiler-sfc@3.5.19)(eslint-plugin-format@1.0.1(eslint@9.34.0(jiti@2.5.1)))(eslint@9.34.0(jiti@2.5.1))(magicast@0.3.5)(typescript@5.9.2)(vite@7.1.3(@types/node@24.2.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(yaml@2.8.1))
       '@nuxt/ui':
         specifier: 4.0.0-alpha.0
-        version: 4.0.0-alpha.0(@babel/parser@7.28.3)(@netlify/blobs@9.1.2)(change-case@5.4.4)(db0@0.3.2(drizzle-orm@0.44.4(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(pg@8.16.3)))(embla-carousel@8.6.0)(ioredis@5.7.0)(jwt-decode@4.0.0)(magicast@0.3.5)(typescript@5.9.2)(vite@7.1.3(@types/node@24.2.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(yaml@2.8.1))(vue-router@4.5.1(vue@3.5.19(typescript@5.9.2)))(vue@3.5.19(typescript@5.9.2))(zod@4.0.17)
+        version: 4.0.0-alpha.0(@babel/parser@7.28.3)(@netlify/blobs@9.1.2)(change-case@5.4.4)(db0@0.3.2(drizzle-orm@0.44.4(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(pg@8.16.3)))(embla-carousel@8.6.0)(ioredis@5.7.0)(jwt-decode@4.0.0)(magicast@0.3.5)(typescript@5.9.2)(vite@7.1.3(@types/node@24.2.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(yaml@2.8.1))(vue-router@4.5.1(vue@3.5.19(typescript@5.9.2)))(vue@3.5.19(typescript@5.9.2))(zod@4.1.0)
       '@nuxtjs/mdc':
         specifier: ^0.17.2
         version: 0.17.2(magicast@0.3.5)
-      '@stdlib/nlp-sentencize':
-        specifier: ^0.2.2
-        version: 0.2.2
+      '@types/html-to-text':
+        specifier: ^9.0.4
+        version: 9.0.4
       '@types/pg':
         specifier: ^8.15.5
         version: 8.15.5
@@ -51,7 +51,7 @@ importers:
         version: 13.7.0(magicast@0.3.5)(nuxt@4.0.3(@netlify/blobs@9.1.2)(@parcel/watcher@2.5.1)(@types/node@24.2.1)(@vue/compiler-sfc@3.5.19)(db0@0.3.2(drizzle-orm@0.44.4(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(pg@8.16.3)))(drizzle-orm@0.44.4(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(pg@8.16.3))(eslint@9.34.0(jiti@2.5.1))(ioredis@5.7.0)(lightningcss@1.30.1)(magicast@0.3.5)(optionator@0.9.4)(rollup@4.46.2)(terser@5.43.1)(typescript@5.9.2)(vite@7.1.3(@types/node@24.2.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(yaml@2.8.1))(vue-tsc@3.0.6(typescript@5.9.2))(yaml@2.8.1))(vue@3.5.19(typescript@5.9.2))
       ai:
         specifier: ^5.0.22
-        version: 5.0.22(zod@4.0.17)
+        version: 5.0.22(zod@4.1.0)
       drizzle-kit:
         specifier: ^0.31.4
         version: 0.31.4
@@ -64,6 +64,9 @@ importers:
       eslint-plugin-format:
         specifier: ^1.0.1
         version: 1.0.1(eslint@9.34.0(jiti@2.5.1))
+      html-to-text:
+        specifier: ^9.0.5
+        version: 9.0.5
       nano-staged:
         specifier: ^0.8.0
         version: 0.8.0
@@ -83,8 +86,8 @@ importers:
         specifier: ^3.0.6
         version: 3.0.6(typescript@5.9.2)
       zod:
-        specifier: ^4.0.17
-        version: 4.0.17
+        specifier: ^4.1.0
+        version: 4.1.0
 
 packages:
 
@@ -92,19 +95,19 @@ packages:
     resolution: {integrity: sha512-ErwWS3sPOuWy42eE3AVxlKkTa1XjjKBEtNCOylVKMO5KNyz5qie8QVlLYbULOG56dtxX4zTKX3rQNJudplhcmQ==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.0.17
+      zod: ^4.1.0
 
   '@ai-sdk/google@2.0.8':
     resolution: {integrity: sha512-k+5SLtoV0qG4rSCxwWQ+/0qrJFXwYHQ1TcH4GyaP4X0qOuVS4NDtD8ymSu8ej0ejFluogtBfTLev7sbj2AnJzA==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.0.17
+      zod: ^4.1.0
 
   '@ai-sdk/provider-utils@3.0.5':
     resolution: {integrity: sha512-HliwB/yzufw3iwczbFVE2Fiwf1XqROB/I6ng8EKUsPM5+2wnIa8f4VbljZcDx+grhFrPV+PnRZH7zBqi8WZM7Q==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.0.17
+      zod: ^4.1.0
 
   '@ai-sdk/provider@2.0.0':
     resolution: {integrity: sha512-6o7Y2SeO9vFKB8lArHXehNuusnpddKPk7xqL7T2/b+OvXMRIXUO1rR4wcv1hAFUAT9avGZshty3Wlua/XA7TvA==}
@@ -1138,7 +1141,7 @@ packages:
       valibot: ^1.0.0
       vue-router: ^4.5.1
       yup: ^1.6.0
-      zod: ^4.0.17
+      zod: ^4.1.0
     peerDependenciesMeta:
       '@inertiajs/vue3':
         optional: true
@@ -1731,6 +1734,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@selderee/plugin-htmlparser2@0.11.0':
+    resolution: {integrity: sha512-P33hHGdldxGabLFjPPpaTxVolMrzrcegejx+0GxjrIb9Zv48D8yAIA/QTDR2dFl7Uz7urX8aX6+5bCZslr+gWQ==}
+
   '@shikijs/core@3.9.2':
     resolution: {integrity: sha512-3q/mzmw09B2B6PgFNeiaN8pkNOixWS726IHmJEpjDAcneDPMQmUg2cweT9cWXY4XcyQS3i6mOOUgQz9RRUP6HA==}
 
@@ -1772,96 +1778,6 @@ packages:
 
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
-
-  '@stdlib/assert-has-own-property@0.2.2':
-    resolution: {integrity: sha512-m5rV4Z2/iNkwx2vRsNheM6sQZMzc8rQQOo90LieICXovXZy8wA5jNld4kRKjMNcRt/TjrNP7i2Rhh8hruRDlHg==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/assert-has-symbol-support@0.2.2':
-    resolution: {integrity: sha512-vCsGGmDZz5dikGgdF26rIL0y0nHvH7qaVf89HLLTybceuZijAqFSJEqcB3Gpl5uaeueLNAWExHi2EkoUVqKHGg==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/assert-has-tostringtag-support@0.2.2':
-    resolution: {integrity: sha512-bSHGqku11VH0swPEzO4Y2Dr+lTYEtjSWjamwqCTC8udOiOIOHKoxuU4uaMGKJjVfXG1L+XefLHqzuO5azxdRaA==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/assert-is-boolean@0.2.2':
-    resolution: {integrity: sha512-3KFLRTYZpX6u95baZ6PubBvjehJs2xBU6+zrenR0jx8KToUYCnJPxqqj7JXRhSD+cOURmcjj9rocVaG9Nz18Pg==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/assert-is-string@0.2.2':
-    resolution: {integrity: sha512-SOkFg4Hq443hkadM4tzcwTHWvTyKP9ULOZ8MSnnqmU0nBX1zLVFLFGY8jnF6Cary0dL0V7QQBCfuxqKFM6u2PQ==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/boolean-ctor@0.2.2':
-    resolution: {integrity: sha512-qIkHzmfxDvGzQ3XI9R7sZG97QSaWG5TvWVlrvcysOGT1cs6HtQgnf4D//SRzZ52VLm8oICP+6OKtd8Hpm6G7Ww==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/error-tools-fmtprodmsg@0.2.2':
-    resolution: {integrity: sha512-2IliQfTes4WV5odPidZFGD5eYDswZrPXob7oOu95Q69ERqImo8WzSwnG2EDbHPyOyYCewuMfM5Ha6Ggf+u944Q==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/nlp-sentencize@0.2.2':
-    resolution: {integrity: sha512-dWDkcyPoLNvuQA59OxGHorcEQ79Rk6ghJPGwuS8kt9c3Rp0YjSE1cs/+2C9crm8uQXRJr6dcp25hLGLrSiqgsw==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/nlp-tokenize@0.2.2':
-    resolution: {integrity: sha512-qoKCiOHrV/PuDQpgxY69ROyJcA+uxNORR6JWlLPL4K53rweCGwLf+htDXXuhRcTx/g7mPKNWqoBlGm0WHd8WWg==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/string-base-format-interpolate@0.2.2':
-    resolution: {integrity: sha512-i9nU9rAB2+o/RR66TS9iQ8x+YzeUDL1SGiAo6GY3hP6Umz5Dx9Qp/v8T69gWVsb4a1YSclz5+YeCWaFgwvPjKA==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/string-base-format-tokenize@0.2.2':
-    resolution: {integrity: sha512-kXq2015i+LJjqth5dN+hYnvJXBSzRm8w0ABWB5tYAsIuQTpQK+mSo2muM8JBEFEnqUHAwpUsu2qNTK/9o8lsJg==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/string-base-replace@0.2.2':
-    resolution: {integrity: sha512-Y4jZwRV4Uertw7AlA/lwaYl1HjTefSriN5+ztRcQQyDYmoVN3gzoVKLJ123HPiggZ89vROfC+sk/6AKvly+0CA==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/string-base-trim@0.2.2':
-    resolution: {integrity: sha512-1BVoM1XYxPbZ7xQcf4+TNP4dya5KphlkRnj0e0FBrmlYacJITvPgmsywOREivHqF8osH1oQQBZ47J/J/hQ79Eg==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/string-format@0.2.2':
-    resolution: {integrity: sha512-GUa50uxgMAtoItsxTbMmwkyhIwrCxCrsjzk3nAbLnt/1Kt1EWOWMwsALqZdD6K4V/xSJ4ns6PZur3W6w+vKk9g==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/symbol-ctor@0.2.2':
-    resolution: {integrity: sha512-XsmiTfHnTb9jSPf2SoK3O0wrNOXMxqzukvDvtzVur1XBKfim9+seaAS4akmV1H3+AroAXQWVtde885e1B6jz1w==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/utils-define-nonenumerable-read-only-property@0.2.2':
-    resolution: {integrity: sha512-V3mpAesJemLYDKG376CsmoczWPE/4LKsp8xBvUxCt5CLNAx3J/1W39iZQyA5q6nY1RStGinGn1/dYZwa8ig0Uw==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/utils-define-property@0.2.4':
-    resolution: {integrity: sha512-XlMdz7xwuw/sqXc9LbsV8XunCzZXjbZPC+OAdf4t4PBw4ZRwGzlTI6WED+f4PYR5Tp9F1cHgLPyMYCIBfA2zRg==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
-
-  '@stdlib/utils-native-class@0.2.2':
-    resolution: {integrity: sha512-cSn/FozbEpfR/FlJAoceQtZ8yUJFhZ8RFkbEsxW/7+H4o09yln3lBS0HSfUJISYNtpTNN/2/Fup88vmvwspvwA==}
-    engines: {node: '>=0.10.0', npm: '>2.7.0'}
-    os: [aix, darwin, freebsd, linux, macos, openbsd, sunos, win32, windows]
 
   '@stylistic/eslint-plugin@5.2.3':
     resolution: {integrity: sha512-oY7GVkJGVMI5benlBDCaRrSC1qPasafyv5dOBLLv5MTilMGnErKhO6ziEfodDDIZbo5QxPUNW360VudJOFODMw==}
@@ -1994,6 +1910,9 @@ packages:
 
   '@types/hast@3.0.4':
     resolution: {integrity: sha512-WPs+bbQw5aCj+x6laNGWLH3wviHtoCv/P3+otBhbOhJgG8qtpdAMlTCxLtsTWA7LH1Oh/bFCHsBn0TPS5m30EQ==}
+
+  '@types/html-to-text@9.0.4':
+    resolution: {integrity: sha512-pUY3cKH/Nm2yYrEmDlPR1mR7yszjGx4DrwPjQ702C4/D5CwHuZTgZdIdwPkRbcuhs7BAh2L5rg3CL5cbRiGTCQ==}
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -2462,7 +2381,7 @@ packages:
     resolution: {integrity: sha512-RZiYhj7Ux7hrLtXkHPcxzdiSZt4NOiC69O5AkNfMCsz3twwz/KRkl9ASptosoOsg833s5yRcTSdIu5z53Sl6Pw==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.0.17
+      zod: ^4.1.0
 
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
@@ -3938,11 +3857,18 @@ packages:
     resolution: {integrity: sha512-puUZAUKT5m8Zzvs72XWy3HtvVbTWljRE66cP60bxJzAqf2DgICo7lYTY2IHUmLnNpjYvw5bvmoHvPc0QO2a62w==}
     engines: {node: ^16.14.0 || >=18.0.0}
 
+  html-to-text@9.0.5:
+    resolution: {integrity: sha512-qY60FjREgVZL03vJU6IfMV4GDjGBIoOyvuFdpBDIX9yTlDw0TjxVBQp+P8NvpdIXNJvfWBTNul7fsAQJq2FNpg==}
+    engines: {node: '>=14'}
+
   html-void-elements@3.0.0:
     resolution: {integrity: sha512-bEqo66MRXsUGxWHV5IP0PUiAWwoEjba4VCzg0LjFJBpchPaTfyfCKTG6bc5F8ucKec3q5y6qOdGyYTSBEvhCrg==}
 
   html-whitespace-sensitive-tag-names@3.0.1:
     resolution: {integrity: sha512-q+310vW8zmymYHALr1da4HyXUQ0zgiIwIicEfotYPWGN0OJVEN/58IJ3A4GBYcEq3LGAZqKb+ugvP0GNB9CEAA==}
+
+  htmlparser2@8.0.2:
+    resolution: {integrity: sha512-GYdjWKDkbRLkZ5geuHs5NY1puJ+PXwP7+fHPRz06Eirsb9ugf6d8kkXav6ADhcODhFFPMIXyxkxSuMf3D6NCFA==}
 
   http-errors@2.0.0:
     resolution: {integrity: sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==}
@@ -4248,6 +4174,9 @@ packages:
   lazystream@1.0.1:
     resolution: {integrity: sha512-b94GiNHQNy6JNTrt5w6zNyffMrNkXZb3KTkCZJb2V1xaEGCk093vkZ2jk3tpaeP33/OiXC+WvK9AxUebnf5nbw==}
     engines: {node: '>= 0.6.3'}
+
+  leac@0.6.0:
+    resolution: {integrity: sha512-y+SqErxb8h7nE/fiEX07jsbuhrpO9lL8eca7/Y1nuWV2moNlXhyd59iDGcRf6moVyDMbmTNzL40SUyrFU/yDpg==}
 
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
@@ -4923,6 +4852,9 @@ packages:
   parse5@8.0.0:
     resolution: {integrity: sha512-9m4m5GSgXjL4AjumKzq1Fgfp3Z8rsvjRNbnkVwfu2ImRqE5D0LnY2QfDen18FSY9C573YU5XxSapdHZTZ2WolA==}
 
+  parseley@0.12.1:
+    resolution: {integrity: sha512-e6qHKe3a9HWr0oMRVDTRhKce+bRO8VGQR3NyVwcjwrbhMmFCX9KszEV35+rn4AdilFAq9VPxP/Fe1wC9Qjd2lw==}
+
   parseurl@1.3.3:
     resolution: {integrity: sha512-CiyeOxFT/JZyN5m0z9PfXw4SCBJ6Sygz1Dpl0wqjlhDEGGBP1GnsUVEL0p63hoG1fcj3fHynXi9NYO4nWOL+qQ==}
     engines: {node: '>= 0.8'}
@@ -4962,6 +4894,9 @@ packages:
 
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
+
+  peberminta@0.9.0:
+    resolution: {integrity: sha512-XIxfHpEuSJbITd1H3EeQwpcZbTLHc+VVr8ANI9t5sit565tsI4/xK3KWTUFE2e6QiangUkh3B0jihzmGnNrRsQ==}
 
   pend@1.2.0:
     resolution: {integrity: sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==}
@@ -5493,6 +5428,9 @@ packages:
 
   scule@1.3.0:
     resolution: {integrity: sha512-6FtHJEvt+pVMIB9IBY+IcCJ6Z5f1iQnytgyfKMhDKgmzYG+TeH/wx1y3l27rshSbLiSanrR9ffZDrEsmjlQF2g==}
+
+  selderee@0.11.0:
+    resolution: {integrity: sha512-5TF+l7p4+OsnP8BCCvSyZiSPc4x4//p5uPwK8TCnVPJYRmU2aYKMpOXvw8zM5a5JvuuCGN1jmsMwuU2W02ukfA==}
 
   semver@6.3.1:
     resolution: {integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA==}
@@ -6385,44 +6323,44 @@ packages:
   zod-to-json-schema@3.24.6:
     resolution: {integrity: sha512-h/z3PKvcTcTetyjl1fkj79MHNEjm+HpD6NXheWjzOekY7kV+lwDYnHw+ivHkijnCSMz1yJaWBD9vu/Fcmk+vEg==}
     peerDependencies:
-      zod: ^4.0.17
+      zod: ^4.1.0
 
-  zod@4.0.17:
-    resolution: {integrity: sha512-1PHjlYRevNxxdy2JZ8JcNAw7rX8V9P1AKkP+x/xZfxB0K5FYfuV+Ug6P/6NVSR2jHQ+FzDDoDHS04nYUsOIyLQ==}
+  zod@4.1.0:
+    resolution: {integrity: sha512-UWxluYj2IDX9MHRXTMbB/2eeWrAMmmMSESM+MfT9MQw8U1qo9q5ASW08anoJh6AJ7pkt099fLdNFmfI+4aChHg==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
 snapshots:
 
-  '@ai-sdk/gateway@1.0.11(zod@4.0.17)':
+  '@ai-sdk/gateway@1.0.11(zod@4.1.0)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.5(zod@4.0.17)
-      zod: 4.0.17
+      '@ai-sdk/provider-utils': 3.0.5(zod@4.1.0)
+      zod: 4.1.0
 
-  '@ai-sdk/google@2.0.8(zod@4.0.17)':
+  '@ai-sdk/google@2.0.8(zod@4.1.0)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.5(zod@4.0.17)
-      zod: 4.0.17
+      '@ai-sdk/provider-utils': 3.0.5(zod@4.1.0)
+      zod: 4.1.0
 
-  '@ai-sdk/provider-utils@3.0.5(zod@4.0.17)':
+  '@ai-sdk/provider-utils@3.0.5(zod@4.1.0)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@standard-schema/spec': 1.0.0
       eventsource-parser: 3.0.3
-      zod: 4.0.17
-      zod-to-json-schema: 3.24.6(zod@4.0.17)
+      zod: 4.1.0
+      zod-to-json-schema: 3.24.6(zod@4.1.0)
 
   '@ai-sdk/provider@2.0.0':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/vue@2.0.22(vue@3.5.19(typescript@5.9.2))(zod@4.0.17)':
+  '@ai-sdk/vue@2.0.22(vue@3.5.19(typescript@5.9.2))(zod@4.1.0)':
     dependencies:
-      '@ai-sdk/provider-utils': 3.0.5(zod@4.0.17)
-      ai: 5.0.22(zod@4.0.17)
+      '@ai-sdk/provider-utils': 3.0.5(zod@4.1.0)
+      ai: 5.0.22(zod@4.1.0)
       swrv: 1.1.0(vue@3.5.19(typescript@5.9.2))
     optionalDependencies:
       vue: 3.5.19(typescript@5.9.2)
@@ -7308,7 +7246,7 @@ snapshots:
       unixify: 1.0.0
       urlpattern-polyfill: 8.0.2
       yargs: 17.7.2
-      zod: 4.0.17
+      zod: 4.1.0
     transitivePeerDependencies:
       - encoding
       - rollup
@@ -7620,9 +7558,9 @@ snapshots:
     transitivePeerDependencies:
       - magicast
 
-  '@nuxt/ui@4.0.0-alpha.0(@babel/parser@7.28.3)(@netlify/blobs@9.1.2)(change-case@5.4.4)(db0@0.3.2(drizzle-orm@0.44.4(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(pg@8.16.3)))(embla-carousel@8.6.0)(ioredis@5.7.0)(jwt-decode@4.0.0)(magicast@0.3.5)(typescript@5.9.2)(vite@7.1.3(@types/node@24.2.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(yaml@2.8.1))(vue-router@4.5.1(vue@3.5.19(typescript@5.9.2)))(vue@3.5.19(typescript@5.9.2))(zod@4.0.17)':
+  '@nuxt/ui@4.0.0-alpha.0(@babel/parser@7.28.3)(@netlify/blobs@9.1.2)(change-case@5.4.4)(db0@0.3.2(drizzle-orm@0.44.4(@opentelemetry/api@1.9.0)(@types/pg@8.15.5)(pg@8.16.3)))(embla-carousel@8.6.0)(ioredis@5.7.0)(jwt-decode@4.0.0)(magicast@0.3.5)(typescript@5.9.2)(vite@7.1.3(@types/node@24.2.1)(jiti@2.5.1)(lightningcss@1.30.1)(terser@5.43.1)(yaml@2.8.1))(vue-router@4.5.1(vue@3.5.19(typescript@5.9.2)))(vue@3.5.19(typescript@5.9.2))(zod@4.1.0)':
     dependencies:
-      '@ai-sdk/vue': 2.0.22(vue@3.5.19(typescript@5.9.2))(zod@4.0.17)
+      '@ai-sdk/vue': 2.0.22(vue@3.5.19(typescript@5.9.2))(zod@4.1.0)
       '@iconify/vue': 5.0.0(vue@3.5.19(typescript@5.9.2))
       '@internationalized/date': 3.8.2
       '@internationalized/number': 3.6.4
@@ -7670,7 +7608,7 @@ snapshots:
       vue-component-type-helpers: 3.0.5
     optionalDependencies:
       vue-router: 4.5.1(vue@3.5.19(typescript@5.9.2))
-      zod: 4.0.17
+      zod: 4.1.0
     transitivePeerDependencies:
       - '@azure/app-configuration'
       - '@azure/cosmos'
@@ -8184,6 +8122,11 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.46.2':
     optional: true
 
+  '@selderee/plugin-htmlparser2@0.11.0':
+    dependencies:
+      domhandler: 5.0.3
+      selderee: 0.11.0
+
   '@shikijs/core@3.9.2':
     dependencies:
       '@shikijs/types': 3.9.2
@@ -8231,77 +8174,6 @@ snapshots:
   '@speed-highlight/core@1.2.7': {}
 
   '@standard-schema/spec@1.0.0': {}
-
-  '@stdlib/assert-has-own-property@0.2.2': {}
-
-  '@stdlib/assert-has-symbol-support@0.2.2': {}
-
-  '@stdlib/assert-has-tostringtag-support@0.2.2':
-    dependencies:
-      '@stdlib/assert-has-symbol-support': 0.2.2
-
-  '@stdlib/assert-is-boolean@0.2.2':
-    dependencies:
-      '@stdlib/assert-has-tostringtag-support': 0.2.2
-      '@stdlib/boolean-ctor': 0.2.2
-      '@stdlib/utils-define-nonenumerable-read-only-property': 0.2.2
-      '@stdlib/utils-native-class': 0.2.2
-
-  '@stdlib/assert-is-string@0.2.2':
-    dependencies:
-      '@stdlib/assert-has-tostringtag-support': 0.2.2
-      '@stdlib/utils-define-nonenumerable-read-only-property': 0.2.2
-      '@stdlib/utils-native-class': 0.2.2
-
-  '@stdlib/boolean-ctor@0.2.2': {}
-
-  '@stdlib/error-tools-fmtprodmsg@0.2.2': {}
-
-  '@stdlib/nlp-sentencize@0.2.2':
-    dependencies:
-      '@stdlib/assert-is-string': 0.2.2
-      '@stdlib/nlp-tokenize': 0.2.2
-      '@stdlib/string-base-trim': 0.2.2
-
-  '@stdlib/nlp-tokenize@0.2.2':
-    dependencies:
-      '@stdlib/assert-has-own-property': 0.2.2
-      '@stdlib/assert-is-boolean': 0.2.2
-      '@stdlib/assert-is-string': 0.2.2
-      '@stdlib/error-tools-fmtprodmsg': 0.2.2
-      '@stdlib/string-format': 0.2.2
-
-  '@stdlib/string-base-format-interpolate@0.2.2': {}
-
-  '@stdlib/string-base-format-tokenize@0.2.2': {}
-
-  '@stdlib/string-base-replace@0.2.2': {}
-
-  '@stdlib/string-base-trim@0.2.2':
-    dependencies:
-      '@stdlib/string-base-replace': 0.2.2
-
-  '@stdlib/string-format@0.2.2':
-    dependencies:
-      '@stdlib/string-base-format-interpolate': 0.2.2
-      '@stdlib/string-base-format-tokenize': 0.2.2
-
-  '@stdlib/symbol-ctor@0.2.2': {}
-
-  '@stdlib/utils-define-nonenumerable-read-only-property@0.2.2':
-    dependencies:
-      '@stdlib/utils-define-property': 0.2.4
-
-  '@stdlib/utils-define-property@0.2.4':
-    dependencies:
-      '@stdlib/error-tools-fmtprodmsg': 0.2.2
-      '@stdlib/string-format': 0.2.2
-
-  '@stdlib/utils-native-class@0.2.2':
-    dependencies:
-      '@stdlib/assert-has-own-property': 0.2.2
-      '@stdlib/assert-has-tostringtag-support': 0.2.2
-      '@stdlib/symbol-ctor': 0.2.2
 
   '@stylistic/eslint-plugin@5.2.3(eslint@9.34.0(jiti@2.5.1))':
     dependencies:
@@ -8424,6 +8296,8 @@ snapshots:
   '@types/hast@3.0.4':
     dependencies:
       '@types/unist': 3.0.3
+
+  '@types/html-to-text@9.0.4': {}
 
   '@types/json-schema@7.0.15': {}
 
@@ -8951,13 +8825,13 @@ snapshots:
 
   agent-base@7.1.4: {}
 
-  ai@5.0.22(zod@4.0.17):
+  ai@5.0.22(zod@4.1.0):
     dependencies:
-      '@ai-sdk/gateway': 1.0.11(zod@4.0.17)
+      '@ai-sdk/gateway': 1.0.11(zod@4.1.0)
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.5(zod@4.0.17)
+      '@ai-sdk/provider-utils': 3.0.5(zod@4.1.0)
       '@opentelemetry/api': 1.9.0
-      zod: 4.0.17
+      zod: 4.1.0
 
   ajv@6.12.6:
     dependencies:
@@ -10559,9 +10433,24 @@ snapshots:
     dependencies:
       lru-cache: 10.4.3
 
+  html-to-text@9.0.5:
+    dependencies:
+      '@selderee/plugin-htmlparser2': 0.11.0
+      deepmerge: 4.3.1
+      dom-serializer: 2.0.0
+      htmlparser2: 8.0.2
+      selderee: 0.11.0
+
   html-void-elements@3.0.0: {}
 
   html-whitespace-sensitive-tag-names@3.0.1: {}
+
+  htmlparser2@8.0.2:
+    dependencies:
+      domelementtype: 2.3.0
+      domhandler: 5.0.3
+      domutils: 3.2.2
+      entities: 4.5.0
 
   http-errors@2.0.0:
     dependencies:
@@ -10811,6 +10700,8 @@ snapshots:
   lazystream@1.0.1:
     dependencies:
       readable-stream: 2.3.8
+
+  leac@0.6.0: {}
 
   levn@0.4.1:
     dependencies:
@@ -11907,6 +11798,11 @@ snapshots:
     dependencies:
       entities: 6.0.1
 
+  parseley@0.12.1:
+    dependencies:
+      leac: 0.6.0
+      peberminta: 0.9.0
+
   parseurl@1.3.3: {}
 
   path-browserify@1.0.1: {}
@@ -11931,6 +11827,8 @@ snapshots:
   pathe@1.1.2: {}
 
   pathe@2.0.3: {}
+
+  peberminta@0.9.0: {}
 
   pend@1.2.0: {}
 
@@ -12548,6 +12446,10 @@ snapshots:
       regexp-ast-analysis: 0.7.1
 
   scule@1.3.0: {}
+
+  selderee@0.11.0:
+    dependencies:
+      parseley: 0.12.1
 
   semver@6.3.1: {}
 
@@ -13497,10 +13399,10 @@ snapshots:
       compress-commons: 6.0.2
       readable-stream: 4.7.0
 
-  zod-to-json-schema@3.24.6(zod@4.0.17):
+  zod-to-json-schema@3.24.6(zod@4.1.0):
     dependencies:
-      zod: 4.0.17
+      zod: 4.1.0
 
-  zod@4.0.17: {}
+  zod@4.1.0: {}
 
   zwitch@2.0.4: {}

@@ -30,7 +30,7 @@ function get_jobs(writer: ChatWriter) {
         .from(JobsTable)
         .where(inArray(JobsTable.jobId, jobIds))
 
-      return jobs
+      const results = jobs
         .map((j) => {
           const job = {
             jobId: j.jobId,
@@ -42,14 +42,13 @@ function get_jobs(writer: ChatWriter) {
             arbeitszeitMax: j.arbeitszeitMax,
             homeoffice: j.homeoffice,
           }
-          const chunk = map.get(j.jobId)
-
-          return chunk
-            ? { ...job, score: Math.round(chunk.score * 100), chunks: chunk.chunks }
-            : { ...job, score: 0, chunks: [] }
+          const chunk = map.get(j.jobId) ?? { jobId: j.jobId, score: 0, chunks: [] }
+          return { ...job, ...chunk, score: Math.round(chunk.score * 100) }
         })
         .filter(j => j.score >= 25)
         .sort((a, b) => b.score - a.score)
+
+      return results
     },
   })
 }

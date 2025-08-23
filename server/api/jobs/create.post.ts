@@ -1,5 +1,5 @@
 import type { Job } from '~~/shared/types'
-import sentencize from '@stdlib/nlp-sentencize'
+import { convert } from 'html-to-text'
 import { z } from 'zod'
 import { embedMany } from '~~/server/ai/llm'
 import { JobChunksTable } from '~~/server/db/schema/job_chunks'
@@ -32,15 +32,14 @@ export default defineEventHandler(async (event) => {
 
     const promises = created.map(async (job) => {
       for (const col of JOB_SEARCH_TARGET_COLUMNS) {
-        const raw = job[col]
-        if (!raw)
+        const text = job[col]
+        if (!text)
           continue
 
-        const cleaning = clean(raw)
-        if (!cleaning)
+        const chunks = sentencize(text)
+        if (!chunks.length)
           continue
 
-        const chunks = sentencize(cleaning)
         const embeddings = await embedMany(chunks)
 
         await tx.insert(JobChunksTable).values(
@@ -61,15 +60,40 @@ export default defineEventHandler(async (event) => {
   return created
 })
 
-function clean(html: string) {
-  if (!html)
-    return ''
+function sentencize(input: string) {
+  if (typeof input !== 'string')
+    return []
 
-  return html
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\|/g, ' ')
-    .replace(/\?/g, ' ')
-    .replace(/•/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
+  const text = convert(input, {
+    wordwrap: false,
+    decodeEntities: true,
+    preserveNewlines: true,
+    formatters: {
+      liWithDot(elem, walk, builder) {
+        builder.openBlock({ leadingLineBreaks: 1 })
+        walk(elem.children, builder)
+        builder.closeBlock({ trailingLineBreaks: 1 })
+      },
+    },
+    selectors: [
+      { selector: 'li', format: 'liWithDot' },
+      { selector: 'ul', format: 'inline' },
+      { selector: 'ol', format: 'inline' },
+      { selector: 'p', format: 'inline' },
+    ],
+  })
+
+  const items = text.trim().split(/\r?\n+/)
+
+  const sentences = items.flatMap((item) => {
+    const sentence = item.toLowerCase()
+      .replace(/[.,!?;:()"'`]/g, '')
+      .replace(/[•\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '')
+      .replace(/^[^a-z0-9]+|[^a-z0-9]+$/gi, '')
+      .trim()
+
+    return sentence ? [sentence] : []
+  })
+
+  return sentences
 }

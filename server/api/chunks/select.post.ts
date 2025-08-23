@@ -6,8 +6,8 @@ import { db } from '~~/server/utils/drizzle'
 
 type Chunk = Omit<(typeof JobChunksTable.$inferSelect) & { score: number }, 'embedding'>
 
-const TOP_CHUNKS_PER_QUERY = 200
-const TOP_CHUNKS_PER_JOBS = 10
+const TOP_CHUNKS_PER_QUERY = 500
+const SEMANTIC_RATIO = 0.5
 
 export default defineEventHandler(async (event) => {
   const { query } = await readValidatedBody(
@@ -20,40 +20,65 @@ export default defineEventHandler(async (event) => {
     getLexicalChunks(query),
   ])
 
-  const entries = new Map<string, { jobId: string, chunks: Chunk[] }>()
-  for (const chunk of semanticChunks.concat(lexicalChunks)) {
-    const entry = entries.get(chunk.jobId)
+  const entries = new Map<
+  string,
+{
+  jobId: string
+  semanticScore: number
+  lexicalScore: number
+  chunks: Map<string, Chunk>
+}
+>()
+  for (const chunk of semanticChunks) {
+    const entry = entries.get(chunk.jobId) ?? {
+      jobId: chunk.jobId,
+      chunks: new Map(),
+      semanticScore: 0,
+      lexicalScore: 0,
+    }
 
-    if (entry) {
-      const idx = entry.chunks.findIndex(c => c.id === chunk.id)
-      if (idx === -1) {
-        entry.chunks.push(chunk)
-      }
-      else {
-        entry.chunks[idx].score += chunk.score
-      }
-    }
-    else {
-      const entry = {
-        jobId: chunk.jobId,
-        score: chunk.score,
-        chunks: [chunk],
-      }
-      entries.set(chunk.jobId, entry)
-    }
+    entry.chunks.set(chunk.id, chunk)
+    entry.semanticScore = Math.max(entry.semanticScore, chunk.score)
+    entries.set(chunk.jobId, entry)
   }
 
-  const array = Array.from(entries.values()).map((entry) => {
-    const chunks = entry.chunks.sort((a, b) => b.score - a.score).slice(0, TOP_CHUNKS_PER_JOBS)
-    const score = chunks.reduce((acc, c) => acc + c.score, 0)
+  for (const chunk of lexicalChunks) {
+    const entry = entries.get(chunk.jobId) ?? {
+      jobId: chunk.jobId,
+      chunks: new Map(),
+      semanticScore: 0,
+      lexicalScore: 0,
+    }
+
+    entry.chunks.set(chunk.id, chunk)
+    entry.lexicalScore = Math.max(entry.lexicalScore, chunk.score)
+    entries.set(chunk.jobId, entry)
+  }
+
+  const jobs = Array.from(entries.values())
+  const semanticScores = jobs.map(j => j.semanticScore)
+  const lexicalScores = jobs.map(j => j.lexicalScore)
+
+  const normSemantic = normalize(semanticScores)
+  const normLexical = normalize(lexicalScores)
+
+  const result = jobs.map((job, i) => {
+    const semantic = normSemantic[i]
+    const lexical = normLexical[i]
+    const score = SEMANTIC_RATIO * semantic + (1 - SEMANTIC_RATIO) * lexical
+
+    const chunks = Array.from(job.chunks.values())
+      .filter(c => c.score > 1)
+      .sort((a, b) => b.score - a.score)
+
     return {
-      ...entry,
+      jobId: job.jobId,
       score,
-      chunks: normalize(chunks),
+      chunks,
     }
   })
 
-  return normalize(array)
+  return result.sort((a, b) => b.score - a.score)
 })
 
 async function getSemanticChunks(query: string) {
@@ -71,8 +96,9 @@ async function getSemanticChunks(query: string) {
     .orderBy(desc(score))
     .limit(TOP_CHUNKS_PER_QUERY)
 
-  return normalize(chunks)
+  return chunks
 }
+
 async function getLexicalChunks(query: string) {
   const { embedding: _, ...rest } = getTableColumns(JobChunksTable)
 
@@ -88,16 +114,25 @@ async function getLexicalChunks(query: string) {
     .orderBy(desc(score))
     .limit(TOP_CHUNKS_PER_QUERY)
 
-  return normalize(chunks)
+  return chunks
 }
 
-function normalize<T extends { score: number }>(array: T[]) {
-  const scores = array.map(c => c.score)
-  const min = Math.min(...scores)
-  const max = Math.max(...scores)
+// TODO: Rank normalization
+function normalize(scores: number[]) {
+  const sorted = scores.map((s, i) => ({ s, i })).sort((a, b) => a.s - b.s)
+  const ranks: number[] = Array.from({ length: scores.length })
+  let i = 0
+  while (i < sorted.length) {
+    let j = i
+    while (j < sorted.length && sorted[j].s === sorted[i].s)
+      j++
 
-  return array.map(c => ({
-    ...c,
-    score: max === min ? 1 : (c.score - min) / (max - min),
-  }))
+    const avg = (i + j - 1) / 2
+    for (let k = i; k < j; k++) {
+      ranks[sorted[k].i] = avg
+    }
+    i = j
+  }
+  const n = scores.length - 1
+  return ranks.map(r => (n === 0 ? 1 : r / n))
 }

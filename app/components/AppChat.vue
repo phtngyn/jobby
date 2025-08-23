@@ -199,6 +199,7 @@ function remove(job: Job) {
                     root: 'text-muted',
                     leadingIcon: 'size-4 animate-spin me-1',
                     trailingIcon: 'hidden',
+                    trigger: 'py-2',
                   }"
                 />
 
@@ -208,6 +209,7 @@ function remove(job: Job) {
                   :ui="{
                     root: 'text-muted',
                     leadingIcon: 'size-4 me-1 text-primary',
+                    trigger: 'py-2',
                   }"
                 >
                   <template #content>
@@ -219,8 +221,10 @@ function remove(job: Job) {
               </template>
 
               <template v-if="part.type === 'tool-get_jobs'">
-                <div>
-                  <p>Input: {{ part.input?.query }}</p>
+                <div class="grid gap-2">
+                  <p class="p-4 border border-accented rounded-md">
+                    Input: <span class="font-medium text-info">"{{ part.input?.query }}"</span>
+                  </p>
 
                   <ul
                     v-if="part.output"
@@ -230,31 +234,27 @@ function remove(job: Job) {
                       v-for="job in part.output"
                       :key="job.jobId"
                     >
-                      <NuxtLink
-                        class="block p-4 bg border border-accented rounded-md hover:border-inverted/80 transition-colors"
-                        :to="`/jobs/${job.jobId}`"
-                      >
-                        <div class="flex items-center justify-between mb-4">
-                          <div class="flex items-center gap-2">
-                            <div
-                              :style="{
-                                '--width': `${job.score}%`,
-                                '--background': `${job.score > 75 ? 'var(--ui-success)' : job.score > 50 ? 'var(--ui-warning)' : 'var(--ui-error)'}`,
-                              }"
-                              class="relative w-16 bg-muted h-1 rounded-md overflow-hidden before:absolute before:inset-0 before:bg-(--background) before:w-(--width)"
-                            />
-                            <span class="text-sm">{{ job.score }}%</span>
-                          </div>
-
+                      <div class="grid gap-4 p-4 bg border border-accented rounded-md">
+                        <div class="flex items-center justify-between">
                           <UBadge
                             size="md"
                             variant="subtle"
-                            :color="job.score > 75 ? 'success' : job.score > 50 ? 'warning' : 'error'"
+                            :color="job.score >= 75 ? 'success' : job.score >= 50 ? 'warning' : 'error'"
                           >
-                            {{ job.score > 75 ? 'Excellent Match' : job.score > 50 ? 'Good Match' : 'Poor Match' }}
+                            {{ `${job.score}% Match` }}
                           </UBadge>
+
+                          <UButton
+                            variant="link"
+                            icon="i-lucide-external-link"
+                            square
+                            size="sm"
+                            color="neutral"
+                            :to="`/jobs/${job.jobId}`"
+                          />
                         </div>
-                        <p class="font-semibold text-lg leading-tight line-clamp-1 mb-4">
+
+                        <p class="font-semibold text-lg leading-tight line-clamp-1">
                           {{ job.angebotstitel }}
                         </p>
 
@@ -271,7 +271,7 @@ function remove(job: Job) {
                               v-for="typ in job.jobtypen.split('|')"
                               :key="typ"
                               color="neutral"
-                              variant="outline"
+                              variant="subtle"
                             >
                               <UIcon name="i-lucide-briefcase" /> {{ typ }}
                             </UBadge>
@@ -290,7 +290,35 @@ function remove(job: Job) {
                             </UBadge>
                           </div>
                         </div>
-                      </NuxtLink>
+
+                        <UAccordion
+                          v-if="job.chunks.length"
+                          :items="[{ label: `References (${job.chunks.length})`, icon: 'i-lucide-file-text' }]"
+                          :ui="{
+                            root: 'text-muted',
+                            trigger: 'pt-2 pb-4',
+                            leadingIcon: 'size-4 me-1',
+                          }"
+                        >
+                          <template #content>
+                            <ul class="grid gap-2">
+                              <li
+                                v-for="c in job.chunks"
+                                :key="c.id"
+                                class="text-sm text-default border border-accented px-2.5 py-1 rounded-sm"
+                              >
+                                <div class="flex gap-1">
+                                  <span class="font-medium">{{ c.type }}</span>
+                                  <span class="text-dimmed">({{ c.score.toFixed(2) }})</span>
+                                </div>
+                                <p class="text-muted">
+                                  {{ c.content }}
+                                </p>
+                              </li>
+                            </ul>
+                          </template>
+                        </UAccordion>
+                      </div>
                     </li>
                   </ul>
                 </div>
