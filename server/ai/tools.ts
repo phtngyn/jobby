@@ -1,5 +1,5 @@
 /* eslint-disable unused-imports/no-unused-vars */
-import type { ChatWriter, Filters, Job } from '~~/shared/types'
+import type { ChatWriter, Filters } from '~~/shared/types'
 import { tool } from 'ai'
 import { inArray } from 'drizzle-orm'
 import { z } from 'zod'
@@ -14,7 +14,7 @@ export function getTools(writer: ChatWriter) {
 }
 
 function get_jobs(writer: ChatWriter) {
-  return (payload: { jobs?: Job[] }) => tool({
+  return (payload: object) => tool({
     description: 'Search for jobs based on user query',
     inputSchema: z.object({ query: z.string() }),
     async execute({ query }, { toolCallId }) {

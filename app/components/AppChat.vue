@@ -4,6 +4,8 @@ import { Chat } from '@ai-sdk/vue'
 import { DefaultChatTransport } from 'ai'
 import { LIGHT_MODEL, MODELS } from '~~/shared/constants'
 
+const store = useGlobalStore()
+
 const { data } = useNuxtData<Job[]>('jobs')
 const jobs = ref<Job[]>([])
 
@@ -32,10 +34,6 @@ const chat = new Chat<ChatUIMessage>({
 
   messages: [],
 })
-
-watch(() => chat.messages, (v) => {
-  console.log(JSON.parse(JSON.stringify(v)))
-}, { deep: true })
 
 function handleSubmit(e: Event) {
   e.preventDefault()
@@ -69,7 +67,6 @@ function drop(event: DragEvent) {
 }
 
 function remove(job: Job) {
-  console.log(job)
   jobs.value = jobs.value.filter(j => j.jobId !== job.jobId)
 }
 </script>
@@ -213,24 +210,33 @@ function remove(job: Job) {
 
         <MDC
           class="mt-8"
-          :value="`<details><summary>Debug Messages</summary>\n\n\`\`\`json\n${JSON.stringify(chat.messages, null, 2)}\n\`\`\`</details>`"
+          :value="`<details><summary>Debug Messages</summary>\n\n\`\`\`json\n${JSON.stringify(chat.messages, null, 2)}\n\`\`\`\n</details>`"
         />
       </div>
     </template>
 
     <template #footer>
       <div
-        class="p-4"
+        class="relative p-4"
         @dragover.prevent
         @drop="drop"
       >
+        <div
+          class="absolute inset-0 size-full flex-center gap-2 text-lg border rounded-t-md transition-[opacity,border-color]"
+          :class="store.isJobDragging ? 'z-10 opacity-100 border-inverted' : '-z-10 opacity-0 border-transparent'"
+        >
+          <UIcon name="i-lucide-arrow-down-to-line" class="size-6" />
+          Drop here
+        </div>
+
         <UChatPrompt
           v-model="input"
           :error="chat.error"
           :status="chat.status"
           variant="subtle"
-          class="px-2 bg-white dark:bg-neutral-900"
+          class="px-2"
           :ui="{ body: 'my-1.5' }"
+          :class="{ blur: store.isJobDragging }"
           @submit="handleSubmit"
         >
           <template #header>

@@ -5,6 +5,7 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@vueuse/nuxt',
     '@nuxtjs/mdc',
+    '@pinia/nuxt',
   ],
 
   devtools: {
@@ -20,6 +21,10 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2025-05-01',
+
+  debug: {
+    hydration: true,
+  },
 
   eslint: {
     config: {

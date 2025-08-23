@@ -1,4 +1,4 @@
-import type { ChatToolKeys, ChatUIMessage, ChatWriter } from '~~/shared/types'
+import type { ChatToolKeys, ChatUIMessage, ChatWriter, Job } from '~~/shared/types'
 import {
   convertToModelMessages,
   createUIMessageStream,
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
   const stream = createUIMessageStream<ChatUIMessage>({
     originalMessages: messages,
     async execute({ writer }) {
-      const classification = await classify(writer, query)
+      const classification = await classify(writer, { query, jobs })
 
       const tools = getTools(writer)
 
@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
           return arr
         })(),
         tools: {
-          get_jobs: tools.get_jobs({ jobs }),
+          get_jobs: tools.get_jobs({}),
           get_filters: tools.get_filters(filters),
         },
       })
@@ -90,7 +90,9 @@ export default defineEventHandler(async (event) => {
   return createUIMessageStreamResponse({ stream })
 })
 
-async function classify(writer: ChatWriter, query: string) {
+async function classify(writer: ChatWriter, params: { query: string, jobs?: Job[] }) {
+  // TODO decide what to do when jobs are passed in
+
   const id = generateId()
 
   writer.write({
@@ -131,7 +133,7 @@ A: { "type": "general", "reasoning": "This is an opinion, not a filter update in
 Now classify the following query:
 
 User query:
-${query}
+${params.query}
 `
 
   const { object } = await generateObject({

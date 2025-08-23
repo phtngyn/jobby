@@ -2,6 +2,8 @@
 import type { Filters, Job } from '~~/shared/types'
 import { JOB_DOMAINS, JOB_FIELDS, JOB_HOMEOFFICES, JOB_TYPES, JOB_WORKINGTIMES } from '~~/shared/constants'
 
+const store = useGlobalStore()
+
 const filters = ref<Filters>({
   search: '',
   types: [],
@@ -29,17 +31,24 @@ watchThrottled(
   async () => {
     await execute({ dedupe: 'cancel' })
   },
-  { throttle: 1000, deep: true, immediate: true },
+  { throttle: 1000, deep: true, immediate: true, flush: 'post' },
 )
 
 function dragstart(event: DragEvent) {
   const target = event.target as HTMLAnchorElement
   const id = target.dataset.id
 
-  if (!id || !event.dataTransfer)
+  if (!id || !event.dataTransfer) {
+    event.preventDefault()
     return
+  }
 
+  store.isJobDragging = true
   event.dataTransfer.setData('text/plain', id)
+}
+
+function dragend() {
+  store.isJobDragging = false
 }
 
 function clearFilters() {
@@ -240,10 +249,57 @@ function clearFilters() {
             </UButton>
           </div>
 
-          <span class="group-has-[[data-slot=badge]]:ml-auto text-sm text-muted font-medium">Show {{ data?.length }} results</span>
+          <span
+            v-if="data"
+            class="group-has-[[data-slot=badge]]:ml-auto text-sm text-muted font-medium"
+            data-allow-mismatch
+          >
+            Show {{ data.length }} results
+          </span>
         </div>
 
-        <template v-if="status === 'success'">
+        <ul
+          v-if="status === 'pending' || status === 'idle'"
+          class="grid grid-cols-1 @min-3xl:grid-cols-2 @min-6xl:grid-cols-3 gap-4"
+          data-allow-mismatch
+        >
+          <li
+            v-for="j in 10"
+            :key="j"
+            class="p-4 flex flex-col bg-default border border-accented rounded-md h-full"
+          >
+            <div class="flex gap-2 mb-2">
+              <USkeleton
+                v-for="t in 2"
+                :key="t"
+                class="w-1/4 h-4"
+              />
+            </div>
+
+            <USkeleton class="w-full h-4 mb-4" />
+
+            <div class="grid gap-1.5 text-sm mb-4">
+              <USkeleton class="w-2/5 h-4" />
+              <USkeleton class="w-3/5 h-4" />
+
+              <div class="flex items-center gap-2 my-1">
+                <USkeleton class="w-1/5 h-4" />
+                <USkeleton class="w-1/5 h-4" />
+              </div>
+            </div>
+
+            <div class="grid gap-2 mb-4">
+              <USkeleton class="w-full h-4" />
+              <USkeleton class="w-full h-4" />
+            </div>
+
+            <div class="mt-auto border-t border-accented pt-4">
+              <USkeleton class="w-1/2 h-4" />
+            </div>
+          </li>
+        </ul>
+
+        <template v-else-if="status === 'success'">
           <div
             v-if="data.length"
             class="grid grid-cols-1 @min-3xl:grid-cols-2 @min-6xl:grid-cols-3 gap-4"
@@ -256,6 +312,7 @@ function clearFilters() {
               :data-id="job.jobId"
               draggable="true"
               @dragstart="dragstart"
+              @dragend="dragend"
             >
               <div class="absolute top-4 right-4">
                 <UIcon name="i-lucide-grip-vertical" class="text-dimmed group-hover:text-(--ui-text) transition-colors" />
@@ -316,7 +373,7 @@ function clearFilters() {
             v-else
             class="flex-center mt-10"
           >
-            <UCard class="max-w-1/4 text-center" :ui="{ body: 'flex-center flex-col gap-2' }">
+            <UCard class="w-full max-w-100 text-center" :ui="{ body: 'flex-center flex-col gap-2' }">
               <div class="size-16 rounded-full bg-accented flex-center">
                 <UIcon name="i-lucide-funnel" class="size-6" />
               </div>
@@ -329,6 +386,7 @@ function clearFilters() {
 
               <UButton
                 class="mt-2"
+                variant="subtle"
                 @click="clearFilters"
               >
                 Clear all filters
@@ -337,50 +395,31 @@ function clearFilters() {
           </div>
         </template>
 
-        <template v-else-if="status === 'error'">
-          <p class="text-error">
-            {{ error }}
-          </p>
-        </template>
-
-        <template v-else>
-          <div class="grid grid-cols-2 @min-6xl:grid-cols-3 gap-4">
-            <div
-              v-for="j in 10"
-              :key="j"
-              class="p-4 flex flex-col bg-default border border-accented rounded-md h-full"
-            >
-              <div class="flex gap-2 mb-2">
-                <USkeleton
-                  v-for="t in 2"
-                  :key="t"
-                  class="w-1/4 h-4"
-                />
-              </div>
-
-              <USkeleton class="w-full h-4 mb-4" />
-
-              <div class="grid gap-1.5 text-sm mb-4">
-                <USkeleton class="w-2/5 h-4" />
-                <USkeleton class="w-3/5 h-4" />
-
-                <div class="flex items-center gap-2 my-1">
-                  <USkeleton class="w-1/5 h-4" />
-                  <USkeleton class="w-1/5 h-4" />
-                </div>
-              </div>
-
-              <div class="grid gap-2 mb-4">
-                <USkeleton class="w-full h-4" />
-                <USkeleton class="w-full h-4" />
-              </div>
-
-              <div class="mt-auto border-t border-accented pt-4">
-                <USkeleton class="w-1/2 h-4" />
-              </div>
+        <div
+          v-else-if="status === 'error'"
+          class="flex-center mt-10"
+        >
+          <UCard class="w-full max-w-100 text-center" :ui="{ body: 'flex-center flex-col gap-2' }">
+            <div class="size-16 rounded-full bg-accented flex-center">
+              <UIcon name="i-lucide-ban" class="size-6" />
             </div>
-          </div>
-        </template>
+            <p class="text-lg font-medium">
+              Error
+            </p>
+            <p class="text-sm text-muted text-pretty">
+              {{ error }}
+            </p>
+
+            <UButton
+              class="mt-2"
+              variant="subtle"
+              color="error"
+              @click="reloadNuxtApp()"
+            >
+              Reload Page
+            </UButton>
+          </UCard>
+        </div>
       </div>
     </template>
   </UDashboardPanel>
