@@ -21,7 +21,7 @@ const emit = defineEmits<{
     <ul class="grid gap-4">
       <li class="flex items-center gap-3">
         <UIcon name="i-lucide-rotate-cw" class="size-5 animate-spin" />
-        <span class="text-muted">Searching Jobs...</span>
+        <span class="text-muted">Searching...</span>
       </li>
 
       <li
@@ -59,7 +59,7 @@ const emit = defineEmits<{
           v-for="job in props.output"
           :key="job.jobId"
         >
-          <div class="grid gap-4 p-4 bg border border-accented rounded-md">
+          <div class="grid gap-4 p-4 bg border border-accented rounded-md has-[.active-link]:border-primary transition-colors">
             <div class="flex items-center justify-between">
               <UBadge
                 size="md"
@@ -75,6 +75,8 @@ const emit = defineEmits<{
                 square
                 size="sm"
                 color="neutral"
+                active-color="primary"
+                active-class="active-link"
                 :to="`/jobs/${job.jobId}`"
               />
             </div>

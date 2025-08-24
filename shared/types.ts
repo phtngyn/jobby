@@ -1,7 +1,7 @@
 import type { createGoogleGenerativeAI } from '@ai-sdk/google'
 import type { InferUITools, ToolUIPart, UIMessage, UIMessagePart, UIMessageStreamWriter } from 'ai'
 import type { z, ZodType } from 'zod'
-import type { getTools } from '~~/server/ai/tools'
+import type { getToolbox } from '~~/server/ai/tools'
 import type { ChatDataPartSchema, ChatMetadataSchema, FiltersSchema, JobSchema } from './schemas'
 
 export type Job = z.infer<typeof JobSchema>
@@ -18,7 +18,7 @@ export type ChatMetadata = z.infer<typeof ChatMetadataSchema>
 
 export type ChatDataPart = z.infer<typeof ChatDataPartSchema>
 
-export type ChatTools = ReturnType<typeof getTools>
+export type ChatTools = ReturnType<typeof getToolbox>
 export type ChatToolKeys = keyof ChatTools
 export type ChatToolSet = InferUITools<{ [K in ChatToolKeys]: ReturnType<ChatTools[K]>; }>
 

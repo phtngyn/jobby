@@ -20,6 +20,13 @@ export default defineNuxtConfig({
     },
   },
 
+  routeRules: {
+    '*': {
+      prerender: false,
+      cache: false,
+    },
+  },
+
   compatibilityDate: '2025-05-01',
 
   debug: {

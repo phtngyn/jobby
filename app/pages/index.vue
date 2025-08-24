@@ -20,7 +20,6 @@ const { data, status, error, execute } = await useAsyncData(
     body: { filters: filters.value },
   }),
   {
-    default: () => [] as Job[],
     lazy: true,
     immediate: false,
   },
@@ -64,7 +63,10 @@ function clearFilters() {
 </script>
 
 <template>
-  <UDashboardPanel :ui="{ body: 'sm:p-4' }">
+  <UDashboardPanel
+    id="app-index"
+    :ui="{ body: 'sm:p-4' }"
+  >
     <template #header>
       <UDashboardNavbar title="Open Jobs" :ui="{ root: 'sm:p-4' }">
         <template #leading>
@@ -258,50 +260,48 @@ function clearFilters() {
           </span>
         </div>
 
-        <ul
-          v-if="status === 'pending' || status === 'idle'"
-          class="grid grid-cols-1 @min-3xl:grid-cols-2 @min-6xl:grid-cols-3 gap-4"
-          data-allow-mismatch
-        >
-          <li
-            v-for="j in 10"
-            :key="j"
-            class="p-4 flex flex-col bg-default border border-accented rounded-md h-full"
-          >
-            <div class="flex gap-2 mb-2">
-              <USkeleton
-                v-for="t in 2"
-                :key="t"
-                class="w-1/4 h-4"
-              />
-            </div>
-
-            <USkeleton class="w-full h-4 mb-4" />
-
-            <div class="grid gap-1.5 text-sm mb-4">
-              <USkeleton class="w-2/5 h-4" />
-              <USkeleton class="w-3/5 h-4" />
-
-              <div class="flex items-center gap-2 my-1">
-                <USkeleton class="w-1/5 h-4" />
-                <USkeleton class="w-1/5 h-4" />
+        <template v-if="status === 'pending' || status === 'idle'">
+          <ul class="grid grid-cols-1 @min-3xl:grid-cols-2 @min-6xl:grid-cols-3 gap-4">
+            <li
+              v-for="j in 10"
+              :key="j"
+              class="p-4 flex flex-col bg-default border border-accented rounded-md h-full"
+            >
+              <div class="flex gap-2 mb-2">
+                <USkeleton
+                  v-for="t in 2"
+                  :key="t"
+                  class="w-1/4 h-4"
+                />
               </div>
-            </div>
 
-            <div class="grid gap-2 mb-4">
-              <USkeleton class="w-full h-4" />
-              <USkeleton class="w-full h-4" />
-            </div>
+              <USkeleton class="w-full h-4 mb-4" />
 
-            <div class="mt-auto border-t border-accented pt-4">
-              <USkeleton class="w-1/2 h-4" />
-            </div>
-          </li>
-        </ul>
+              <div class="grid gap-1.5 text-sm mb-4">
+                <USkeleton class="w-2/5 h-4" />
+                <USkeleton class="w-3/5 h-4" />
+
+                <div class="flex items-center gap-2 my-1">
+                  <USkeleton class="w-1/5 h-4" />
+                  <USkeleton class="w-1/5 h-4" />
+                </div>
+              </div>
+
+              <div class="grid gap-2 mb-4">
+                <USkeleton class="w-full h-4" />
+                <USkeleton class="w-full h-4" />
+              </div>
+
+              <div class="mt-auto border-t border-accented pt-4">
+                <USkeleton class="w-1/2 h-4" />
+              </div>
+            </li>
+          </ul>
+        </template>
 
         <template v-else-if="status === 'success'">
           <div
-            v-if="data.length"
+            v-if="data?.length"
             class="grid grid-cols-1 @min-3xl:grid-cols-2 @min-6xl:grid-cols-3 gap-4"
           >
             <NuxtLink
@@ -395,31 +395,30 @@ function clearFilters() {
           </div>
         </template>
 
-        <div
-          v-else-if="status === 'error'"
-          class="flex-center mt-10"
-        >
-          <UCard class="w-full max-w-100 text-center" :ui="{ body: 'flex-center flex-col gap-2' }">
-            <div class="size-16 rounded-full bg-accented flex-center">
-              <UIcon name="i-lucide-ban" class="size-6" />
-            </div>
-            <p class="text-lg font-medium">
-              Error
-            </p>
-            <p class="text-sm text-muted text-pretty">
-              {{ error }}
-            </p>
+        <template v-else>
+          <div class="flex-center mt-10">
+            <UCard class="w-full max-w-100 text-center" :ui="{ body: 'flex-center flex-col gap-2' }">
+              <div class="size-16 rounded-full bg-accented flex-center">
+                <UIcon name="i-lucide-ban" class="size-6" />
+              </div>
+              <p class="text-lg font-medium">
+                Error
+              </p>
+              <p class="text-sm text-muted text-pretty">
+                {{ error }}
+              </p>
 
-            <UButton
-              class="mt-2"
-              variant="subtle"
-              color="error"
-              @click="reloadNuxtApp()"
-            >
-              Reload Page
-            </UButton>
-          </UCard>
-        </div>
+              <UButton
+                class="mt-2"
+                variant="subtle"
+                color="error"
+                @click="reloadNuxtApp()"
+              >
+                Reload Page
+              </UButton>
+            </UCard>
+          </div>
+        </template>
       </div>
     </template>
   </UDashboardPanel>

@@ -1,20 +1,24 @@
 /* eslint-disable unused-imports/no-unused-vars */
-import type { ChatWriter, Filters } from '~~/shared/types'
-import { tool } from 'ai'
+import type { ChatWriter, Filters, Job } from '~~/shared/types'
+import { generateText, tool } from 'ai'
 import { inArray } from 'drizzle-orm'
 import { z } from 'zod'
 import { JobsTable } from '~~/server/db/schema/jobs'
 import { db } from '~~/server/utils/drizzle'
+import { LIGHT_MODEL } from '~~/shared/constants'
+import { provider } from './llm'
 
-export function getTools(writer: ChatWriter) {
+export function getToolbox(writer: ChatWriter) {
   return {
     get_jobs: get_jobs(writer),
+    get_similar_jobs: get_similar_jobs(writer),
+    analyze_jobs: analyze_jobs(writer),
     get_filters: get_filters(writer),
   }
 }
 
 function get_jobs(writer: ChatWriter) {
-  return (payload: object) => tool({
+  return () => tool({
     description: 'Search for jobs based on user query',
     inputSchema: z.object({ query: z.string() }),
     async execute({ query }, { toolCallId }) {
@@ -53,7 +57,58 @@ function get_jobs(writer: ChatWriter) {
   })
 }
 
-export function get_filters(writer: ChatWriter) {
+function get_similar_jobs(writer: ChatWriter) {
+  return (payload: { jobs: Job[] }) => tool({
+    description: 'Search for similar jobs in the database based on the user\'s uploaded jobs',
+    inputSchema: z.object({
+      query: z.string().describe('Optional extra query to refine the similarity search'),
+    }),
+    async execute({ query }, { toolCallId }) {
+      console.log(payload.jobs)
+      return []
+    },
+
+  })
+}
+
+function analyze_jobs(writer: ChatWriter) {
+  return (payload: { jobs: Job[] }) =>
+    tool({
+      description:
+        'Analyze the user\'s uploaded jobs (summarize, compare, filter, etc.)',
+      inputSchema: z.object({
+        query: z
+          .string()
+          .describe('The user\'s analysis request about the uploaded jobs'),
+      }),
+      async execute({ query }, { toolCallId }) {
+        console.log({
+          query,
+          payload,
+        })
+        const { text } = await generateText({
+          model: provider(LIGHT_MODEL),
+          messages: [
+            {
+              role: 'system',
+              content:
+                'You are an assistant that analyzes uploaded jobs. '
+                + 'You will receive a list of jobs in structured JSON and a user query. '
+                + 'Provide a clear, helpful free-text answer based only on the uploaded jobs.',
+            },
+            {
+              role: 'user',
+              content: `User query: ${query}\n\nUploaded jobs:\n${JSON.stringify(payload.jobs, null, 2)}`,
+            },
+          ],
+        })
+
+        return text
+      },
+    })
+}
+
+function get_filters(writer: ChatWriter) {
   return (_filters: Filters) => tool({
     description: '',
     name: '',

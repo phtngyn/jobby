@@ -40,19 +40,28 @@ export const FiltersSchema = z.object({
 })
 
 export const ChatMetadataSchema = z.object({
-  model: z.string().optional(),
-  duration: z.number().optional(),
-  totalTokens: z.number().optional(),
-  inputTokens: z.number().optional(),
-  outputTokens: z.number().optional(),
-  finishReason: z.string().optional(),
+  stats: z.object({
+    model: z.string().optional(),
+    duration: z.number().optional(),
+    totalTokens: z.number().optional(),
+    inputTokens: z.number().optional(),
+    outputTokens: z.number().optional(),
+    finishReason: z.string().optional(),
+  }).optional(),
+  analyse_jobs: z.array(z.object({ id: z.string(), title: z.string() })).optional(),
 })
 
 export const ChatDataPartStatus = z.enum(['loading', 'done'])
 
 export const ChatDataPartClassificationSchema = z.object({
-  reasoning: z.string().max(200),
-  type: z.enum(['general', 'job_search', 'update_filters']),
+  reason: z.string().max(200),
+  type: z.enum([
+    'general',
+    'get_jobs',
+    'get_similar_jobs',
+    'analyze_jobs',
+    'get_filters',
+  ]),
   confidence: z.number().min(0).max(1),
   status: ChatDataPartStatus,
 })

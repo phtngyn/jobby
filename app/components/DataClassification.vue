@@ -29,7 +29,7 @@ const props = defineProps<{
   >
     <template #content>
       <p class="text-dimmed">
-        {{ props.data.reasoning }}
+        {{ props.data.reason }}
       </p>
     </template>
   </UAccordion>
