@@ -90,21 +90,12 @@ async function ingest() {
 </script>
 
 <template>
-  <UDashboardPanel
-    :ui="{
-      body: 'sm:p-4',
-    }"
-  >
-    <template #header>
-      <UDashboardNavbar title="Ingest" :ui="{ root: 'sm:p-4' }">
-        <template #leading>
-          <UDashboardSidebarCollapse />
-          <span class="h-5 w-[1px] bg-(--ui-text-muted) ml-1 mr-2" />
-        </template>
-      </UDashboardNavbar>
-    </template>
+  <Panel>
+    <PanelHeader page>
+      <span>Ingest</span>
+    </PanelHeader>
 
-    <template #body>
+    <PanelBody>
       <div ref="container" class="grid gap-2">
         <div class="flex justify-between">
           <p class="font-medium">
@@ -157,6 +148,6 @@ async function ingest() {
           </template>
         </UTabs>
       </div>
-    </template>
-  </UDashboardPanel>
+    </PanelBody>
+  </Panel>
 </template>

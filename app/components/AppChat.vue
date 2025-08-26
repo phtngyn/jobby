@@ -14,7 +14,7 @@ const input = shallowRef('')
 const chat = new Chat<ChatUIMessage>({
   transport: new DefaultChatTransport({ api: '/api/chats' }),
   onData({ type, data }) {
-    if (type === 'data-classification')
+    if (type === 'data-notification')
       console.log({ type, data })
   },
   onError(error) {
@@ -26,24 +26,23 @@ const chat = new Chat<ChatUIMessage>({
 })
 
 function handleSubmit() {
-  const fileList = (() => {
-    if (!jobs.value)
-      return
+  const message: Parameters<typeof chat.sendMessage>[0] = {
+    text: input.value,
+  }
 
+  if (jobs.value) {
     const content = JSON.stringify(jobs.value)
     const file = new File([content], generateId(), { type: 'text/plain' })
     const dt = new DataTransfer()
     dt.items.add(file)
-    return dt.files
-  })()
 
-  chat.sendMessage({
-    text: input.value,
-    files: fileList,
-    metadata: {
+    message.files = dt.files
+    message.metadata = {
       analyse_jobs: jobs.value.map(j => ({ title: j.angebotstitel, id: j.jobId })),
-    },
-  })
+    }
+  }
+
+  chat.sendMessage(message)
 
   jobs.value = []
   input.value = ''
@@ -80,23 +79,15 @@ function remove(job: Job) {
 </script>
 
 <template>
-  <UDashboardPanel
-    id="app-chat"
-    :ui="{
-      root: 'max-w-1/2',
-      body: 'sm:p-4',
-    }"
-  >
-    <template #header>
-      <div class="h-(--ui-header-height) shrink-0 flex items-center border-b border-default p-4 gap-3">
-        <UIcon name="i-lucide-bot" class="size-5" />
-        <p class="font-semibold text-highlighted truncate">
-          AI Assistant
-        </p>
-      </div>
-    </template>
+  <Panel>
+    <PanelHeader class="gap-2">
+      <UIcon name="i-lucide-bot" class="size-5" />
+      <p class="font-semibold text-highlighted truncate">
+        AI Assistant
+      </p>
+    </PanelHeader>
 
-    <template #body>
+    <PanelBody>
       <div
         class="relative h-full"
         @dragover.prevent
@@ -104,7 +95,7 @@ function remove(job: Job) {
       >
         <div
           class="grid gap-4 relative"
-          :class="{ blur: store.isJobDragging }"
+          :class="{ blur: store.dragging }"
         >
           <template
             v-for="message in chat.messages"
@@ -162,7 +153,7 @@ function remove(job: Job) {
                         active-class="text-primary"
                       >
                         <UIcon name="i-lucide-external-link" />
-                        {{ job.title }}
+                        <span class="line-clamp-1">{{ job.title }}</span>
                       </NuxtLink>
                     </li>
                   </ul>
@@ -273,84 +264,82 @@ function remove(job: Job) {
 
         <div
           class="absolute inset-0 size-full flex-center gap-2 text-lg border rounded-md transition-[opacity,border-color]"
-          :class="store.isJobDragging ? 'z-10 opacity-100 border-inverted' : '-z-10 opacity-0 border-transparent'"
+          :class="store.dragging ? 'z-10 opacity-100 border-inverted' : '-z-10 opacity-0 border-transparent'"
         >
           <UIcon name="i-lucide-arrow-down-to-line" class="size-6" />
           Drop here
         </div>
       </div>
-    </template>
+    </PanelBody>
 
-    <template #footer>
-      <div class="p-4">
-        <UChatPrompt
-          v-model="input"
-          :error="chat.error"
-          :status="chat.status"
-          variant="subtle"
-          class="px-2"
-          :ui="{ body: 'my-1.5' }"
-          @submit.prevent="handleSubmit"
-        >
-          <template #header>
-            <ul
-              v-if="jobs.length"
-              class="grid gap-2"
+    <div class="p-4">
+      <UChatPrompt
+        v-model="input"
+        :error="chat.error"
+        :status="chat.status"
+        variant="subtle"
+        class="px-2"
+        :ui="{ body: 'my-1.5' }"
+        @submit.prevent="handleSubmit"
+      >
+        <template #header>
+          <ul
+            v-if="jobs.length"
+            class="grid gap-2"
+          >
+            <li
+              v-for="job in jobs"
+              :key="job.jobId"
+              class="group border border-muted px-2 py-1 rounded-md w-fit flex items-center gap-2"
             >
-              <li
-                v-for="job in jobs"
-                :key="job.jobId"
-                class="group border border-muted px-2 py-1 rounded-md w-fit flex items-center gap-2"
-              >
-                <span>{{ job.angebotstitel }}</span>
+              <span class="line-clamp-1">{{ job.angebotstitel }}</span>
 
-                <button class="flex-center" @click="remove(job)">
-                  <UIcon name="i-lucide-x" class="size-3.5 text-muted group-hover:text-error transition-colors" />
-                </button>
-              </li>
-            </ul>
-          </template>
-          <template #footer>
-            <div class="flex gap-1">
-              <!-- <UButton
+              <button class="flex-center" @click="remove(job)">
+                <UIcon name="i-lucide-x" class="size-3.5 text-muted group-hover:text-error transition-colors" />
+              </button>
+            </li>
+          </ul>
+        </template>
+        <template #footer>
+          <div class="flex gap-1">
+            <!-- <UButton
                 icon="i-lucide-paperclip"
                 color="neutral"
                 size="sm"
                 variant="ghost"
                 disabled
               /> -->
-            </div>
+          </div>
 
-            <div class="flex items-center gap-1">
-              <USelect
-                :default-value="LIGHT_MODEL"
-                :items="MODELS"
-                label-key="name"
-                value-key="key"
-                variant="ghost"
-                size="sm"
-                class="hover:bg-default focus:bg-default data-[state=open]:bg-default"
-                :ui="{
-                  content: 'min-w-fit',
-                  trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200',
-                }"
-              >
-                <template #item-trailing="{ item }">
-                  <span class="text-xs text-muted">{{ item.company }}</span>
-                </template>
-              </USelect>
+          <div class="flex items-center gap-1">
+            <USelect
+              :default-value="LIGHT_MODEL"
+              :items="MODELS"
+              label-key="name"
+              value-key="key"
+              variant="ghost"
+              size="sm"
+              class="hover:bg-default focus:bg-default data-[state=open]:bg-default"
+              :ui="{
+                content: 'min-w-fit',
+                trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200',
+              }"
+            >
+              <template #item-trailing="{ item }">
+                <span class="text-xs text-muted">{{ item.company }}</span>
+              </template>
+            </USelect>
 
-              <UChatPromptSubmit
-                :status="chat.status"
-                size="sm"
-                :label="chat.status === 'streaming' || chat.status === 'submitted' ? 'Stop' : undefined"
-                @stop="chat.stop"
-                @reload="chat.regenerate"
-              />
-            </div>
-          </template>
-        </UChatPrompt>
-      </div>
-    </template>
-  </UDashboardPanel>
+            <UChatPromptSubmit
+              :status="chat.status"
+              size="sm"
+              :label="chat.status === 'streaming' || chat.status === 'submitted' ? 'Stop' : undefined"
+              @stop="chat.stop"
+              @reload="chat.regenerate"
+            />
+          </div>
+        </template>
+      </UChatPrompt>
+    </div>
+  </Panel>
 </template>

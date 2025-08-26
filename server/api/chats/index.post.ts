@@ -13,9 +13,9 @@ import {
 import { z } from 'zod'
 import { provider } from '~~/server/ai/llm'
 import { getToolbox } from '~~/server/ai/tools'
-import { getConfig } from '~~/server/utils/chat'
+import { getConfig, getText } from '~~/server/utils/chat'
 import { LIGHT_MODEL } from '~~/shared/constants'
-import { ChatDataPartClassificationSchema, JobSchema } from '~~/shared/schemas'
+import { ChatDataPartClassificationSchema, ExtractionSchema, JobSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
   const { messages, jobs } = await readValidatedBody(
@@ -29,11 +29,11 @@ export default defineEventHandler(async (event) => {
   const { model, filters } = getConfig(event)
   const startTime = Date.now()
 
-  const lastMessage = messages.at(-1)!
-  const query = lastMessage.parts.flatMap(p => p.type === 'text' ? [p.text] : []).join('')
   const stream = createUIMessageStream<ChatUIMessage>({
     originalMessages: messages,
     async execute({ writer }) {
+      const query = getText(messages.at(-1)!)
+
       const classification = await classify(writer, { query, jobs: !!jobs?.length })
 
       const result = streamText({
@@ -89,8 +89,34 @@ export default defineEventHandler(async (event) => {
     onError(error) {
       return error instanceof Error ? error.message : String(error)
     },
-    async onFinish({ responseMessage: _message }) {
-      // Save to DB
+    async onFinish({ messages }) {
+      const idx = messages.findLastIndex(m => m.role === 'user')
+
+      if (idx === -1)
+        return
+
+      const user = getText(messages[idx]!)
+      const assistant = messages[idx - 1] ? getText(messages[idx - 1]) : undefined
+
+      const system = [
+        'Extract user profile and preferences from a single user message.',
+        'Return only explicit information; do not infer.',
+        'Keep values concise. If a field is not stated, omit it.',
+        'If hours per week are mentioned, set preferences.hours_per_week.min/max accordingly.',
+        assistant ? `Last assistant message:\n${assistant}` : undefined,
+      ]
+        .filter(Boolean)
+        .join('\n')
+
+      const { object } = await generateObject({
+        model: provider(LIGHT_MODEL),
+        schema: ExtractionSchema,
+        output: 'object',
+        system,
+        prompt: `Current user message:\n${user}`,
+      })
+
+      console.dir({ user, assistant, object }, { depth: null })
     },
   })
 

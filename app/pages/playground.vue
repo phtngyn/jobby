@@ -45,21 +45,12 @@ function chunkText() {
 </script>
 
 <template>
-  <UDashboardPanel
-    :ui="{
-      body: 'sm:p-4',
-    }"
-  >
-    <template #header>
-      <UDashboardNavbar title="Playground" :ui="{ root: 'sm:p-4' }">
-        <template #leading>
-          <UDashboardSidebarCollapse />
-          <span class="h-5 w-[1px] bg-(--ui-text-muted) ml-1 mr-2" />
-        </template>
-      </UDashboardNavbar>
-    </template>
+  <Panel>
+    <PanelHeader page>
+      <span>Playground</span>
+    </PanelHeader>
 
-    <template #body>
+    <PanelBody>
       <div class="grid grid-cols-1 gap-4">
         <UCard>
           <template #header>
@@ -115,6 +106,6 @@ function chunkText() {
           </template>
         </UCard>
       </div>
-    </template>
-  </UDashboardPanel>
+    </PanelBody>
+  </Panel>
 </template>

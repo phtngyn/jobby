@@ -1,5 +1,11 @@
 export const useGlobalStore = defineStore('global', () => {
-  const isJobDragging = shallowRef(false)
+  const layout = useCookie('app:layout', { default: () => [50, 50] })
+  const collapsed = useCookie('app:sidebar:collapsed', { default: () => false })
+  const dragging = shallowRef(false)
 
-  return { isJobDragging }
+  return {
+    layout,
+    collapsed,
+    dragging,
+  }
 })

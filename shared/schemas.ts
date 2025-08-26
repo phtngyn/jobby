@@ -73,3 +73,27 @@ export const ChatDataPartSchema = z.object({
     level: z.enum(['info', 'warning', 'error']),
   }),
 })
+
+export const ExtractionSchema = z.object({
+  profile: z.object({
+    current_role: z.string().optional(),
+    study_field: z.string().optional(),
+    seniority: z.string().optional(),
+    years_experience: z.number().int().optional(),
+    skills: z.array(z.string()).optional(),
+  }),
+
+  preferences: z.object({
+    job_types: z.array(z.string()).optional(),
+    domains_of_interest: z.array(z.string()).optional(),
+    preferred_locations: z.array(z.string()).optional(),
+    work_mode: z.enum(['on-site', 'hybrid', 'remote', 'no_preference']).optional(),
+    hours_per_week: z.object({
+      min: z.number().int().optional(),
+      max: z.number().int().optional(),
+    }).optional(),
+  }),
+
+  episodic_summary: z.string().max(200),
+  confidence: z.number().min(0).max(1),
+})

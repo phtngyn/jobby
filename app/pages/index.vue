@@ -42,12 +42,12 @@ function dragstart(event: DragEvent) {
     return
   }
 
-  store.isJobDragging = true
+  store.dragging = true
   event.dataTransfer.setData('text/plain', id)
 }
 
 function dragend() {
-  store.isJobDragging = false
+  store.dragging = false
 }
 
 function clearFilters() {
@@ -63,20 +63,12 @@ function clearFilters() {
 </script>
 
 <template>
-  <UDashboardPanel
-    id="app-index"
-    :ui="{ body: 'sm:p-4' }"
-  >
-    <template #header>
-      <UDashboardNavbar title="Open Jobs" :ui="{ root: 'sm:p-4' }">
-        <template #leading>
-          <UDashboardSidebarCollapse />
-          <span class="h-5 w-px bg-(--ui-text-dimmed) ml-1 mr-2" />
-        </template>
-      </UDashboardNavbar>
-    </template>
+  <Panel>
+    <PanelHeader page>
+      <span>Open Jobs</span>
+    </PanelHeader>
 
-    <template #body>
+    <PanelBody>
       <div class="@container grid gap-4">
         <div class="flex items-center">
           <UInput
@@ -420,6 +412,6 @@ function clearFilters() {
           </div>
         </template>
       </div>
-    </template>
-  </UDashboardPanel>
+    </PanelBody>
+  </Panel>
 </template>

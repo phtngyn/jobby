@@ -19,31 +19,18 @@ const favorited = shallowRef(false)
 </script>
 
 <template>
-  <UDashboardPanel
-    v-if="job"
-    :ui="{
-      body: 'sm:p-4',
-    }"
-  >
-    <template #header>
-      <UDashboardNavbar :ui="{ root: 'sm:p-4' }">
-        <template #title>
-          <div class="flex items-center gap-2">
-            <NuxtLink to="/" class="underline underline-offset-2">
-              Open Jobs
-            </NuxtLink>
-            <UIcon name="i-lucide-chevron-right" class="size-4.5" />
-            <span class="text-muted">#{{ job.jobId }}</span>
-          </div>
-        </template>
-        <template #leading>
-          <UDashboardSidebarCollapse />
-          <span class="h-5 w-[1px] bg-(--ui-text-muted) ml-1 mr-2" />
-        </template>
-      </UDashboardNavbar>
-    </template>
+  <Panel v-if="job">
+    <PanelHeader page>
+      <div class="flex items-center gap-2">
+        <NuxtLink to="/" class="underline underline-offset-2">
+          Open Jobs
+        </NuxtLink>
+        <UIcon name="i-lucide-chevron-right" class="size-4.5" />
+        <span class="text-muted">#{{ job.jobId }}</span>
+      </div>
+    </PanelHeader>
 
-    <template #body>
+    <PanelBody>
       <div>
         <div class="flex justify-between">
           <div>
@@ -122,6 +109,6 @@ const favorited = shallowRef(false)
           </template>
         </div>
       </div>
-    </template>
-  </UDashboardPanel>
+    </PanelBody>
+  </Panel>
 </template>

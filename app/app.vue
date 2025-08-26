@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '#ui/types'
+import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui'
 
-const isSidebarCollapsed = useCookie('sidebar-collapsed', { default: () => false })
+const store = useGlobalStore()
+
 const colorMode = useColorMode()
 const isDark = computed(() => colorMode.preference === 'dark')
-const items = computed<NavigationMenuItem[]>(() => [
 
+const items = computed<NavigationMenuItem[]>(() => [
   {
     label: 'Home',
     icon: 'i-lucide-house',
@@ -32,58 +34,80 @@ const items = computed<NavigationMenuItem[]>(() => [
 
 <template>
   <UApp>
-    <UDashboardGroup>
-      <UDashboardSidebar
-        v-model:collapsed="isSidebarCollapsed"
-        collapsible
-        :resizable="false"
-        :ui="{
-          root: 'min-w-20',
-          header: isSidebarCollapsed ? 'gap-3 justify-center' : 'gap-3',
-          body: isSidebarCollapsed ? 'py-4 items-center' : 'py-4',
-        }"
+    <div class="w-full h-screen flex">
+      <div
+        :data-collapsed="store.collapsed"
+        class="w-75 data-[collapsed=true]:w-18 overflow-hidden border-r border-default transition-[width]"
       >
-        <template #header="{ collapsed }">
-          <div
-            class="bg-primary/80 dark:bg-primary rounded-md size-10 flex-center shrink-0"
-          >
-            <UIcon name="i-lucide-briefcase-business" class="text-inverted size-4.5" />
+        <div class="relative flex flex-col min-w-0 min-h-svh flex-1">
+          <PanelHeader class="gap-3">
+            <div class="bg-primary rounded-md size-9 flex-center shrink-0">
+              <UIcon name="i-lucide-briefcase-business" class="text-inverted size-4.5" />
+            </div>
+            <p v-if="!store.collapsed" class="font-medium">
+              Jobby
+            </p>
+          </PanelHeader>
+
+          <div class="flex flex-col gap-4 flex-1 overflow-hidden p-4">
+            <UNavigationMenu
+              :collapsed="store.collapsed"
+              :items="items"
+              orientation="vertical"
+              :ui="{
+                list: 'grid gap-3',
+                item: store.collapsed ? 'size-10 aspect-square' : '',
+                link: store.collapsed ? 'size-full flex-center' : 'h-10 gap-3',
+              }"
+            />
+
+            <div class="mt-auto">
+              <UButton
+                :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
+                block
+                class="truncate h-10 justify-start"
+                :class="{ 'w-10': store.collapsed }"
+                color="neutral"
+                variant="ghost"
+                @click="colorMode.preference = isDark ? 'light' : 'dark'"
+              >
+                {{ store.collapsed ? '' : (isDark ? 'Dark Mode' : 'Light Mode') }}
+              </UButton>
+            </div>
           </div>
-          <p v-if="!collapsed" class="tracking-wide font-semibold">
-            Jobby
-          </p>
-        </template>
+        </div>
+      </div>
 
-        <template #default="{ collapsed }">
-          <UNavigationMenu
-            :collapsed="collapsed"
-            :items="items"
-            orientation="vertical"
-            :ui="{
-              list: 'grid gap-3',
-              item: collapsed ? 'size-10 aspect-square' : '',
-              link: collapsed ? 'size-full flex-center' : 'h-10 gap-3',
-            }"
-          />
+      <SplitterGroup
+        id="splitter-group"
+        direction="horizontal"
+        @layout="v => store.layout = v"
+      >
+        <SplitterPanel
+          id="splitter-panel-1"
+          collapsible
+          :default-size="store.layout[0]"
+          :min-size="33"
+          :collapsed-size="0"
+        >
+          <NuxtPage />
+        </SplitterPanel>
 
-          <div class="mt-auto">
-            <UButton
-              :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
-              :block="collapsed"
-              class="truncate h-10"
-              color="neutral"
-              variant="ghost"
-              @click="colorMode.preference = isDark ? 'light' : 'dark'"
-            >
-              {{ collapsed ? '' : (isDark ? 'Dark Mode' : 'Light Mode') }}
-            </UButton>
-          </div>
-        </template>
-      </UDashboardSidebar>
+        <SplitterResizeHandle
+          id="splitter-handle"
+          class="w-px border border-accented flex-center"
+        />
 
-      <NuxtPage />
-
-      <AppChat />
-    </UDashboardGroup>
+        <SplitterPanel
+          id="splitter-panel-2"
+          collapsible
+          :default-size="store.layout[1]"
+          :min-size="33"
+          :collapsed-size="0"
+        >
+          <AppChat />
+        </SplitterPanel>
+      </SplitterGroup>
+    </div>
   </UApp>
 </template>
