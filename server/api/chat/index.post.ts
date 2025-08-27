@@ -8,17 +8,23 @@ import {
   generateObject,
   smoothStream,
   streamText,
-
 } from 'ai'
 import { z } from 'zod'
 import { provider } from '~~/server/ai/llm'
 import { getToolbox } from '~~/server/ai/tools'
-import { getConfig, getText } from '~~/server/utils/chat'
+import { getChat, getConfig, getText, saveMessages } from '~~/server/utils/chat'
 import { LIGHT_MODEL } from '~~/shared/constants'
-import { ChatDataPartClassificationSchema, ExtractionSchema, JobSchema } from '~~/shared/schemas'
+import { ChatDataPartClassificationSchema, JobSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
-  const { messages, jobs } = await readValidatedBody(
+  const session = await requireUserSession(event)
+
+  const chat = await getChat(session)
+  if (!chat) {
+    throw createError({ statusCode: 404, statusMessage: 'Chat not found' })
+  }
+
+  const body = await readValidatedBody(
     event,
     z.object({
       messages: z.array(z.custom<ChatUIMessage>()),
@@ -30,15 +36,15 @@ export default defineEventHandler(async (event) => {
   const startTime = Date.now()
 
   const stream = createUIMessageStream<ChatUIMessage>({
-    originalMessages: messages,
+    originalMessages: body.messages,
     async execute({ writer }) {
-      const query = getText(messages.at(-1)!)
+      const query = getText(body.messages.at(-1)!)
 
-      const classification = await classify(writer, { query, jobs: !!jobs?.length })
+      const classification = await classify(writer, { query, jobs: !!body.jobs?.length })
 
       const result = streamText({
         model: provider(model),
-        messages: convertToModelMessages(messages),
+        messages: convertToModelMessages(body.messages),
         experimental_transform: smoothStream({ chunking: 'word' }),
         activeTools: (() => {
           if (classification.type && classification.type !== 'general')
@@ -54,9 +60,9 @@ export default defineEventHandler(async (event) => {
             get_filters: toolbox.get_filters(filters),
           }
 
-          if (jobs?.length) {
-            tools.get_similar_jobs = toolbox.get_similar_jobs({ jobs })
-            tools.analyze_jobs = toolbox.analyze_jobs({ jobs })
+          if (body.jobs?.length) {
+            tools.get_similar_jobs = toolbox.get_similar_jobs({ jobs: body.jobs })
+            tools.analyze_jobs = toolbox.analyze_jobs({ jobs: body.jobs })
           }
           return tools
         })(),
@@ -90,33 +96,35 @@ export default defineEventHandler(async (event) => {
       return error instanceof Error ? error.message : String(error)
     },
     async onFinish({ messages }) {
-      const idx = messages.findLastIndex(m => m.role === 'user')
+      await saveMessages(session, messages)
 
-      if (idx === -1)
-        return
+      // const idx = messages.findLastIndex(m => m.role === 'user')
 
-      const user = getText(messages[idx]!)
-      const assistant = messages[idx - 1] ? getText(messages[idx - 1]) : undefined
+      // if (idx === -1)
+      //   return
 
-      const system = [
-        'Extract user profile and preferences from a single user message.',
-        'Return only explicit information; do not infer.',
-        'Keep values concise. If a field is not stated, omit it.',
-        'If hours per week are mentioned, set preferences.hours_per_week.min/max accordingly.',
-        assistant ? `Last assistant message:\n${assistant}` : undefined,
-      ]
-        .filter(Boolean)
-        .join('\n')
+      // const user = getText(messages[idx]!)
+      // const assistant = messages[idx - 1] ? getText(messages[idx - 1]!) : undefined
 
-      const { object } = await generateObject({
-        model: provider(LIGHT_MODEL),
-        schema: ExtractionSchema,
-        output: 'object',
-        system,
-        prompt: `Current user message:\n${user}`,
-      })
+      // const system = [
+      //   'Extract user profile and preferences from a single user message.',
+      //   'Return only explicit information; do not infer.',
+      //   'Keep values concise. If a field is not stated, omit it.',
+      //   'If hours per week are mentioned, set preferences.hours_per_week.min/max accordingly.',
+      //   assistant ? `Last assistant message:\n${assistant}` : undefined,
+      // ]
+      //   .filter(Boolean)
+      //   .join('\n')
 
-      console.dir({ user, assistant, object }, { depth: null })
+      // const { object } = await generateObject({
+      //   model: provider(LIGHT_MODEL),
+      //   schema: ExtractionSchema,
+      //   output: 'object',
+      //   system,
+      //   prompt: `Current user message:\n${user}`,
+      // })
+
+      // console.dir({ user, assistant, object }, { depth: null })
     },
   })
 

@@ -83,7 +83,7 @@ const items = computed<NavigationMenuItem[]>(() => [
                 </span>
                 <div v-if="!store.collapsed" class="grid">
                   <span class="font-medium text-sm line-clamp-1">{{ user.username }}</span>
-                  <span class="text-dimmed text-xs">{{ user.shortId }}</span>
+                  <span class="text-dimmed text-xs">{{ user.id.split('-').at(-1) }}</span>
                 </div>
               </div>
             </div>

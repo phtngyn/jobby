@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type { FormSubmitEvent } from '@nuxt/ui'
 import { z } from 'zod'
+import { UsernameSchema } from '~~/shared/schemas'
 
 const open = shallowRef(true)
 
-const schema = z.object({
-  username: z.string().trim().min(3, 'Must be at least 3 characters'),
-})
+const schema = z.object({ username: UsernameSchema })
 const state = ref({ username: '' })
 
 async function submit(event: FormSubmitEvent<z.infer<typeof schema>>) {

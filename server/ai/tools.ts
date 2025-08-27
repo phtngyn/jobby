@@ -3,8 +3,7 @@ import type { ChatWriter, Filters, Job } from '~~/shared/types'
 import { generateText, tool } from 'ai'
 import { inArray } from 'drizzle-orm'
 import { z } from 'zod'
-import { JobsTable } from '~~/server/db/schema/jobs'
-import { db } from '~~/server/utils/drizzle'
+import { db, tables } from '~~/server/utils/drizzle'
 import { LIGHT_MODEL } from '~~/shared/constants'
 import { provider } from './llm'
 
@@ -31,8 +30,8 @@ function get_jobs(writer: ChatWriter) {
       const jobIds = chunks.map(c => c.jobId)
       const jobs = await db
         .select()
-        .from(JobsTable)
-        .where(inArray(JobsTable.jobId, jobIds))
+        .from(tables.jobs)
+        .where(inArray(tables.jobs.jobId, jobIds))
 
       const results = jobs
         .map((j) => {

@@ -7,12 +7,20 @@ import ToolAnalyseJobs from './ToolAnalyseJobs.vue'
 
 const store = useGlobalStore()
 
+const toast = useToast()
+
+const { data: _chat } = await useFetch('/api/chat')
+if (!_chat.value)
+  throw createError({ statusCode: 404, statusMessage: 'Chat not found', fatal: true })
+
 const { data } = useNuxtData<Job[]>('jobs')
 const jobs = ref<Job[]>([])
 
 const input = shallowRef('')
 const chat = new Chat<ChatUIMessage>({
-  transport: new DefaultChatTransport({ api: '/api/chats' }),
+  id: _chat.value.id,
+  messages: _chat.value.messages,
+  transport: new DefaultChatTransport({ api: '/api/chat' }),
   onData({ type, data }) {
     if (type === 'data-notification')
       console.log({ type, data })
@@ -20,17 +28,16 @@ const chat = new Chat<ChatUIMessage>({
   onError(error) {
     console.error(error)
   },
-
-  messages: [],
-
 })
+
+const open = shallowRef(false)
 
 function handleSubmit() {
   const message: Parameters<typeof chat.sendMessage>[0] = {
     text: input.value,
   }
 
-  if (jobs.value) {
+  if (jobs.value.length) {
     const content = JSON.stringify(jobs.value)
     const file = new File([content], generateId(), { type: 'text/plain' })
     const dt = new DataTransfer()
@@ -73,8 +80,20 @@ function drop(event: DragEvent) {
   jobs.value.push(job)
 }
 
-function remove(job: Job) {
+function removeJob(job: Job) {
   jobs.value = jobs.value.filter(j => j.jobId !== job.jobId)
+}
+
+async function deleteChat() {
+  await $fetch('/api/chat', {
+    method: 'DELETE',
+  })
+  chat.messages = []
+  open.value = false
+  toast.add({
+    title: 'Chat deleted',
+    description: 'The chat has been permanently removed.',
+  })
 }
 </script>
 
@@ -85,6 +104,40 @@ function remove(job: Job) {
       <p class="font-semibold text-highlighted truncate">
         AI Assistant
       </p>
+      <div class="ml-auto">
+        <UModal
+          v-model:open="open"
+          title="Delete chat?"
+          description="This action is permanent and cannot be undone."
+        >
+          <UButton
+            variant="soft"
+            icon="i-lucide-trash"
+            color="error"
+            size="sm"
+            :disabled="!chat.messages.length"
+          />
+
+          <template #footer>
+            <div class="flex w-full justify-end gap-2">
+              <UButton
+                color="neutral"
+                variant="outline"
+                @click="open = false"
+              >
+                Cancel
+              </UButton>
+
+              <UButton
+                color="error"
+                @click="deleteChat"
+              >
+                Delete
+              </UButton>
+            </div>
+          </template>
+        </UModal>
+      </div>
     </PanelHeader>
 
     <PanelBody>
@@ -295,7 +348,7 @@ function remove(job: Job) {
             >
               <span class="line-clamp-1">{{ job.angebotstitel }}</span>
 
-              <button class="flex-center" @click="remove(job)">
+              <button class="flex-center" @click="removeJob(job)">
                 <UIcon name="i-lucide-x" class="size-3.5 text-muted group-hover:text-error transition-colors" />
               </button>
             </li>

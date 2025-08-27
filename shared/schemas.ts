@@ -97,3 +97,5 @@ export const ExtractionSchema = z.object({
   episodic_summary: z.string().max(200),
   confidence: z.number().min(0).max(1),
 })
+
+export const UsernameSchema = z.string().trim().min(3, 'Must be at least 3 characters')

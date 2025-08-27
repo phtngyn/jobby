@@ -2,8 +2,7 @@ import type { SQL } from 'drizzle-orm'
 import type { PgColumn } from 'drizzle-orm/pg-core'
 import { and, desc, getTableColumns, gte, inArray, lte, sql } from 'drizzle-orm'
 import { z } from 'zod'
-import { JobsTable } from '~~/server/db/schema/jobs'
-import { db } from '~~/server/utils/drizzle'
+import { db, tables } from '~~/server/utils/drizzle'
 import { JOB_SEARCH_TARGET_ORIGIN_COLUMNS } from '~~/shared/constants'
 import { FiltersSchema } from '~~/shared/schemas'
 
@@ -36,46 +35,46 @@ export default defineEventHandler(async (event) => {
     }
 
     if (body.filters.types?.length) {
-      const condition = buildArrayIncludeCondition(body.filters.types, JobsTable.jobtypen)
+      const condition = buildArrayIncludeCondition(body.filters.types, tables.jobs.jobtypen)
       conditions.push(condition)
     }
 
     if (body.filters.fields?.length) {
-      const condition = buildArrayIncludeCondition(body.filters.fields, JobsTable.berufsfelder)
+      const condition = buildArrayIncludeCondition(body.filters.fields, tables.jobs.berufsfelder)
       conditions.push(condition)
     }
 
     if (body.filters.domains?.length) {
-      const condition = buildArrayIncludeCondition(body.filters.domains, JobsTable.fachbereiche)
+      const condition = buildArrayIncludeCondition(body.filters.domains, tables.jobs.fachbereiche)
       conditions.push(condition)
     }
 
     if (body.filters.homeoffices?.length) {
-      const condition = buildArrayIncludeCondition(body.filters.homeoffices, JobsTable.homeoffice)
+      const condition = buildArrayIncludeCondition(body.filters.homeoffices, tables.jobs.homeoffice)
       conditions.push(condition)
     }
 
     if (body.filters.workingtimes?.length) {
       const min = body.filters.workingtimes[0]!
       const max = body.filters.workingtimes[1]!
-      const condition = and(lte(JobsTable.arbeitszeitMin, max), gte(JobsTable.arbeitszeitMax, min))
+      const condition = and(lte(tables.jobs.arbeitszeitMin, max), gte(tables.jobs.arbeitszeitMax, min))
       conditions.push(condition)
     }
   }
 
   if (body.jobIds) {
-    conditions.push(inArray(JobsTable.jobId, body.jobIds))
+    conditions.push(inArray(tables.jobs.jobId, body.jobIds))
   }
 
   const result = await db
     .select(
       score
-        ? { score, ...getTableColumns(JobsTable) }
-        : getTableColumns(JobsTable),
+        ? { score, ...getTableColumns(tables.jobs) }
+        : getTableColumns(tables.jobs),
     )
-    .from(JobsTable)
+    .from(tables.jobs)
     .where(conditions.length > 0 ? and(...conditions) : sql`TRUE`)
-    .orderBy(score ? desc(score) : desc(JobsTable.freigabedatum))
+    .orderBy(score ? desc(score) : desc(tables.jobs.freigabedatum))
 
   return result
 })

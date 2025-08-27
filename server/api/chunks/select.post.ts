@@ -1,10 +1,9 @@
 import { cosineDistance, desc, getTableColumns, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { embed } from '~~/server/ai/llm'
-import { JobChunksTable } from '~~/server/db/schema/job_chunks'
-import { db } from '~~/server/utils/drizzle'
+import { db, tables } from '~~/server/utils/drizzle'
 
-type Chunk = Omit<(typeof JobChunksTable.$inferSelect) & { score: number }, 'embedding'>
+type Chunk = Omit<(typeof tables.job_chunks.$inferSelect) & { score: number }, 'embedding'>
 
 const TOP_CHUNKS_PER_QUERY = 500
 const SEMANTIC_RATIO = 0.5
@@ -82,17 +81,17 @@ export default defineEventHandler(async (event) => {
 })
 
 async function getSemanticChunks(query: string) {
-  const { embedding: _, ...rest } = getTableColumns(JobChunksTable)
+  const { embedding: _, ...rest } = getTableColumns(tables.job_chunks)
 
   const embedding = await embed(query)
-  const score = sql<number>`1 - (${cosineDistance(JobChunksTable.embedding, embedding)})`
+  const score = sql<number>`1 - (${cosineDistance(tables.job_chunks.embedding, embedding)})`
 
   const chunks = await db
     .select({
       ...rest,
       score,
     })
-    .from(JobChunksTable)
+    .from(tables.job_chunks)
     .orderBy(desc(score))
     .limit(TOP_CHUNKS_PER_QUERY)
 
@@ -100,7 +99,7 @@ async function getSemanticChunks(query: string) {
 }
 
 async function getLexicalChunks(query: string) {
-  const { embedding: _, ...rest } = getTableColumns(JobChunksTable)
+  const { embedding: _, ...rest } = getTableColumns(tables.job_chunks)
 
   const score = sql<number>`paradedb.score(id)`.as('score')
 
@@ -109,8 +108,8 @@ async function getLexicalChunks(query: string) {
       ...rest,
       score,
     })
-    .from(JobChunksTable)
-    .where(sql`${JobChunksTable.content} @@@ ${query}`)
+    .from(tables.job_chunks)
+    .where(sql`${tables.job_chunks.content} @@@ ${query}`)
     .orderBy(desc(score))
     .limit(TOP_CHUNKS_PER_QUERY)
 
