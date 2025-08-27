@@ -2,6 +2,8 @@
 import type { NavigationMenuItem } from '#ui/types'
 import { SplitterGroup, SplitterPanel, SplitterResizeHandle } from 'reka-ui'
 
+const { user } = useUserSession()
+
 const store = useGlobalStore()
 
 const colorMode = useColorMode()
@@ -13,11 +15,13 @@ const items = computed<NavigationMenuItem[]>(() => [
     icon: 'i-lucide-house',
     to: '/',
   },
-  {
-    label: 'Profile',
-    icon: 'i-lucide-user',
-    to: '/profile',
-  },
+  user.value
+    ? {
+        label: 'Profile',
+        icon: 'i-lucide-user',
+        to: '/profile',
+      }
+    : undefined,
   {
     label: 'Ingest',
     icon: 'i-lucide-import',
@@ -28,8 +32,7 @@ const items = computed<NavigationMenuItem[]>(() => [
     icon: 'i-lucide-construction',
     to: '/playground',
   },
-],
-)
+].filter(Boolean) as NavigationMenuItem[])
 </script>
 
 <template>
@@ -61,7 +64,7 @@ const items = computed<NavigationMenuItem[]>(() => [
               }"
             />
 
-            <div class="mt-auto">
+            <div class="mt-auto flex flex-col gap-8">
               <UButton
                 :icon="isDark ? 'i-lucide-moon' : 'i-lucide-sun'"
                 block
@@ -73,6 +76,16 @@ const items = computed<NavigationMenuItem[]>(() => [
               >
                 {{ store.collapsed ? '' : (isDark ? 'Dark Mode' : 'Light Mode') }}
               </UButton>
+
+              <div v-if="user" class="flex gap-3 items-center -m-4 p-4 border-t border-default">
+                <span class="rounded-md overflow-hidden shrink-0">
+                  <Avatar :name="user.id" :size="36" square />
+                </span>
+                <div v-if="!store.collapsed" class="grid">
+                  <span class="font-medium text-sm line-clamp-1">{{ user.username }}</span>
+                  <span class="text-dimmed text-xs">{{ user.shortId }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

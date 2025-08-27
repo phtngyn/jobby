@@ -280,6 +280,7 @@ function remove(job: Job) {
         variant="subtle"
         class="px-2"
         :ui="{ body: 'my-1.5' }"
+        :autoresize="!!store.layout[1]"
         @submit.prevent="handleSubmit"
       >
         <template #header>

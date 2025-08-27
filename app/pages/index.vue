@@ -2,6 +2,8 @@
 import type { Filters, Job } from '~~/shared/types'
 import { JOB_DOMAINS, JOB_FIELDS, JOB_HOMEOFFICES, JOB_TYPES, JOB_WORKINGTIMES } from '~~/shared/constants'
 
+const { user } = useUserSession()
+
 const store = useGlobalStore()
 
 const filters = ref<Filters>({
@@ -69,6 +71,8 @@ function clearFilters() {
     </PanelHeader>
 
     <PanelBody>
+      <LazyModalRegister v-if="!user" />
+
       <div class="@container grid gap-4">
         <div class="flex items-center">
           <UInput

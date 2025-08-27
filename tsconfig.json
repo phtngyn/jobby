@@ -1,7 +1,4 @@
 {
-  "compilerOptions": {
-    "noUncheckedIndexedAccess": false
-  },
   "references": [
     {
       "path": "./.nuxt/tsconfig.app.json"

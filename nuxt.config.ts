@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '@nuxtjs/mdc',
     '@pinia/nuxt',
+    'nuxt-auth-utils',
   ],
 
   devtools: {
@@ -28,6 +29,14 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2025-05-01',
+
+  typescript: {
+    tsConfig: {
+      compilerOptions: {
+        noUncheckedIndexedAccess: true,
+      },
+    },
+  },
 
   debug: {
     hydration: true,

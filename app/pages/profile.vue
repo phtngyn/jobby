@@ -1,5 +1,7 @@
 <script setup lang="ts">
-
+definePageMeta({
+  middleware: ['authenticated'],
+})
 </script>
 
 <template>
@@ -9,7 +11,7 @@
     </PanelHeader>
 
     <PanelBody>
-      WIP
+      <pre>{{ useUserSession() }}</pre>
     </PanelBody>
   </Panel>
 </template>
