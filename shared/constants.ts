@@ -1,4 +1,4 @@
-import type { ChatModel, ChatModelKey } from './types'
+import type { ChatModel, ChatModelKey, Filters } from './types'
 
 export const MODELS: ChatModel[] = [
   { key: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', company: 'Google' },
@@ -207,6 +207,15 @@ export const JOB_HOMEOFFICES = [
 export const JOB_WORKINGTIMES = {
   min: 0,
   max: 60,
+}
+
+export const DEFAULT_FILTER: Filters = {
+  search: '',
+  types: [],
+  fields: [],
+  domains: [],
+  homeoffices: [],
+  workingtimes: [JOB_WORKINGTIMES.min, JOB_WORKINGTIMES.max],
 }
 
 export const JOB_SEARCH_TARGET_ORIGIN_COLUMNS = [

@@ -34,7 +34,7 @@ const favorited = shallowRef(false)
       <div>
         <div class="flex justify-between">
           <div>
-            <div class="flex gap-2 -ml-1 mb-2">
+            <div class="flex flex-wrap gap-2 -ml-1 mb-2">
               <UBadge
                 v-for="(typ, i) in job.jobtypen.split('|')"
                 :key="typ"
@@ -50,14 +50,14 @@ const favorited = shallowRef(false)
             </h2>
 
             <div class="grid gap-1.5 text-sm mb-4">
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 *:shrink-0">
                 <UIcon name="i-lucide-building-2" /> {{ job.firma }}
               </div>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 *:shrink-0">
                 <UIcon name="i-lucide-map-pin" /> {{ job.arbeitsort }}
               </div>
 
-              <div class="flex items-center gap-2 my-1">
+              <div class="flex flex-wrap items-center gap-2 my-1">
                 <UBadge color="neutral" variant="outline">
                   <UIcon name="i-lucide-clock" />
                   <template v-if="job.arbeitszeitMin >= job.arbeitszeitMax">
@@ -85,7 +85,7 @@ const favorited = shallowRef(false)
           </div>
         </div>
 
-        <div class="text-sm">
+        <div>
           <template
             v-for="key in ['anzeigeText',
                            'einleitungTitel',

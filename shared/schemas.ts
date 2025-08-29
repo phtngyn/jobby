@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { JOB_DOMAINS, JOB_FIELDS, JOB_HOMEOFFICES, JOB_TYPES } from './constants'
 
 export const JobSchema = z.object({
   jobId: z.string(),
@@ -32,11 +33,11 @@ export const JobSchema = z.object({
 
 export const FiltersSchema = z.object({
   search: z.string().trim().optional(),
-  types: z.array(z.string()).optional(),
-  fields: z.array(z.string()).optional(),
-  domains: z.array(z.string()).optional(),
-  homeoffices: z.array(z.string()).optional(),
-  workingtimes: z.array(z.number()).length(2).optional(),
+  types: z.array(z.enum(JOB_TYPES)).optional(),
+  fields: z.array(z.enum(JOB_FIELDS)).optional(),
+  domains: z.array(z.enum(JOB_DOMAINS)).optional(),
+  homeoffices: z.array(z.enum(JOB_HOMEOFFICES)).optional(),
+  workingtimes: z.array(z.number().min(0).max(60)).length(2).optional(),
 })
 
 export const ChatMetadataSchema = z.object({
@@ -74,28 +75,54 @@ export const ChatDataPartSchema = z.object({
   }),
 })
 
-export const ExtractionSchema = z.object({
-  profile: z.object({
-    current_role: z.string().optional(),
-    study_field: z.string().optional(),
-    seniority: z.string().optional(),
-    years_experience: z.number().int().optional(),
-    skills: z.array(z.string()).optional(),
-  }),
-
-  preferences: z.object({
-    job_types: z.array(z.string()).optional(),
-    domains_of_interest: z.array(z.string()).optional(),
-    preferred_locations: z.array(z.string()).optional(),
-    work_mode: z.enum(['on-site', 'hybrid', 'remote', 'no_preference']).optional(),
-    hours_per_week: z.object({
-      min: z.number().int().optional(),
-      max: z.number().int().optional(),
-    }).optional(),
-  }),
-
-  episodic_summary: z.string().max(200),
-  confidence: z.number().min(0).max(1),
-})
-
 export const UsernameSchema = z.string().trim().min(3, 'Must be at least 3 characters')
+
+export const FactualMemorySchema = z.object({
+  filters: z
+    .object({
+      types: z
+        .array(z.enum(JOB_TYPES))
+        .optional()
+        .describe(
+          'Job types explicitly mentioned by the user. Must be one of JOB_TYPES.',
+        ),
+      fields: z
+        .array(z.enum(JOB_FIELDS))
+        .optional()
+        .describe(
+          'Job fields or industries explicitly mentioned by the user. Must be one of JOB_FIELDS.',
+        ),
+      domains: z
+        .array(z.enum(JOB_DOMAINS))
+        .optional()
+        .describe(
+          'Academic or study domains explicitly mentioned by the user. Must be one of JOB_DOMAINS.',
+        ),
+      homeoffices: z
+        .array(z.enum(JOB_HOMEOFFICES))
+        .optional()
+        .describe(
+          'User\'s explicit preference for remote or hybrid work. Must be one of JOB_HOMEOFFICES.',
+        ),
+      workingtimes: z
+        .array(z.number().min(0).max(60))
+        .min(1)
+        .max(2)
+        .optional()
+        .describe('Working time range in hours per week. Always normalized to [min, max].'),
+    })
+    .optional()
+    .describe(
+      'Structured filters that directly map to the job search system. Only include fields explicitly mentioned by the user.',
+    ),
+
+  others: z
+    .array(
+      z.object({
+        key: z.string().describe('The name of the preference'),
+        value: z.string().describe('The value of the preference'),
+      }),
+    )
+    .optional()
+    .describe('Any other explicit preferences that do not fit into filters.'),
+})

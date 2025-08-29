@@ -1,8 +1,10 @@
+import type { UserSession, UserSessionRequired } from '#auth-utils'
 import type { createGoogleGenerativeAI } from '@ai-sdk/google'
 import type { InferUITools, ToolUIPart, UIMessage, UIMessagePart, UIMessageStreamWriter } from 'ai'
 import type { z, ZodType } from 'zod'
 import type { getToolbox } from '~~/server/ai/tools'
-import type { ChatDataPartSchema, ChatMetadataSchema, FiltersSchema, JobSchema } from './schemas'
+
+import type { ChatDataPartSchema, ChatMetadataSchema, FactualMemorySchema, FiltersSchema, JobSchema } from './schemas'
 
 export type Job = z.infer<typeof JobSchema>
 
@@ -33,3 +35,7 @@ type GetToolUIPartState<T extends ZodType> = ToolUIPart & {
 }
 
 export type Filters = z.infer<typeof FiltersSchema>
+
+export type FactualMemory = z.infer<typeof FactualMemorySchema>
+
+export type Session = UserSession | UserSessionRequired

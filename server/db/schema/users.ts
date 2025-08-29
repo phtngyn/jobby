@@ -1,4 +1,4 @@
-import type { ChatUIMessage } from '~~/shared/types'
+import type { ChatUIMessage, FactualMemory } from '~~/shared/types'
 import { relations } from 'drizzle-orm'
 import {
   index,
@@ -10,10 +10,10 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core'
 
-export const MessageRoleEnum = pgEnum('role', [
-  'user',
-  'assistant',
-  'system',
+export const MemoryTypeEnum = pgEnum('type', [
+  'factual',
+  'episodic',
+  'semantic',
 ])
 
 export const users = pgTable(
@@ -51,3 +51,36 @@ export const chatsRelations = relations(chats, ({ one }) => ({
     references: [users.id],
   }),
 }))
+
+export const factualMemories = pgTable(
+  'factual_memories',
+  {
+    userId: varchar('user_id', { length: 36 }).primaryKey().references(() => users.id, { onDelete: 'cascade' }),
+    data: jsonb('data').$type<FactualMemory>().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+)
+
+// export const episodicMemories = pgTable(
+//   'episodic_memories',
+//   {
+//     id: serial('id').primaryKey(),
+//     userId: varchar('user_id', { length: 36 }).notNull().references(() => users.id, { onDelete: 'cascade' }),
+//     content: varchar('content', { length: 2000 }).notNull(),
+//     embedding: vector('embedding', { dimensions: 1024 }).notNull(),
+//     source: varchar('source', { length: 2000 }).notNull(),
+//     createdAt: timestamp('created_at').defaultNow().notNull(),
+//   },
+// )
+
+// export const semanticMemories = pgTable(
+//   'semantic_memories',
+//   {
+//     id: serial('id').primaryKey(),
+//     userId: varchar('user_id', { length: 36 }).notNull().references(() => users.id, { onDelete: 'cascade' }),
+//     content: varchar('content', { length: 2000 }).notNull(),
+//     embedding: vector('embedding', { dimensions: 1024 }).notNull(),
+//     source: varchar('source', { length: 2000 }).notNull(),
+//     createdAt: timestamp('created_at').defaultNow().notNull(),
+//   },
+// )

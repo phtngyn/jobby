@@ -365,19 +365,15 @@ async function deleteChat() {
               /> -->
           </div>
 
-          <div class="flex items-center gap-1">
+          <div class="flex items-center gap-2">
             <USelect
               :default-value="LIGHT_MODEL"
               :items="MODELS"
               label-key="name"
               value-key="key"
               variant="ghost"
-              size="sm"
               class="hover:bg-default focus:bg-default data-[state=open]:bg-default"
-              :ui="{
-                content: 'min-w-fit',
-                trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200',
-              }"
+              :ui="{ content: 'min-w-fit' }"
             >
               <template #item-trailing="{ item }">
                 <span class="text-xs text-muted">{{ item.company }}</span>
