@@ -57,7 +57,7 @@ const emit = defineEmits<{
       >
         <li
           v-for="job in props.output"
-          :key="job.jobId"
+          :key="job.id"
         >
           <div class="grid gap-4 p-4 bg border border-accented rounded-md has-[.active-link]:border-primary transition-colors">
             <div class="flex items-center justify-between">
@@ -77,25 +77,25 @@ const emit = defineEmits<{
                 color="neutral"
                 active-color="primary"
                 active-class="active-link"
-                :to="`/jobs/${job.jobId}`"
+                :to="`/jobs/${job.id}`"
               />
             </div>
 
             <p class="font-semibold text-lg leading-tight line-clamp-1">
-              {{ job.angebotstitel }}
+              {{ job.title }}
             </p>
 
             <div class="grid gap-1.5 text-sm">
               <div class="flex items-center gap-2">
-                <UIcon name="i-lucide-building-2" /> {{ job.firma }}
+                <UIcon name="i-lucide-building-2" /> {{ job.company }}
               </div>
               <div class="flex items-center gap-2">
-                <UIcon name="i-lucide-map-pin" /> {{ job.arbeitsort }}
+                <UIcon name="i-lucide-map-pin" /> {{ job.location }}
               </div>
 
               <div class="flex items-center flex-wrap gap-2 my-1">
                 <UBadge
-                  v-for="typ in job.jobtypen.split('|')"
+                  v-for="typ in job.types.split('|')"
                   :key="typ"
                   color="neutral"
                   variant="subtle"
@@ -105,12 +105,7 @@ const emit = defineEmits<{
 
                 <UBadge color="neutral" variant="outline">
                   <UIcon name="i-lucide-clock" />
-                  <template v-if="job.arbeitszeitMin >= job.arbeitszeitMax">
-                    {{ job.arbeitszeitMax }}h/week
-                  </template>
-                  <template v-else>
-                    {{ job.arbeitszeitMin }}-{{ job.arbeitszeitMax }}h/week
-                  </template>
+                  {{ job.worktime_min }}-{{ job.worktime_max }}h/week
                 </UBadge>
                 <UBadge color="neutral" variant="outline">
                   <UIcon name="i-lucide-house" /> {{ job.homeoffice }}

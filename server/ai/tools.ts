@@ -25,27 +25,27 @@ function get_jobs(writer: ChatWriter) {
         method: 'POST',
         body: { query },
       })
-      const map = new Map(chunks.map(c => [c.jobId, c]))
+      const map = new Map(chunks.map(c => [c.job_id, c]))
 
-      const jobIds = chunks.map(c => c.jobId)
+      const job_ids = chunks.map(c => c.job_id)
       const jobs = await db
         .select()
         .from(tables.jobs)
-        .where(inArray(tables.jobs.jobId, jobIds))
+        .where(inArray(tables.jobs.id, job_ids))
 
       const results = jobs
         .map((j) => {
           const job = {
-            jobId: j.jobId,
-            angebotstitel: j.angebotstitel,
-            firma: j.firma,
-            arbeitsort: j.arbeitsort,
-            jobtypen: j.jobtypen,
-            arbeitszeitMin: j.arbeitszeitMin,
-            arbeitszeitMax: j.arbeitszeitMax,
+            id: j.id,
+            title: j.title,
+            company: j.company,
+            location: j.location,
+            types: j.types,
+            worktime_min: j.worktime_min,
+            worktime_max: j.worktime_max,
             homeoffice: j.homeoffice,
           }
-          const chunk = map.get(j.jobId) ?? { jobId: j.jobId, score: 0, chunks: [] }
+          const chunk = map.get(j.id) ?? { id: j.id, score: 0, chunks: [] }
           return { ...job, ...chunk, score: Math.round(chunk.score * 100) }
         })
         .filter(j => j.score >= 25)

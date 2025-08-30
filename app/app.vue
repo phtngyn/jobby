@@ -23,11 +23,6 @@ const items = computed<NavigationMenuItem[]>(() => [
       }
     : undefined,
   {
-    label: 'Ingest',
-    icon: 'i-lucide-import',
-    to: '/ingest',
-  },
-  {
     label: 'Playground',
     icon: 'i-lucide-construction',
     to: '/playground',

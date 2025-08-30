@@ -22,15 +22,15 @@ export default defineEventHandler(async (event) => {
   const entries = new Map<
   string,
 {
-  jobId: string
+  job_id: string
   semanticScore: number
   lexicalScore: number
   chunks: Map<string, Chunk>
 }
 >()
   for (const chunk of semanticChunks) {
-    const entry = entries.get(chunk.jobId) ?? {
-      jobId: chunk.jobId,
+    const entry = entries.get(chunk.job_id) ?? {
+      job_id: chunk.job_id,
       chunks: new Map(),
       semanticScore: 0,
       lexicalScore: 0,
@@ -38,12 +38,12 @@ export default defineEventHandler(async (event) => {
 
     entry.chunks.set(chunk.id, chunk)
     entry.semanticScore = Math.max(entry.semanticScore, chunk.score)
-    entries.set(chunk.jobId, entry)
+    entries.set(chunk.job_id, entry)
   }
 
   for (const chunk of lexicalChunks) {
-    const entry = entries.get(chunk.jobId) ?? {
-      jobId: chunk.jobId,
+    const entry = entries.get(chunk.job_id) ?? {
+      job_id: chunk.job_id,
       chunks: new Map(),
       semanticScore: 0,
       lexicalScore: 0,
@@ -51,7 +51,7 @@ export default defineEventHandler(async (event) => {
 
     entry.chunks.set(chunk.id, chunk)
     entry.lexicalScore = Math.max(entry.lexicalScore, chunk.score)
-    entries.set(chunk.jobId, entry)
+    entries.set(chunk.job_id, entry)
   }
 
   const jobs = Array.from(entries.values())
@@ -71,7 +71,7 @@ export default defineEventHandler(async (event) => {
       .sort((a, b) => b.score - a.score)
 
     return {
-      jobId: job.jobId,
+      job_id: job.job_id,
       score,
       chunks,
     }

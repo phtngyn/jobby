@@ -16,50 +16,61 @@ export const job_chunk_type = pgEnum('job_chunk_type', JOB_SEARCH_TARGET_COLUMNS
 export const jobs = pgTable(
   'jobs',
   {
-    jobId: text('job_id').primaryKey(),
-    angebotstitel: text('angebotstitel').notNull(),
-    kurzbeschreibung: text('kurzbeschreibung').notNull(),
-    firma: text('firma').notNull(),
-    emailAnsprechpartner: text('email_ansprechpartner').notNull(),
-    freigabedatum: timestamp('freigabedatum', { withTimezone: false }).notNull(),
-    arbeitsort: text('arbeitsort').notNull(),
-    anzeigeText: text('anzeige_text').notNull(),
-    country: text('country').notNull(),
-    einleitungTitel: text('einleitung_titel'),
-    einleitungText: text('einleitung_text'),
-    aufgabenTitel: text('aufgaben_titel'),
-    aufgabenText: text('aufgaben_text'),
-    erwartungenTitel: text('erwartungen_titel'),
-    erwartungenText: text('erwartungen_text'),
-    angebotTitel: text('angebot_titel'),
-    angebotText: text('angebot_text'),
-    kontaktTitel: text('kontakt_titel'),
-    kontaktText: text('kontakt_text'),
-    spracheDeutsch: boolean('sprache_deutsch').notNull(),
-    spracheLand: boolean('sprache_land').notNull(),
-    arbeitszeitMin: integer('arbeitszeit_min').notNull(),
-    arbeitszeitMax: integer('arbeitszeit_max').notNull(),
-    berufsfelder: text('berufsfelder').notNull(),
-    fachbereiche: text('fachbereiche').notNull(),
-    homeoffice: text('homeoffice').notNull(),
-    jobtypen: text('jobtypen').notNull(),
+    id: text('id').primaryKey(),
+    title: text('title').notNull(),
+    updated_at: timestamp('updated_at', { withTimezone: false }).notNull(),
+
+    company: text('company').notNull(),
+    email: text('email'),
+    application_portal: text('application_portal'),
+
+    location: text('location').notNull(),
+    homeoffice: text('homeoffice'),
+
+    worktime_min: integer('worktime_min'),
+    worktime_max: integer('worktime_max'),
+    start_date: timestamp('start_date', { withTimezone: false }),
+    end_date: timestamp('end_date', { withTimezone: false }),
+
+    language_country: boolean('language_country').default(false),
+    language_german: boolean('language_german').default(false),
+
+    categories: text('categories').notNull(),
+    types: text('types').notNull(),
+    fields: text('fields').notNull(),
+
+    short_description: text('short_description'),
+
+    intro_title: text('intro_title'),
+    intro_text: text('intro_text'),
+
+    tasks_title: text('tasks_title'),
+    tasks_text: text('tasks_text'),
+
+    expectations_title: text('expectations_title'),
+    expectations_text: text('expectations_text'),
+
+    offer_title: text('offer_title'),
+    offer_text: text('offer_text'),
+
+    contact_title: text('contact_title'),
+    contact_text: text('contact_text'),
   },
   t => [
     index('idx_job_search')
       .using(
         'bm25',
-        t.jobId,
-        t.angebotstitel,
-        t.kurzbeschreibung,
-        t.aufgabenText,
-        t.erwartungenText,
-        t.firma,
-        t.arbeitsort,
-        t.anzeigeText,
-        t.fachbereiche,
-        t.berufsfelder,
+        t.id,
+        t.title,
+        t.company,
+        t.location,
+        t.short_description,
+        t.intro_text,
+        t.tasks_text,
+        t.expectations_text,
+        t.offer_text,
       )
-      .with({ key_field: 'job_id' }),
+      .with({ key_field: 'id' }),
   ],
 )
 
@@ -67,14 +78,14 @@ export const job_chunks = pgTable(
   'job_chunks',
   {
     id: serial('id').primaryKey(),
-    jobId: text('job_id').notNull().references(() => jobs.jobId, { onDelete: 'cascade' }),
+    job_id: text('job_id').notNull().references(() => jobs.id, { onDelete: 'cascade' }),
     type: job_chunk_type('type').notNull(),
-    chunkIndex: integer('chunk_index').notNull().default(0),
+    chunk_index: integer('chunk_index').notNull().default(0),
     content: text('content').notNull(),
     embedding: vector('embedding', { dimensions: 1024 }).notNull(),
   },
   t => [
-    index('idx_job_chunks_job_id').on(t.jobId),
+    index('idx_job_chunks_job_id').on(t.id),
 
     index('idx_job_chunks_embedding')
       .using('hnsw', t.embedding.op('vector_cosine_ops'))

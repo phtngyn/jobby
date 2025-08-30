@@ -3,7 +3,7 @@ import type { PgColumn } from 'drizzle-orm/pg-core'
 import { and, desc, getTableColumns, gte, inArray, lte, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { db, tables } from '~~/server/utils/drizzle'
-import { JOB_SEARCH_TARGET_ORIGIN_COLUMNS } from '~~/shared/constants'
+import { JOB_SEARCH_TARGET_COLUMNS } from '~~/shared/constants'
 import { FiltersSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     event,
     z.object({
       filters: FiltersSchema.optional(),
-      jobIds: z.array(z.string()).optional(),
+      ids: z.array(z.string()).optional(),
     }).parse,
   )
 
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
       const query = body.filters.search
 
       const condition = sql.join(
-        JOB_SEARCH_TARGET_ORIGIN_COLUMNS.map(
+        JOB_SEARCH_TARGET_COLUMNS.map(
           c => sql`${sql.identifier(c)} @@@ ${query}`,
         ),
         sql` OR `,
@@ -35,17 +35,17 @@ export default defineEventHandler(async (event) => {
     }
 
     if (body.filters.types?.length) {
-      const condition = buildArrayIncludeCondition(body.filters.types, tables.jobs.jobtypen)
+      const condition = buildArrayIncludeCondition(body.filters.types, tables.jobs.types)
       conditions.push(condition)
     }
 
     if (body.filters.fields?.length) {
-      const condition = buildArrayIncludeCondition(body.filters.fields, tables.jobs.berufsfelder)
+      const condition = buildArrayIncludeCondition(body.filters.fields, tables.jobs.fields)
       conditions.push(condition)
     }
 
-    if (body.filters.domains?.length) {
-      const condition = buildArrayIncludeCondition(body.filters.domains, tables.jobs.fachbereiche)
+    if (body.filters.categories?.length) {
+      const condition = buildArrayIncludeCondition(body.filters.categories, tables.jobs.categories)
       conditions.push(condition)
     }
 
@@ -57,13 +57,13 @@ export default defineEventHandler(async (event) => {
     if (body.filters.workingtimes?.length) {
       const min = body.filters.workingtimes[0]!
       const max = body.filters.workingtimes[1]!
-      const condition = and(lte(tables.jobs.arbeitszeitMin, max), gte(tables.jobs.arbeitszeitMax, min))
+      const condition = and(lte(tables.jobs.worktime_min, max), gte(tables.jobs.worktime_max, min))
       conditions.push(condition)
     }
   }
 
-  if (body.jobIds) {
-    conditions.push(inArray(tables.jobs.jobId, body.jobIds))
+  if (body.ids) {
+    conditions.push(inArray(tables.jobs.id, body.ids))
   }
 
   const result = await db
@@ -74,7 +74,8 @@ export default defineEventHandler(async (event) => {
     )
     .from(tables.jobs)
     .where(conditions.length > 0 ? and(...conditions) : sql`TRUE`)
-    .orderBy(score ? desc(score) : desc(tables.jobs.freigabedatum))
+    .orderBy(score ? desc(score) : desc(tables.jobs.updated_at))
+    .limit(100)
 
   return result
 })

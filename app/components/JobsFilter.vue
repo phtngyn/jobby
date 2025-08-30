@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Filters } from '~~/shared/types'
-import { DEFAULT_FILTER, JOB_DOMAINS, JOB_FIELDS, JOB_HOMEOFFICES, JOB_TYPES, JOB_WORKINGTIMES } from '~~/shared/constants'
+import { DEFAULT_FILTER, JOB_CATEGORIES, JOB_FIELDS, JOB_HOMEOFFICES, JOB_TYPES, JOB_WORKINGTIMES } from '~~/shared/constants'
 
 type Key = keyof Filters
 type Value = Filters[Key]
@@ -75,15 +75,15 @@ function clear() {
 
             <fieldset>
               <legend class="block font-medium text-sm mb-2">
-                Domains
+                Categories
               </legend>
               <USelectMenu
-                v-model="filters.domains"
-                placeholder="Select domains"
+                v-model="filters.categories"
+                placeholder="Select categories"
                 class="w-80"
                 icon="i-lucide-search"
                 multiple
-                :items="JOB_DOMAINS"
+                :items="JOB_CATEGORIES"
               />
             </fieldset>
 

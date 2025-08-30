@@ -1,41 +1,48 @@
 import { z } from 'zod'
-import { JOB_DOMAINS, JOB_FIELDS, JOB_HOMEOFFICES, JOB_TYPES } from './constants'
+import { JOB_CATEGORIES, JOB_FIELDS, JOB_HOMEOFFICES, JOB_TYPES } from './constants'
 
 export const JobSchema = z.object({
-  jobId: z.string(),
-  angebotstitel: z.string(),
-  kurzbeschreibung: z.string(),
-  firma: z.string(),
-  emailAnsprechpartner: z.email(),
-  freigabedatum: z.iso.datetime(),
-  arbeitsort: z.string(),
-  anzeigeText: z.string(),
-  country: z.string(),
-  einleitungTitel: z.string().optional(),
-  einleitungText: z.string().optional(),
-  aufgabenTitel: z.string().optional(),
-  aufgabenText: z.string().optional(),
-  erwartungenTitel: z.string().optional(),
-  erwartungenText: z.string().optional(),
-  angebotTitel: z.string().optional(),
-  angebotText: z.string().optional(),
-  kontaktTitel: z.string().optional(),
-  kontaktText: z.string().optional(),
-  spracheDeutsch: z.boolean(),
-  spracheLand: z.boolean(),
-  arbeitszeitMin: z.number().int().nonnegative(),
-  arbeitszeitMax: z.number().int().nonnegative(),
-  berufsfelder: z.string(),
-  fachbereiche: z.string(),
-  homeoffice: z.string(),
-  jobtypen: z.string(),
+  id: z.string(),
+  title: z.string(),
+  updated_at: z.date(),
+
+  company: z.string(),
+  email: z.string().nullable().optional(),
+  application_portal: z.string().nullable().optional(),
+
+  location: z.string(),
+  homeoffice: z.string().nullable().optional(),
+
+  worktime_min: z.number().int().nullable().optional(),
+  worktime_max: z.number().int().nullable().optional(),
+  start_date: z.date().nullable().optional(),
+  end_date: z.date().nullable().optional(),
+
+  language_country: z.boolean().default(false),
+  language_german: z.boolean().default(false),
+
+  fields: z.string(),
+  categories: z.string(),
+  types: z.string(),
+
+  short_description: z.string().nullable().optional(),
+  intro_title: z.string().nullable().optional(),
+  intro_text: z.string().nullable().optional(),
+  tasks_title: z.string().nullable().optional(),
+  tasks_text: z.string().nullable().optional(),
+  expectations_title: z.string().nullable().optional(),
+  expectations_text: z.string().nullable().optional(),
+  offer_title: z.string().nullable().optional(),
+  offer_text: z.string().nullable().optional(),
+  contact_title: z.string().nullable().optional(),
+  contact_text: z.string().nullable().optional(),
 })
 
 export const FiltersSchema = z.object({
   search: z.string().trim().optional(),
+  categories: z.array(z.enum(JOB_CATEGORIES)).optional(),
   types: z.array(z.enum(JOB_TYPES)).optional(),
   fields: z.array(z.enum(JOB_FIELDS)).optional(),
-  domains: z.array(z.enum(JOB_DOMAINS)).optional(),
   homeoffices: z.array(z.enum(JOB_HOMEOFFICES)).optional(),
   workingtimes: z.array(z.number().min(0).max(60)).length(2).optional(),
 })
@@ -80,6 +87,12 @@ export const UsernameSchema = z.string().trim().min(3, 'Must be at least 3 chara
 export const FactualMemorySchema = z.object({
   filters: z
     .object({
+      categories: z
+        .array(z.enum(JOB_CATEGORIES))
+        .optional()
+        .describe(
+          'Job categories explicitly mentioned by the user. Must be one of JOB_CATEGORIES.',
+        ),
       types: z
         .array(z.enum(JOB_TYPES))
         .optional()
@@ -91,12 +104,6 @@ export const FactualMemorySchema = z.object({
         .optional()
         .describe(
           'Job fields or industries explicitly mentioned by the user. Must be one of JOB_FIELDS.',
-        ),
-      domains: z
-        .array(z.enum(JOB_DOMAINS))
-        .optional()
-        .describe(
-          'Academic or study domains explicitly mentioned by the user. Must be one of JOB_DOMAINS.',
         ),
       homeoffices: z
         .array(z.enum(JOB_HOMEOFFICES))

@@ -94,10 +94,10 @@ function dragend() {
           >
             <NuxtLink
               v-for="job in data"
-              :key="job.jobId"
+              :key="job.id"
               class="group relative p-4 flex flex-col bg-default border border-accented rounded-md h-full hover:border-inverted/80 transition-colors"
-              :to="`/jobs/${job.jobId}`"
-              :data-id="job.jobId"
+              :to="`/jobs/${job.id}`"
+              :data-id="job.id"
               draggable="true"
               @dragstart="dragstart"
               @dragend="dragend"
@@ -108,7 +108,7 @@ function dragend() {
 
               <div class="flex flex-wrap gap-2 -ml-1 mb-2">
                 <UBadge
-                  v-for="(typ, i) in job.jobtypen.split('|')"
+                  v-for="(typ, i) in job.categories.split('|')"
                   :key="typ"
                   :color="i === 0 ? 'primary' : 'neutral'"
                   variant="subtle"
@@ -118,40 +118,40 @@ function dragend() {
               </div>
 
               <h2 class="font-semibold text-lg leading-tight line-clamp-2 text-balance h-[calc(1.125rem*var(--leading-tight)*2)] mb-4">
-                {{ job.angebotstitel }}
+                {{ job.title }}
               </h2>
 
               <div class="grid gap-1.5 text-sm mb-4">
                 <div class="flex items-center gap-2">
-                  <UIcon name="i-lucide-building-2" /> {{ job.firma }}
+                  <UIcon name="i-lucide-building-2" /> {{ job.company }}
                 </div>
                 <div class="flex items-center gap-2">
-                  <UIcon name="i-lucide-map-pin" /> {{ job.arbeitsort }}
+                  <UIcon name="i-lucide-map-pin" /> {{ job.location }}
                 </div>
 
-                <div class="flex items-center gap-2 my-1">
+                <div class="flex flex-wrap items-center gap-2 my-1">
+                  <UBadge v-if="job.types" color="neutral" variant="outline">
+                    <UIcon name="i-lucide-briefcase-business" /> {{ job.types }}
+                  </UBadge>
+
                   <UBadge color="neutral" variant="outline">
                     <UIcon name="i-lucide-clock" />
-                    <template v-if="job.arbeitszeitMin >= job.arbeitszeitMax">
-                      {{ job.arbeitszeitMax }}h/week
-                    </template>
-                    <template v-else>
-                      {{ job.arbeitszeitMin }}-{{ job.arbeitszeitMax }}h/week
-                    </template>
+                    {{ job.worktime_min }}-{{ job.worktime_max }}h/week
                   </UBadge>
-                  <UBadge color="neutral" variant="outline">
+
+                  <UBadge v-if="job.homeoffice" color="neutral" variant="outline">
                     <UIcon name="i-lucide-house" /> {{ job.homeoffice }}
                   </UBadge>
                 </div>
               </div>
 
               <div class="text-sm text-muted line-clamp-2 mb-4">
-                {{ job.kurzbeschreibung }}
+                {{ job.short_description }}
               </div>
 
               <div class="mt-auto border-t border-accented pt-4">
                 <div class="flex items-center gap-2 text-xs text-dimmed">
-                  <UIcon name="i-lucide-calendar" /> Updated {{ job.freigabedatum }}
+                  <UIcon name="i-lucide-calendar" /> Updated {{ job.updated_at }}
                 </div>
               </div>
             </NuxtLink>

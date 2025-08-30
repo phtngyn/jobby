@@ -11,7 +11,7 @@ const toast = useToast()
 
 const { data: _chat } = await useFetch('/api/chat')
 if (!_chat.value)
-  throw createError({ statusCode: 404, statusMessage: 'Chat not found', fatal: true })
+  throw createError({ statusCode: 404, statusMessage: 'Chat not found' })
 
 const { data } = useNuxtData<Job[]>('jobs')
 const jobs = ref<Job[]>([])
@@ -45,7 +45,7 @@ function handleSubmit() {
 
     message.files = dt.files
     message.metadata = {
-      analyse_jobs: jobs.value.map(j => ({ title: j.angebotstitel, id: j.jobId })),
+      analyse_jobs: jobs.value.map(j => ({ title: j.title, id: j.id })),
     }
   }
 
@@ -70,18 +70,18 @@ function drop(event: DragEvent) {
   if (!id)
     return
 
-  const job = data.value?.find(j => j.jobId === id)
+  const job = data.value?.find(j => j.id === id)
   if (!job)
     return
 
-  if (jobs.value.find(j => j.jobId === id))
+  if (jobs.value.find(j => j.id === id))
     return
 
   jobs.value.push(job)
 }
 
 function removeJob(job: Job) {
-  jobs.value = jobs.value.filter(j => j.jobId !== job.jobId)
+  jobs.value = jobs.value.filter(j => j.id !== job.id)
 }
 
 async function deleteChat() {
@@ -343,10 +343,10 @@ async function deleteChat() {
           >
             <li
               v-for="job in jobs"
-              :key="job.jobId"
+              :key="job.id"
               class="group border border-muted px-2 py-1 rounded-md w-fit flex items-center gap-2"
             >
-              <span class="line-clamp-1">{{ job.angebotstitel }}</span>
+              <span class="line-clamp-1">{{ job.title }}</span>
 
               <button class="flex-center" @click="removeJob(job)">
                 <UIcon name="i-lucide-x" class="size-3.5 text-muted group-hover:text-error transition-colors" />

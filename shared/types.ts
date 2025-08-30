@@ -8,7 +8,7 @@ import type { ChatDataPartSchema, ChatMetadataSchema, FactualMemorySchema, Filte
 
 export type Job = z.infer<typeof JobSchema>
 
-export type JobType = NonNullable<Job['jobtypen']>
+export type JobType = NonNullable<Job['types']>
 export type JobHomeoffice = NonNullable<Job['homeoffice']>
 
 export type ChatModelKey = Parameters<ReturnType<typeof createGoogleGenerativeAI>>[0]
