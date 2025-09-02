@@ -1,4 +1,4 @@
-import { cosineDistance, desc, getTableColumns, sql } from 'drizzle-orm'
+import { and, cosineDistance, desc, getTableColumns, inArray, sql } from 'drizzle-orm'
 import { z } from 'zod'
 import { embed } from '~~/server/ai/llm'
 import { db, tables } from '~~/server/utils/drizzle'
@@ -9,15 +9,21 @@ const TOP_CHUNKS_PER_QUERY = 500
 const SEMANTIC_RATIO = 0.5
 
 export default defineEventHandler(async (event) => {
-  const { query } = await readValidatedBody(
+  const { query, job_ids } = await readValidatedBody(
     event,
-    z.object({ query: z.string().nonempty().trim() }).parse,
+    z.object({
+      query: z.string().trim().nonempty(),
+      job_ids: z.array(z.string()).optional(),
+    }).parse,
   )
 
   const [semanticChunks, lexicalChunks] = await Promise.all([
-    getSemanticChunks(query),
-    getLexicalChunks(query),
+    getSemanticChunks({ prompt: query, job_ids }),
+    getLexicalChunks({ prompt: query, job_ids }),
   ])
+
+  console.log({ job_ids })
+  console.log({ semanticChunks: semanticChunks.length, lexicalChunks: lexicalChunks.length })
 
   const entries = new Map<
   string,
@@ -80,38 +86,48 @@ export default defineEventHandler(async (event) => {
   return result.sort((a, b) => b.score - a.score)
 })
 
-async function getSemanticChunks(query: string) {
+interface GetChunkPayload { prompt: string, job_ids?: string[] }
+
+async function getSemanticChunks({ prompt, job_ids }: GetChunkPayload) {
   const { embedding: _, ...rest } = getTableColumns(tables.job_chunks)
 
-  const embedding = await embed(query)
+  const embedding = await embed(prompt)
   const score = sql<number>`1 - (${cosineDistance(tables.job_chunks.embedding, embedding)})`
 
-  const chunks = await db
+  const query = db
     .select({
       ...rest,
       score,
     })
     .from(tables.job_chunks)
+    .where(job_ids?.length ? inArray(tables.job_chunks.job_id, job_ids) : sql`TRUE`)
     .orderBy(desc(score))
     .limit(TOP_CHUNKS_PER_QUERY)
+
+  const chunks = await query
 
   return chunks
 }
 
-async function getLexicalChunks(query: string) {
+async function getLexicalChunks({ prompt, job_ids }: GetChunkPayload) {
   const { embedding: _, ...rest } = getTableColumns(tables.job_chunks)
 
   const score = sql<number>`paradedb.score(id)`.as('score')
 
-  const chunks = await db
+  const query = db
     .select({
       ...rest,
       score,
     })
     .from(tables.job_chunks)
-    .where(sql`${tables.job_chunks.content} @@@ ${query}`)
+    .where(and(
+      sql`${tables.job_chunks.content} @@@ ${prompt}`,
+      job_ids?.length ? inArray(tables.job_chunks.job_id, job_ids) : sql`TRUE`,
+    ))
     .orderBy(desc(score))
     .limit(TOP_CHUNKS_PER_QUERY)
+
+  const chunks = await query
 
   return chunks
 }

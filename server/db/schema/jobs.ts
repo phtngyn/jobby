@@ -64,6 +64,7 @@ export const jobs = pgTable(
         t.title,
         t.company,
         t.location,
+        t.fields,
         t.short_description,
         t.intro_text,
         t.tasks_text,

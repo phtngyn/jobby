@@ -11,7 +11,8 @@ export default defineEventHandler(async (event) => {
     event,
     z.object({
       filters: FiltersSchema.optional(),
-      ids: z.array(z.string()).optional(),
+      job_ids: z.array(z.string()).optional(),
+      limit: z.int().nonnegative().optional(),
     }).parse,
   )
 
@@ -57,16 +58,19 @@ export default defineEventHandler(async (event) => {
     if (body.filters.workingtimes?.length) {
       const min = body.filters.workingtimes[0]!
       const max = body.filters.workingtimes[1]!
-      const condition = and(lte(tables.jobs.worktime_min, max), gte(tables.jobs.worktime_max, min))
+      const condition = and(
+        lte(tables.jobs.worktime_min, max),
+        gte(tables.jobs.worktime_max, min),
+      )
       conditions.push(condition)
     }
   }
 
-  if (body.ids) {
-    conditions.push(inArray(tables.jobs.id, body.ids))
+  if (body.job_ids) {
+    conditions.push(inArray(tables.jobs.id, body.job_ids))
   }
 
-  const result = await db
+  const query = db
     .select(
       score
         ? { score, ...getTableColumns(tables.jobs) }
@@ -75,7 +79,11 @@ export default defineEventHandler(async (event) => {
     .from(tables.jobs)
     .where(conditions.length > 0 ? and(...conditions) : sql`TRUE`)
     .orderBy(score ? desc(score) : desc(tables.jobs.updated_at))
-    .limit(100)
+
+  if (body.limit)
+    query.limit(body.limit)
+
+  const result = await query
 
   return result
 })

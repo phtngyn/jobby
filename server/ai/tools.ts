@@ -1,10 +1,9 @@
 /* eslint-disable unused-imports/no-unused-vars */
 import type { ChatWriter, Filters, Job } from '~~/shared/types'
 import { generateText, tool } from 'ai'
-import { inArray } from 'drizzle-orm'
 import { z } from 'zod'
-import { db, tables } from '~~/server/utils/drizzle'
 import { LIGHT_MODEL } from '~~/shared/constants'
+import { extractFilters } from '../utils/chat'
 import { provider } from './llm'
 
 export function getToolbox(writer: ChatWriter) {
@@ -19,19 +18,41 @@ export function getToolbox(writer: ChatWriter) {
 function get_jobs(writer: ChatWriter) {
   return () => tool({
     description: 'Search for jobs based on user query',
-    inputSchema: z.object({ query: z.string() }),
-    async execute({ query }, { toolCallId }) {
+    inputSchema: z.object({
+      query: z
+        .string()
+        .describe('Die Suchanfrage des Benutzers (muss auf Deutsch formuliert sein)'),
+    }),
+    async execute({ query }, { toolCallId, messages }) {
+      const filters = await extractFilters(
+        messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-5),
+      )
+
+      const filteredJobs = await $fetch('/api/jobs/select', {
+        method: 'POST',
+        body: { filters },
+      })
+
+      console.dir({
+        filters,
+        length: filteredJobs.length,
+      }, { depth: null })
+
       const chunks = await $fetch('/api/chunks/select', {
         method: 'POST',
-        body: { query },
+        body: {
+          query,
+          job_ids: filteredJobs.map(x => x.id),
+        },
       })
+
       const map = new Map(chunks.map(c => [c.job_id, c]))
 
       const job_ids = chunks.map(c => c.job_id)
-      const jobs = await db
-        .select()
-        .from(tables.jobs)
-        .where(inArray(tables.jobs.id, job_ids))
+      const jobs = await $fetch('/api/jobs/select', {
+        method: 'POST',
+        body: { job_ids },
+      })
 
       const results = jobs
         .map((j) => {
@@ -46,9 +67,10 @@ function get_jobs(writer: ChatWriter) {
             homeoffice: j.homeoffice,
           }
           const chunk = map.get(j.id) ?? { id: j.id, score: 0, chunks: [] }
-          return { ...job, ...chunk, score: Math.round(chunk.score * 100) }
+          const score = Math.round(chunk.score * 100)
+
+          return { ...job, ...chunk, score }
         })
-        .filter(j => j.score >= 25)
         .sort((a, b) => b.score - a.score)
 
       return results

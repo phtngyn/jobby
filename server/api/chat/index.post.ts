@@ -1,10 +1,11 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import type { Tool } from 'ai'
 import type { ChatToolKeys, ChatUIMessage } from '~~/shared/types'
 import { convertToModelMessages, createUIMessageStream, createUIMessageStreamResponse, smoothStream, streamText } from 'ai'
 import { z } from 'zod'
 import { provider } from '~~/server/ai/llm'
 import { getToolbox } from '~~/server/ai/tools'
-import { classify, getConfig, getText, saveMessages } from '~~/server/utils/chat'
+import { getConfig, getText } from '~~/server/utils/chat'
 import { JobSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
@@ -26,18 +27,12 @@ export default defineEventHandler(async (event) => {
     async execute({ writer }) {
       const query = getText(body.messages.at(-1)!)
 
-      const classification = await classify(writer, { query, jobs: !!body.jobs?.length })
+      const modelMessages = convertToModelMessages(body.messages)
 
       const result = streamText({
         model: provider(model),
-        messages: convertToModelMessages(body.messages),
+        messages: modelMessages,
         experimental_transform: smoothStream({ chunking: 'word' }),
-        activeTools: (() => {
-          if (classification.type && classification.type !== 'general')
-            return [classification.type]
-
-          return []
-        })(),
         tools: (() => {
           const toolbox = getToolbox(writer)
 
@@ -79,12 +74,10 @@ export default defineEventHandler(async (event) => {
       )
     },
     onError(error) {
-      console.log(error)
       return error instanceof Error ? error.message : String(error)
     },
     async onFinish({ messages }) {
-      await saveMessages(session, messages)
-      await saveFactualMemory(session, messages)
+      // await saveMessages(session, messages)
     },
   })
 

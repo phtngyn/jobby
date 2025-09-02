@@ -113,8 +113,8 @@ function clear() {
       </UPopover>
     </div>
 
-    <div class="group flex items-center">
-      <div class="group flex items-center gap-2 h-7">
+    <div class="group flex items-start gap-2">
+      <div class="group flex items-center flex-wrap gap-2 min-h-7">
         <UBadge
           v-if="filters.search"
           data-slot="badge"
@@ -192,8 +192,8 @@ function clear() {
         </UButton>
       </div>
 
-      <span class="group-has-[[data-slot=badge]]:ml-auto text-sm text-muted font-medium">
-        Show {{ props.length }} results
+      <span class="group-has-[[data-slot=badge]]:ml-auto my-0.5 text-sm text-muted text-nowrap">
+        Show <span class="text-success">{{ props.length }}</span> results
       </span>
     </div>
   </div>

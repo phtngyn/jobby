@@ -281,11 +281,6 @@ async function deleteChat() {
                   </div>
                 </template>
 
-                <DataClassification
-                  v-else-if="part.type === 'data-classification'"
-                  :data="part.data"
-                />
-
                 <ToolGetJobs
                   v-else-if="part.type === 'tool-get_jobs'"
                   :state="part.state"

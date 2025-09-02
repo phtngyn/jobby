@@ -40,11 +40,30 @@ export const JobSchema = z.object({
 
 export const FiltersSchema = z.object({
   search: z.string().trim().optional(),
-  categories: z.array(z.enum(JOB_CATEGORIES)).optional(),
-  types: z.array(z.enum(JOB_TYPES)).optional(),
-  fields: z.array(z.enum(JOB_FIELDS)).optional(),
-  homeoffices: z.array(z.enum(JOB_HOMEOFFICES)).optional(),
-  workingtimes: z.array(z.number().min(0).max(60)).length(2).optional(),
+  categories: z
+    .array(z.enum(JOB_CATEGORIES))
+    .optional()
+    .describe('Job categories (e.g., Praktikum, Ausbildung, Traineeprogramm).'),
+  types: z
+    .array(z.enum(JOB_TYPES))
+    .optional()
+    .describe('Contract types (e.g., Festanstellung, Befristet, Minijob).'),
+  fields: z
+    .array(z.enum(JOB_FIELDS))
+    .optional()
+    .describe('Job fields or industries (e.g., IT Beratung, Maschinenbau).'),
+  homeoffices: z
+    .array(z.enum(JOB_HOMEOFFICES))
+    .optional()
+    .describe('Home office preferences (e.g., 0%, 50-100%, 100%).'),
+  workingtimes: z
+    .array(z.number().min(0).max(60))
+    .min(1)
+    .max(2)
+    .optional()
+    .describe(
+      'Working time in hours per week. Can be one value (expanded to [value, 60]) or a range [min, max].',
+    ),
 })
 
 export const ChatMetadataSchema = z.object({
@@ -61,21 +80,7 @@ export const ChatMetadataSchema = z.object({
 
 export const ChatDataPartStatus = z.enum(['loading', 'done'])
 
-export const ChatDataPartClassificationSchema = z.object({
-  reason: z.string().max(200),
-  type: z.enum([
-    'general',
-    'get_jobs',
-    'get_similar_jobs',
-    'analyze_jobs',
-    'get_filters',
-  ]),
-  confidence: z.number().min(0).max(1),
-  status: ChatDataPartStatus,
-})
-
 export const ChatDataPartSchema = z.object({
-  classification: ChatDataPartClassificationSchema,
   notification: z.object({
     message: z.string(),
     level: z.enum(['info', 'warning', 'error']),
@@ -83,53 +88,3 @@ export const ChatDataPartSchema = z.object({
 })
 
 export const UsernameSchema = z.string().trim().min(3, 'Must be at least 3 characters')
-
-export const FactualMemorySchema = z.object({
-  filters: z
-    .object({
-      categories: z
-        .array(z.enum(JOB_CATEGORIES))
-        .optional()
-        .describe(
-          'Job categories explicitly mentioned by the user. Must be one of JOB_CATEGORIES.',
-        ),
-      types: z
-        .array(z.enum(JOB_TYPES))
-        .optional()
-        .describe(
-          'Job types explicitly mentioned by the user. Must be one of JOB_TYPES.',
-        ),
-      fields: z
-        .array(z.enum(JOB_FIELDS))
-        .optional()
-        .describe(
-          'Job fields or industries explicitly mentioned by the user. Must be one of JOB_FIELDS.',
-        ),
-      homeoffices: z
-        .array(z.enum(JOB_HOMEOFFICES))
-        .optional()
-        .describe(
-          'User\'s explicit preference for remote or hybrid work. Must be one of JOB_HOMEOFFICES.',
-        ),
-      workingtimes: z
-        .array(z.number().min(0).max(60))
-        .min(1)
-        .max(2)
-        .optional()
-        .describe('Working time range in hours per week. Always normalized to [min, max].'),
-    })
-    .optional()
-    .describe(
-      'Structured filters that directly map to the job search system. Only include fields explicitly mentioned by the user.',
-    ),
-
-  others: z
-    .array(
-      z.object({
-        key: z.string().describe('The name of the preference'),
-        value: z.string().describe('The value of the preference'),
-      }),
-    )
-    .optional()
-    .describe('Any other explicit preferences that do not fit into filters.'),
-})

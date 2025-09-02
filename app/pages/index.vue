@@ -11,7 +11,7 @@ const filters = ref(structuredClone(DEFAULT_FILTER))
 const { data, status, error } = await useFetch<Job[]>('/api/jobs/select', {
   method: 'POST',
   key: 'jobs',
-  body: { filters },
+  body: { filters, limit: 100 },
   lazy: true,
   immediate: true,
   dedupe: 'cancel',
