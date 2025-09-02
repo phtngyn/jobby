@@ -130,8 +130,13 @@ function dragend() {
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2 my-1">
-                  <UBadge v-if="job.types" color="neutral" variant="outline">
-                    <UIcon name="i-lucide-briefcase-business" /> {{ job.types }}
+                  <UBadge
+                    v-for="type in job.types.split('|')"
+                    :key="type"
+                    color="neutral"
+                    variant="subtle"
+                  >
+                    <UIcon name="i-lucide-briefcase-business" /> {{ type }}
                   </UBadge>
 
                   <UBadge color="neutral" variant="outline">

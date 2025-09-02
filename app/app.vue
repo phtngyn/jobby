@@ -9,6 +9,9 @@ const store = useGlobalStore()
 const colorMode = useColorMode()
 const isDark = computed(() => colorMode.preference === 'dark')
 
+const panelLeft = useTemplateRef('panel-left')
+const panelRight = useTemplateRef('panel-right')
+
 const items = computed<NavigationMenuItem[]>(() => [
   {
     label: 'Home',
@@ -28,6 +31,11 @@ const items = computed<NavigationMenuItem[]>(() => [
     to: '/playground',
   },
 ].filter(Boolean) as NavigationMenuItem[])
+
+onMounted(() => {
+  store.panelLeft = panelLeft.value
+  store.panelRight = panelRight.value
+})
 </script>
 
 <template>
@@ -92,7 +100,8 @@ const items = computed<NavigationMenuItem[]>(() => [
         @layout="v => store.layout = v"
       >
         <SplitterPanel
-          id="splitter-panel-1"
+          id="splitter-panel-left"
+          ref="panel-left"
           collapsible
           :default-size="store.layout[0]"
           :min-size="33"
@@ -107,13 +116,16 @@ const items = computed<NavigationMenuItem[]>(() => [
         />
 
         <SplitterPanel
-          id="splitter-panel-2"
+          id="splitter-panel-right"
+          ref="panel-right"
           collapsible
           :default-size="store.layout[1]"
           :min-size="33"
           :collapsed-size="0"
         >
-          <AppChat />
+          <ClientOnly>
+            <AppChat />
+          </ClientOnly>
         </SplitterPanel>
       </SplitterGroup>
     </div>

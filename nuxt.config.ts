@@ -10,7 +10,7 @@ export default defineNuxtConfig({
   ],
 
   devtools: {
-    enabled: false,
+    enabled: true,
   },
 
   css: ['~/assets/css/main.css'],
@@ -21,10 +21,10 @@ export default defineNuxtConfig({
     },
   },
 
-  routeRules: {
-    '*': {
-      prerender: false,
-      cache: false,
+  ui: {
+    fonts: false,
+    theme: {
+      colors: ['primary', 'success', 'info', 'warning', 'error'],
     },
   },
 

@@ -58,11 +58,21 @@ const favorited = shallowRef(false)
               </div>
 
               <div class="flex flex-wrap items-center gap-2 my-1">
+                <UBadge
+                  v-for="type in job.types.split('|')"
+                  :key="type"
+                  color="neutral"
+                  variant="subtle"
+                >
+                  <UIcon name="i-lucide-briefcase-business" /> {{ type }}
+                </UBadge>
+
                 <UBadge color="neutral" variant="outline">
                   <UIcon name="i-lucide-clock" />
                   {{ job.worktime_min }}-{{ job.worktime_max }}h/week
                 </UBadge>
-                <UBadge color="neutral" variant="outline">
+
+                <UBadge v-if="job.homeoffice" color="neutral" variant="outline">
                   <UIcon name="i-lucide-house" /> {{ job.homeoffice }}
                 </UBadge>
               </div>

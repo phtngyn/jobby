@@ -95,12 +95,12 @@ const emit = defineEmits<{
 
               <div class="flex items-center flex-wrap gap-2 my-1">
                 <UBadge
-                  v-for="typ in job.types.split('|')"
-                  :key="typ"
+                  v-for="type in job.types.split('|')"
+                  :key="type"
                   color="neutral"
                   variant="subtle"
                 >
-                  <UIcon name="i-lucide-briefcase" /> {{ typ }}
+                  <UIcon name="i-lucide-briefcase-business" /> {{ type }}
                 </UBadge>
 
                 <UBadge color="neutral" variant="outline">

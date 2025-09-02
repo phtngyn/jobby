@@ -22,9 +22,6 @@ export default defineEventHandler(async (event) => {
     getLexicalChunks({ prompt: query, job_ids }),
   ])
 
-  console.log({ job_ids })
-  console.log({ semanticChunks: semanticChunks.length, lexicalChunks: lexicalChunks.length })
-
   const entries = new Map<
   string,
 {

@@ -19,7 +19,10 @@ const jobs = ref<Job[]>([])
 const input = shallowRef('')
 const chat = new Chat<ChatUIMessage>({
   id: _chat.value.id,
-  messages: _chat.value.messages,
+  messages: _chat.value.messages.length
+    ? _chat.value.messages
+    : [{ id: generateId(), role: 'assistant', parts: [{ type: 'text', text: 'How can I help you?' }] }],
+
   transport: new DefaultChatTransport({ api: '/api/chat' }),
   onData({ type, data }) {
     if (type === 'data-notification')
