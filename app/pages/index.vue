@@ -8,7 +8,7 @@ const store = useGlobalStore()
 
 const filters = ref(structuredClone(DEFAULT_FILTER))
 
-const { data, status, error } = await useFetch<Job[]>('/api/jobs/select', {
+const { data, status, error } = await useFetch<Job[]>('/api/jobs', {
   method: 'POST',
   key: 'jobs',
   body: { filters, limit: 100 },
@@ -34,6 +34,10 @@ function dragstart(event: DragEvent) {
 function dragend() {
   store.dragging = false
 }
+
+function clear() {
+  filters.value = structuredClone(DEFAULT_FILTER)
+}
 </script>
 
 <template>
@@ -46,7 +50,7 @@ function dragend() {
       <LazyModalRegister v-if="!user" />
 
       <div class="@container grid gap-4">
-        <JobsFilter v-model="filters" :length="data.length" />
+        <Filters v-model="filters" :length="data.length" />
 
         <template v-if="status === 'pending' || status === 'idle'">
           <ul class="grid grid-cols-1 @min-3xl:grid-cols-2 @min-6xl:grid-cols-3 gap-4">
@@ -166,7 +170,7 @@ function dragend() {
             v-else
             class="flex-center mt-10"
           >
-            <UCard class="w-full max-w-100 text-center" :ui="{ body: 'flex-center flex-col gap-2' }">
+            <UCard class="w-full max-w-100 text-center" :ui="{ body: 'flex-center flex-col gap-4' }">
               <div class="size-16 rounded-full bg-accented flex-center">
                 <UIcon name="i-lucide-funnel" class="size-6" />
               </div>
@@ -176,6 +180,10 @@ function dragend() {
               <p class="text-sm text-muted text-pretty">
                 Try adjusting your search criteria or clearing some filters to see more results.
               </p>
+
+              <UButton variant="subtle" @click="clear">
+                Clear filters
+              </UButton>
             </UCard>
           </div>
         </template>

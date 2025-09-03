@@ -11,7 +11,7 @@ const state = ref({
 })
 
 async function selectChunks() {
-  const result = await $fetch('/api/chunks/select', {
+  const result = await $fetch('/api/chunks', {
     method: 'POST',
     body: { query: state.value.selectChunks.input },
   })

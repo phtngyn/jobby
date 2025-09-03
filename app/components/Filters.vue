@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Filters } from '~~/shared/types'
+import { t } from 'try'
 import { DEFAULT_FILTER, JOB_CATEGORIES, JOB_FIELDS, JOB_HOMEOFFICES, JOB_TYPES, JOB_WORKINGTIMES } from '~~/shared/constants'
 
 type Key = keyof Filters
@@ -9,10 +10,54 @@ const props = defineProps<{
   length: number
 }>()
 
+const toast = useToast()
+
 const filters = defineModel({ default: structuredClone(DEFAULT_FILTER) })
 
 function clear() {
   filters.value = structuredClone(DEFAULT_FILTER)
+}
+
+const smart = shallowRef<string>()
+const finding = shallowRef(false)
+async function find() {
+  finding.value = true
+  const input = `
+The user is refining their job search filters.
+
+Context:
+- Previous filters (already applied):
+${JSON.stringify(filters.value, null, 2)}
+
+- Current user input (new preferences, higher priority):
+"${smart.value}"
+
+Task:
+- Combine the previous filters with the new input.
+- The new input always overrides or updates previous filters if there is a conflict.
+- If the new input adds details, merge them with the previous filters.
+- Return only the combined preferences as plain text, without explanations.
+  `
+
+  const [ok, error, value] = await t($fetch('/api/filters', {
+    method: 'POST',
+    body: { input },
+  }))
+  finding.value = false
+
+  if (ok)
+    smart.value = ''
+
+  if (error || !value) {
+    toast.add({
+      title: 'No matching filters found',
+      description: 'Try rephrasing your search or adding more details.',
+      color: 'warning',
+    })
+    return
+  }
+
+  filters.value = value
 }
 </script>
 
@@ -51,6 +96,22 @@ function clear() {
 
         <template #content>
           <div class="p-4 grid gap-4">
+            <form @submit.prevent="find">
+              <fieldset>
+                <legend class="block font-medium text-sm mb-2">
+                  Smart filters
+                </legend>
+                <UInput
+                  v-model="smart"
+                  class="w-full"
+                  trailing-icon="i-lucide-sparkle"
+                  :loading="finding"
+                  :ui="{ trailingIcon: 'size-4 bg-gradient-to-tr from-warning via-success to-info inline-block animate-pulse' }"
+                  placeholder="Describe what you want to filter"
+                />
+              </fieldset>
+            </form>
+
             <UCheckboxGroup
               v-model="filters.types"
               size="lg"
@@ -67,7 +128,6 @@ function clear() {
                 v-model="filters.fields"
                 placeholder="Select fields"
                 class="w-80"
-                icon="i-lucide-search"
                 multiple
                 :items="JOB_FIELDS"
               />
@@ -81,7 +141,6 @@ function clear() {
                 v-model="filters.categories"
                 placeholder="Select categories"
                 class="w-80"
-                icon="i-lucide-search"
                 multiple
                 :items="JOB_CATEGORIES"
               />

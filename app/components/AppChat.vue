@@ -226,12 +226,12 @@ async function deleteChat() {
 
                 <template v-else-if="part.type === 'text'">
                   <div class="group grid gap-2">
-                    <div class="text-pretty min-w-0 rounded-md">
+                    <div class="text-pretty min-w-0 px-3 py-1.5 rounded-md w-fit border border-default">
                       <MDCCached
                         :value="part.text"
                         :cache-key="`${message.id}-${message.role}-${part.type}`"
                         :parser-options="{ highlight: false }"
-                        class="[&>:first-child]:mt-0"
+                        class="[&>:first-child]:mt-0 [&>:last-child]:mb-0"
                       />
                     </div>
 

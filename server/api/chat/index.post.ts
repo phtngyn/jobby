@@ -38,7 +38,6 @@ export default defineEventHandler(async (event) => {
 
           const tools: Partial<Record<ChatToolKeys, Tool>> = {
             get_jobs: toolbox.get_jobs(),
-            get_filters: toolbox.get_filters(filters),
           }
 
           if (body.jobs?.length) {

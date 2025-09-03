@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
 
       conditions.push(sql`(${condition})`)
 
-      score = sql<number>`paradedb.score(job_id)`.as('score')
+      score = sql<number>`paradedb.score(id)`.as('score')
     }
 
     if (body.filters.types?.length) {

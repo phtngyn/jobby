@@ -20,7 +20,7 @@ const store = useGlobalStore()
 
     <slot />
 
-    <template v-if="props.page">
+    <template v-if="props.page && store.panelRight">
       <UButton
         :icon="store.panelRight.isCollapsed ? 'i-lucide-panel-right-open' : 'i-lucide-panel-right-close'"
         variant="ghost"

@@ -33,7 +33,11 @@ export async function getChat(session: Session) {
   return chat
 }
 
-export async function extractFilters(messages: ModelMessage[]) {
+export async function extractFilters(
+  payload:
+    { messages: ModelMessage[], prompt?: never }
+    | { prompt: string, messages?: never },
+) {
   const system = `
 You are an extractor that converts user job preferences into structured data.
 
@@ -69,7 +73,7 @@ Maximize the number of correct matches across all filter properties while stayin
     schema: FiltersSchema.omit({ search: true }),
     output: 'object',
     system,
-    messages,
+    ...payload,
   })
 
   if (object?.workingtimes?.length) {

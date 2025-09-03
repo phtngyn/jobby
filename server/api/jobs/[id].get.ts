@@ -5,7 +5,7 @@ import { db } from '~~/server/utils/drizzle'
 export default defineEventHandler(async (event) => {
   const { id } = await getValidatedRouterParams(
     event,
-    z.object({ id: z.string() }).parse,
+    z.object({ id: z.string().trim().nonempty() }).parse,
   )
 
   const job = await db.query.jobs.findFirst({

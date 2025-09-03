@@ -1,5 +1,5 @@
 /* eslint-disable unused-imports/no-unused-vars */
-import type { ChatWriter, Filters, Job } from '~~/shared/types'
+import type { ChatWriter, Job } from '~~/shared/types'
 import { generateText, tool } from 'ai'
 import { z } from 'zod'
 import { LIGHT_MODEL } from '~~/shared/constants'
@@ -11,7 +11,6 @@ export function getToolbox(writer: ChatWriter) {
     get_jobs: get_jobs(writer),
     get_similar_jobs: get_similar_jobs(writer),
     analyze_jobs: analyze_jobs(writer),
-    get_filters: get_filters(writer),
   }
 }
 
@@ -24,11 +23,13 @@ function get_jobs(writer: ChatWriter) {
         .describe('Die Suchanfrage des Benutzers (muss auf Deutsch formuliert sein)'),
     }),
     async execute({ query }, { toolCallId, messages }) {
-      const filters = await extractFilters(
-        messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-5),
-      )
+      const filters = await extractFilters({
+        messages: messages
+          .filter(m => m.role === 'user' || m.role === 'assistant')
+          .slice(-5),
+      })
 
-      const filteredJobs = await $fetch('/api/jobs/select', {
+      const filteredJobs = await $fetch('/api/jobs', {
         method: 'POST',
         body: { filters },
       })
@@ -38,7 +39,7 @@ function get_jobs(writer: ChatWriter) {
         length: filteredJobs.length,
       }, { depth: null })
 
-      const chunks = await $fetch('/api/chunks/select', {
+      const chunks = await $fetch('/api/chunks', {
         method: 'POST',
         body: {
           query,
@@ -49,7 +50,7 @@ function get_jobs(writer: ChatWriter) {
       const map = new Map(chunks.map(c => [c.job_id, c]))
 
       const job_ids = chunks.map(c => c.job_id)
-      const jobs = await $fetch('/api/jobs/select', {
+      const jobs = await $fetch('/api/jobs', {
         method: 'POST',
         body: { job_ids },
       })
@@ -127,16 +128,4 @@ function analyze_jobs(writer: ChatWriter) {
         return text
       },
     })
-}
-
-function get_filters(writer: ChatWriter) {
-  return (_filters: Filters) => tool({
-    description: '',
-    name: '',
-    inputSchema: z.object({ prompt: z.string() }),
-    outputSchema: z.object(),
-    async execute({ prompt }, { toolCallId: id }) {
-      return {}
-    },
-  })
 }
