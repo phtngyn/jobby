@@ -23,23 +23,18 @@ function get_jobs(writer: ChatWriter) {
         .describe('Die Suchanfrage des Benutzers (muss auf Deutsch formuliert sein)'),
     }),
     async execute({ query }, { toolCallId, messages }) {
-      const filters = await extractFilters({
-        messages: messages
-          .filter(m => m.role === 'user' || m.role === 'assistant')
-          .slice(-5),
-      })
+      const lastFiveMessages = messages
+        .filter(m => m.role === 'user' || m.role === 'assistant')
+        .slice(-5)
+
+      const filters = await extractFilters({ messages: lastFiveMessages })
 
       const filteredJobs = await $fetch('/api/jobs', {
         method: 'POST',
         body: { filters },
       })
 
-      console.dir({
-        filters,
-        length: filteredJobs.length,
-      }, { depth: null })
-
-      const chunks = await $fetch('/api/chunks', {
+      const _items = await $fetch('/api/chunks', {
         method: 'POST',
         body: {
           query,
@@ -47,12 +42,12 @@ function get_jobs(writer: ChatWriter) {
         },
       })
 
-      const map = new Map(chunks.map(c => [c.job_id, c]))
+      const items = _items.sort((a, b) => b.score - a.score).slice(0, 10)
+      const map = new Map(items.map(x => [x.job_id, x]))
 
-      const job_ids = chunks.map(c => c.job_id)
       const jobs = await $fetch('/api/jobs', {
         method: 'POST',
-        body: { job_ids },
+        body: { job_ids: items.map(c => c.job_id) },
       })
 
       const results = jobs
@@ -67,14 +62,57 @@ function get_jobs(writer: ChatWriter) {
             worktime_max: j.worktime_max,
             homeoffice: j.homeoffice,
           }
-          const chunk = map.get(j.id) ?? { id: j.id, score: 0, chunks: [] }
-          const score = Math.round(chunk.score * 100)
-
-          return { ...job, ...chunk, score }
+          const item = map.get(j.id) ?? { id: j.id, score: 0, chunks: [] }
+          const score = Math.round(item.score * 100)
+          return { ...job, ...item, score }
         })
         .sort((a, b) => b.score - a.score)
 
-      return results
+      const lastUserMessage = messages.findLast(m => m.role === 'user')
+
+      const { text } = await generateText({
+        model: provider(LIGHT_MODEL),
+        system: `
+You are a career assistant that recommends the most relevant jobs to the user.
+
+Your task:
+- Understand the user's intent from their query and last message.
+- Rank jobs by relevance (semantic score + filter match).
+- Focus on the top 3-5 jobs:
+  - Give detailed recommendations with reasoning (why they fit the user's intent).
+  - Mention role, company, location, work setup (homeoffice/onsite), contract type, and working time if available.
+- For the remaining jobs:
+  - Provide a short, high-level overview (e.g. "Other options include...").
+- If no strong matches exist:
+  - Politely explain this and suggest how the user could refine their query or filters.
+- Always prioritize the query over old filters if there is a conflict.
+- Suggest next steps (e.g. refine filters, broaden location, adjust contract type).
+- Keep the tone professional, supportive, and user-friendly (like a career coach).
+- Do not invent details that are not in the data.
+- Output should be plain text, not JSON.
+  `,
+        prompt: `
+Here are the job results (ranked by relevance):
+
+${JSON.stringify(results, null, 2)}
+
+User's last message:
+"${lastUserMessage?.content ?? 'N/A'}"
+
+Original query used for this search:
+"${query ?? 'N/A'}"
+
+Please provide a recommendation-style response:
+- Highlight the top 3–5 jobs with detailed reasoning.
+- Summarize the rest briefly.
+- Suggest next steps if relevant.
+  `,
+      })
+
+      return {
+        jobs: results,
+        summary: text,
+      }
     },
   })
 }

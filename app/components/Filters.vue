@@ -36,10 +36,12 @@ Task:
 - Combine the previous filters with the new input.
 - The new input always overrides or updates previous filters if there is a conflict.
 - If the new input adds details, merge them with the previous filters.
+- If the user explicitly asks to "remove all filters", "reset filters", or similar,
+  then return this (${JSON.stringify(DEFAULT_FILTER, null, 2)}).
 - Return only the combined preferences as plain text, without explanations.
   `
 
-  const [ok, error, value] = await t($fetch('/api/filters', {
+  const [ok, error, value] = await t($fetch<Omit<Filters, 'search'>>('/api/filters', {
     method: 'POST',
     body: { input },
   }))

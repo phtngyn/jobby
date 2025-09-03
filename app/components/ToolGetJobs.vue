@@ -48,7 +48,7 @@ const emit = defineEmits<{
   <template v-else-if="props.state === 'output-available'">
     <div class="grid gap-4">
       <div class="text-muted">
-        Query for "{{ props.input?.query }}" - {{ props.output?.length }} results
+        Query for "{{ props.input?.query }}" - {{ props.output?.jobs.length }} results
       </div>
 
       <ul
@@ -56,7 +56,7 @@ const emit = defineEmits<{
         class="grid gap-4"
       >
         <li
-          v-for="job in props.output"
+          v-for="job in props.output.jobs"
           :key="job.id"
         >
           <div class="grid gap-4 p-4 bg border border-accented rounded-md has-[.active-link]:border-primary transition-colors">
@@ -141,6 +141,10 @@ const emit = defineEmits<{
               </template>
             </UAccordion>
           </div>
+        </li>
+
+        <li>
+          <MDC :value="props.output.summary" />
         </li>
       </ul>
     </div>
