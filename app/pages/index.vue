@@ -1,21 +1,34 @@
 <script setup lang="ts">
 import type { Job } from '~~/shared/types'
-import { DEFAULT_FILTER } from '~~/shared/constants'
 
 const { user } = useUserSession()
 
 const store = useGlobalStore()
 
-const filters = ref(structuredClone(DEFAULT_FILTER))
+const { data, status, error, execute } = useAsyncData(
+  'jobs',
+  () => $fetch<Job[]>('/api/jobs', {
+    method: 'POST',
+    body: { filters: store.filters },
+  }),
+  {
+    lazy: true,
+    immediate: true,
+  },
+)
 
-const { data, status, error } = await useFetch<Job[]>('/api/jobs', {
-  method: 'POST',
-  key: 'jobs',
-  body: { filters, limit: 100 },
-  lazy: true,
-  immediate: true,
-  dedupe: 'cancel',
-  default: () => [] as Job[],
+watch(() => store.filters, () => {
+  execute()
+}, { deep: true })
+
+const size = 12
+const page = shallowRef(1)
+const jobs = computed<Job[]>(() => {
+  if (!data.value)
+    return []
+
+  const offset = (page.value - 1) * size
+  return data.value.slice(offset, offset + size)
 })
 
 function dragstart(event: DragEvent) {
@@ -34,10 +47,6 @@ function dragstart(event: DragEvent) {
 function dragend() {
   store.dragging = false
 }
-
-function clear() {
-  filters.value = structuredClone(DEFAULT_FILTER)
-}
 </script>
 
 <template>
@@ -49,8 +58,8 @@ function clear() {
     <PanelBody>
       <LazyModalRegister v-if="!user" />
 
-      <div class="@container grid gap-4">
-        <Filters v-model="filters" :length="data.length" />
+      <div class="@container relative grid gap-4">
+        <Filters :length="data?.length" />
 
         <template v-if="status === 'pending' || status === 'idle'">
           <ul class="grid grid-cols-1 @min-3xl:grid-cols-2 @min-6xl:grid-cols-3 gap-4">
@@ -94,76 +103,91 @@ function clear() {
         <template v-else-if="status === 'success'">
           <div
             v-if="data?.length"
-            class="grid grid-cols-1 @min-3xl:grid-cols-2 @min-6xl:grid-cols-3 gap-4"
+            class="grid gap-6"
           >
-            <NuxtLink
-              v-for="job in data"
-              :key="job.id"
-              class="group relative p-4 flex flex-col bg-default border border-accented rounded-md h-full hover:border-inverted/80 transition-colors"
-              :to="`/jobs/${job.id}`"
-              :data-id="job.id"
-              draggable="true"
-              @dragstart="dragstart"
-              @dragend="dragend"
-            >
-              <div class="absolute top-4 right-4">
-                <UIcon name="i-lucide-grip-vertical" class="text-dimmed group-hover:text-(--ui-text) transition-colors" />
-              </div>
-
-              <div class="flex flex-wrap gap-2 -ml-1 mb-2">
-                <UBadge
-                  v-for="(typ, i) in job.categories.split('|')"
-                  :key="typ"
-                  :color="i === 0 ? 'primary' : 'neutral'"
-                  variant="subtle"
-                >
-                  {{ typ }}
-                </UBadge>
-              </div>
-
-              <h2 class="font-semibold text-lg leading-tight line-clamp-2 text-balance h-[calc(1.125rem*var(--leading-tight)*2)] mb-4">
-                {{ job.title }}
-              </h2>
-
-              <div class="grid gap-1.5 text-sm mb-4">
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-lucide-building-2" /> {{ job.company }}
-                </div>
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-lucide-map-pin" /> {{ job.location }}
+            <div class="grid grid-cols-1 @min-3xl:grid-cols-2 @min-6xl:grid-cols-3 gap-4 pb-[5%]">
+              <NuxtLink
+                v-for="job in jobs"
+                :key="job.id"
+                class="group relative p-4 flex flex-col bg-default border border-accented rounded-md h-full hover:border-inverted/80 transition-colors"
+                :to="`/jobs/${job.id}`"
+                :data-id="job.id"
+                draggable="true"
+                @dragstart="dragstart"
+                @dragend="dragend"
+              >
+                <div class="absolute top-4 right-4">
+                  <UIcon name="i-lucide-grip-vertical" class="text-dimmed group-hover:text-(--ui-text) transition-colors" />
                 </div>
 
-                <div class="flex flex-wrap items-center gap-2 my-1">
+                <div class="flex flex-wrap gap-2 -ml-1 mb-2">
                   <UBadge
-                    v-for="type in job.types.split('|')"
-                    :key="type"
-                    color="neutral"
+                    v-for="(typ, i) in job.categories.split('|')"
+                    :key="typ"
+                    :color="i === 0 ? 'primary' : 'neutral'"
                     variant="subtle"
                   >
-                    <UIcon name="i-lucide-briefcase-business" /> {{ type }}
-                  </UBadge>
-
-                  <UBadge color="neutral" variant="outline">
-                    <UIcon name="i-lucide-clock" />
-                    {{ job.worktime_min }}-{{ job.worktime_max }}h/week
-                  </UBadge>
-
-                  <UBadge v-if="job.homeoffice" color="neutral" variant="outline">
-                    <UIcon name="i-lucide-house" /> {{ job.homeoffice }}
+                    {{ typ }}
                   </UBadge>
                 </div>
-              </div>
 
-              <div class="text-sm text-muted line-clamp-2 mb-4">
-                {{ job.short_description }}
-              </div>
+                <h2 class="font-semibold text-lg leading-tight line-clamp-2 text-balance h-[calc(1.125rem*var(--leading-tight)*2)] mb-4">
+                  {{ job.title }}
+                </h2>
 
-              <div class="mt-auto border-t border-accented pt-4">
-                <div class="flex items-center gap-2 text-xs text-dimmed">
-                  <UIcon name="i-lucide-calendar" /> Updated {{ job.updated_at }}
+                <div class="grid gap-1.5 text-sm mb-4">
+                  <div class="flex items-center gap-2">
+                    <UIcon name="i-lucide-building-2" /> {{ job.company }}
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <UIcon name="i-lucide-map-pin" /> {{ job.location }}
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-2 my-1">
+                    <UBadge
+                      v-for="type in job.types.split('|')"
+                      :key="type"
+                      color="neutral"
+                      variant="subtle"
+                    >
+                      <UIcon name="i-lucide-briefcase-business" /> {{ type }}
+                    </UBadge>
+
+                    <UBadge color="neutral" variant="outline">
+                      <UIcon name="i-lucide-clock" />
+                      {{ job.worktime_min }}-{{ job.worktime_max }}h/week
+                    </UBadge>
+
+                    <UBadge v-if="job.homeoffice" color="neutral" variant="outline">
+                      <UIcon name="i-lucide-house" /> {{ job.homeoffice }}
+                    </UBadge>
+                  </div>
                 </div>
+
+                <div class="text-sm text-muted line-clamp-2 mb-4">
+                  {{ job.short_description }}
+                </div>
+
+                <div class="mt-auto border-t border-accented pt-4">
+                  <div class="flex items-center gap-2 text-xs text-dimmed">
+                    <UIcon name="i-lucide-calendar" /> Updated {{ job.updated_at }}
+                  </div>
+                </div>
+              </NuxtLink>
+            </div>
+
+            <div class="sticky bottom-0 flex-center">
+              <div class="ring ring-accented p-2 rounded-md backdrop-blur">
+                <UPagination
+                  v-model:page="page"
+                  :items-per-page="size"
+                  :total="data?.length"
+                  variant="outline"
+                  :show-controls="false"
+                  show-edges
+                />
               </div>
-            </NuxtLink>
+            </div>
           </div>
 
           <div
@@ -181,7 +205,7 @@ function clear() {
                 Try adjusting your search criteria or clearing some filters to see more results.
               </p>
 
-              <UButton variant="subtle" @click="clear">
+              <UButton variant="subtle" @click="store.clearFilters">
                 Clear filters
               </UButton>
             </UCard>

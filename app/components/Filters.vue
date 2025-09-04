@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Filters } from '~~/shared/types'
 import { t } from 'try'
-import { DEFAULT_FILTER, JOB_CATEGORIES, JOB_FIELDS, JOB_HOMEOFFICES, JOB_TYPES, JOB_WORKINGTIMES } from '~~/shared/constants'
+import { JOB_CATEGORIES, JOB_FIELDS, JOB_HOMEOFFICES, JOB_TYPES, JOB_WORKINGTIMES } from '~~/shared/constants'
 
 type Key = keyof Filters
 type Value = Filters[Key]
@@ -11,40 +11,30 @@ const props = defineProps<{
 }>()
 
 const toast = useToast()
-
-const filters = defineModel({ default: structuredClone(DEFAULT_FILTER) })
-
-function clear() {
-  filters.value = structuredClone(DEFAULT_FILTER)
-}
+const store = useGlobalStore()
 
 const smart = shallowRef<string>()
+const history = ref<string[]>([])
+
 const finding = shallowRef(false)
 async function find() {
+  const input = smart.value?.trim()
+  if (!input)
+    return
+
   finding.value = true
-  const input = `
-The user is refining their job search filters.
 
-Context:
-- Previous filters (already applied):
-${JSON.stringify(filters.value, null, 2)}
+  history.value.push(input)
 
-- Current user input (new preferences, higher priority):
-"${smart.value}"
-
-Task:
-- Combine the previous filters with the new input.
-- The new input always overrides or updates previous filters if there is a conflict.
-- If the new input adds details, merge them with the previous filters.
-- If the user explicitly asks to "remove all filters", "reset filters", or similar,
-  then return this (${JSON.stringify(DEFAULT_FILTER, null, 2)}).
-- Return only the combined preferences as plain text, without explanations.
-  `
-
-  const [ok, error, value] = await t($fetch<Omit<Filters, 'search'>>('/api/filters', {
+  const [ok, error, value] = await t($fetch<Filters>('/api/filters', {
     method: 'POST',
-    body: { input },
+    body: {
+      prompt: input,
+      history: history.value,
+      filters: store.filters,
+    },
   }))
+
   finding.value = false
 
   if (ok)
@@ -59,28 +49,28 @@ Task:
     return
   }
 
-  filters.value = value
+  store.filters = value
 }
 </script>
 
 <template>
-  <div v-if="filters" class="grid gap-4">
+  <div v-if="store.filters" class="grid gap-4">
     <div class="flex items-center gap-2">
       <UInput
-        v-model="filters.search"
+        v-model="store.filters.search"
         leading-icon="i-lucide-search"
         placeholder="Search for title, company, keyword"
         class="w-full max-w-sm"
         variant="subtle"
       >
-        <template v-if="filters?.search?.length" #trailing>
+        <template v-if="store.filters?.search?.length" #trailing>
           <UButton
             color="neutral"
             variant="link"
             size="sm"
             icon="i-lucide-x"
             aria-label="Clear input"
-            @click="filters.search = ''"
+            @click="store.filters.search = ''"
           />
         </template>
       </UInput>
@@ -97,7 +87,17 @@ Task:
         />
 
         <template #content>
-          <div class="p-4 grid gap-4">
+          <div class="px-4 pb-4 grid gap-4">
+            <div class="-mx-4 px-4 flex justify-between gap-2 items-center border-b border-accented py-2">
+              <p class="text-xs">
+                <span class="text-success">{{ props.length }}</span> results
+              </p>
+
+              <UButton variant="ghost" size="xs" @click="store.clearFilters">
+                Clear
+              </UButton>
+            </div>
+
             <form @submit.prevent="find">
               <fieldset>
                 <legend class="block font-medium text-sm mb-2">
@@ -115,7 +115,7 @@ Task:
             </form>
 
             <UCheckboxGroup
-              v-model="filters.types"
+              v-model="store.filters.types"
               size="lg"
               legend="Types"
               :items="JOB_TYPES"
@@ -127,7 +127,7 @@ Task:
                 Fields
               </legend>
               <USelectMenu
-                v-model="filters.fields"
+                v-model="store.filters.fields"
                 placeholder="Select fields"
                 class="w-80"
                 multiple
@@ -140,7 +140,7 @@ Task:
                 Categories
               </legend>
               <USelectMenu
-                v-model="filters.categories"
+                v-model="store.filters.categories"
                 placeholder="Select categories"
                 class="w-80"
                 multiple
@@ -149,7 +149,7 @@ Task:
             </fieldset>
 
             <UCheckboxGroup
-              v-model="filters.homeoffices"
+              v-model="store.filters.homeoffices"
               size="lg"
               legend="Homeoffice"
               :items="JOB_HOMEOFFICES"
@@ -160,11 +160,11 @@ Task:
               <legend class="block font-medium text-sm mb-4">
                 Working time
                 <span class="text-dimmed">
-                  ({{ filters?.workingtimes?.[0] }}-{{ filters?.workingtimes?.[1] }}h)
+                  ({{ store.filters?.workingtimes?.[0] }}-{{ store.filters?.workingtimes?.[1] }}h)
                 </span>
               </legend>
               <USlider
-                v-model="filters.workingtimes"
+                v-model="store.filters.workingtimes"
                 :min="JOB_WORKINGTIMES.min"
                 :max="JOB_WORKINGTIMES.max"
               />
@@ -177,17 +177,17 @@ Task:
     <div class="group flex items-start gap-2">
       <div class="group flex items-center flex-wrap gap-2 min-h-7">
         <UBadge
-          v-if="filters.search"
+          v-if="store.filters.search"
           data-slot="badge"
           color="neutral"
           variant="subtle"
           size="lg"
         >
-          Search: {{ filters.search }}
+          Search: {{ store.filters.search }}
         </UBadge>
 
         <template
-          v-for="[k, v] in Object.entries(filters) as [Key, Value][]"
+          v-for="[k, v] in Object.entries(store.filters) as [Key, Value][]"
           :key="k"
         >
           <template v-if="k === 'search'" />
@@ -206,7 +206,7 @@ Task:
               <template #trailing>
                 <button
                   class="flex-center"
-                  @click="filters.workingtimes = [
+                  @click="store.filters.workingtimes = [
                     JOB_WORKINGTIMES.min,
                     JOB_WORKINGTIMES.max,
                   ]"
@@ -234,7 +234,7 @@ Task:
               <template #trailing>
                 <button
                   class="flex-center"
-                  @click="filters[k] = filters[k]?.filter(f => f !== x)"
+                  @click="store.filters[k] = store.filters[k]?.filter(f => f !== x)"
                 >
                   <UIcon name="i-lucide-x" />
                 </button>
@@ -247,7 +247,7 @@ Task:
           size="sm"
           variant="ghost"
           class="hidden group-has-[[data-slot=badge]]:inline-flex"
-          @click="clear"
+          @click="store.clearFilters"
         >
           Clear all
         </UButton>

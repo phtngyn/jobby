@@ -23,14 +23,14 @@ export default defineEventHandler(async (event) => {
   ])
 
   const entries = new Map<
-  string,
-{
-  job_id: string
-  semanticScore: number
-  lexicalScore: number
-  chunks: Map<string, Chunk>
-}
->()
+    string,
+    {
+      job_id: string
+      semanticScore: number
+      lexicalScore: number
+      chunks: Map<string, Chunk>
+    }
+  >()
   for (const chunk of semanticChunks) {
     const entry = entries.get(chunk.job_id) ?? {
       job_id: chunk.job_id,

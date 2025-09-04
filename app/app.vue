@@ -112,7 +112,7 @@ onMounted(() => {
 
         <SplitterResizeHandle
           id="splitter-handle"
-          class="w-px border border-accented flex-center"
+          class="w-px bg-accented flex-center"
         />
 
         <SplitterPanel

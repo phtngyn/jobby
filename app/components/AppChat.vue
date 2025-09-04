@@ -305,12 +305,12 @@ async function deleteChat() {
             </template>
           </template>
 
-          <DevOnly>
+          <!-- <DevOnly>
             <MDC
               class="mt-8"
               :value="`<details><summary>Debug Messages</summary>\n\n\`\`\`json\n${JSON.stringify(chat.messages, null, 2)}\n\`\`\`\n</details>`"
             />
-          </DevOnly>
+          </DevOnly> -->
         </div>
 
         <div

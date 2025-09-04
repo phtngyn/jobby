@@ -142,10 +142,6 @@ function analyze_jobs(writer: ChatWriter) {
           .describe('The user\'s analysis request about the uploaded jobs'),
       }),
       async execute({ query }, { toolCallId }) {
-        console.log({
-          query,
-          payload,
-        })
         const { text } = await generateText({
           model: provider(LIGHT_MODEL),
           messages: [
