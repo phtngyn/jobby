@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ChatUIMessage, Job } from '~~/shared/types'
+import type { ChatUIMessage, Job, Thread } from '~~/shared/types'
 import { Chat } from '@ai-sdk/vue'
 import { DefaultChatTransport, generateId } from 'ai'
 import { LIGHT_MODEL, MODELS } from '~~/shared/constants'
@@ -7,36 +7,49 @@ import ToolAnalyseJobs from './ToolAnalyseJobs.vue'
 
 const store = useGlobalStore()
 
-const toast = useToast()
+const { data: threadData } = await useFetch<{ threads: Thread[], thread: Thread }>(
+  '/api/threads',
+  {
+    key: 'threads',
+  },
+)
 
-const { data: _chat } = await useFetch('/api/chat')
-if (!_chat.value)
-  throw createError({ statusCode: 404, statusMessage: 'Chat not found' })
+if (!threadData.value || !threadData.value.threads.length || !threadData.value.thread) {
+  throw createError({
+    statusCode: 404,
+    statusMessage: 'Failed to get threads.',
+  })
+}
 
 const { data } = useNuxtData<Job[]>('jobs')
 const jobs = ref<Job[]>([])
 
 const input = shallowRef('')
-const chat = new Chat<ChatUIMessage>({
-  id: _chat.value.id,
-  messages: _chat.value.messages.length
-    ? _chat.value.messages
-    : [{ id: generateId(), role: 'assistant', parts: [{ type: 'text', text: 'How can I help you?' }] }],
+const chat = shallowRef(createChat(threadData.value.thread))
 
-  transport: new DefaultChatTransport({ api: '/api/chat' }),
-  onData({ type, data }) {
-    if (type === 'data-notification')
-      console.log({ type, data })
-  },
-  onError(error) {
-    console.error(error)
-  },
-})
+function createChat(thread: Thread) {
+  const chat = new Chat<ChatUIMessage>({
+    messages: thread.messages,
+    transport: new DefaultChatTransport({
+      api: `/api/threads/${thread.id}`,
+    }),
+    onData({ type, data }) {
+      if (type === 'data-notification')
+        console.log({ type, data })
+    },
+    onError(error) {
+      console.error(error)
+    },
+    async onFinish() {
+      await refreshNuxtData('threads')
+    },
+  })
 
-const open = shallowRef(false)
+  return chat
+}
 
 function handleSubmit() {
-  const message: Parameters<typeof chat.sendMessage>[0] = {
+  const message: Parameters<typeof chat.value.sendMessage>[0] = {
     text: input.value,
   }
 
@@ -52,7 +65,7 @@ function handleSubmit() {
     }
   }
 
-  chat.sendMessage(message)
+  chat.value.sendMessage(message)
 
   jobs.value = []
   input.value = ''
@@ -87,16 +100,29 @@ function removeJob(job: Job) {
   jobs.value = jobs.value.filter(j => j.id !== job.id)
 }
 
-async function deleteChat() {
-  await $fetch('/api/chat', {
+function changeThread(id: string) {
+  if (!threadData.value)
+    return
+
+  const thread = threadData.value.threads.find(t => t.id === id)
+  if (thread) {
+    threadData.value.thread = thread
+    chat.value = createChat(thread)
+  }
+}
+
+async function removeThread(id: string) {
+  await $fetch('/api/threads', {
     method: 'DELETE',
+    body: { id },
   })
-  chat.messages = []
-  open.value = false
-  toast.add({
-    title: 'Chat deleted',
-    description: 'The chat has been permanently removed.',
-  })
+
+  await refreshNuxtData('threads')
+
+  const thread = threadData.value?.threads[0]
+  if (thread) {
+    chat.value = createChat(thread)
+  }
 }
 </script>
 
@@ -107,40 +133,15 @@ async function deleteChat() {
       <p class="font-semibold text-highlighted truncate">
         AI Assistant
       </p>
-      <div class="ml-auto">
-        <UModal
-          v-model:open="open"
-          title="Delete chat?"
-          description="This action is permanent and cannot be undone."
-        >
-          <UButton
-            variant="soft"
-            icon="i-lucide-trash"
-            color="error"
-            size="sm"
-            :disabled="!chat.messages.length"
-          />
 
-          <template #footer>
-            <div class="flex w-full justify-end gap-2">
-              <UButton
-                color="neutral"
-                variant="outline"
-                @click="open = false"
-              >
-                Cancel
-              </UButton>
-
-              <UButton
-                color="error"
-                @click="deleteChat"
-              >
-                Delete
-              </UButton>
-            </div>
-          </template>
-        </UModal>
-      </div>
+      <AppChatHeaderMenu
+        v-if="threadData"
+        :threads="threadData.threads"
+        :thread="threadData.thread"
+        class="ml-auto"
+        @change="changeThread"
+        @remove="removeThread"
+      />
     </PanelHeader>
 
     <PanelBody>

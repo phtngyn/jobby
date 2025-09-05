@@ -1,37 +1,50 @@
-/* eslint-disable unused-imports/no-unused-vars */
 import type { Tool } from 'ai'
 import type { ChatToolKeys, ChatUIMessage } from '~~/shared/types'
 import { convertToModelMessages, createUIMessageStream, createUIMessageStreamResponse, smoothStream, streamText } from 'ai'
+import { and, eq } from 'drizzle-orm'
 import { z } from 'zod'
 import { provider } from '~~/server/ai/llm'
 import { getToolbox } from '~~/server/ai/tools'
-import { getConfig, getText } from '~~/server/utils/chat'
+import { generateTitle, getConfig } from '~~/server/utils/chat'
 import { JobSchema } from '~~/shared/schemas'
 
 export default defineEventHandler(async (event) => {
-  const session = await requireUserSession(event)
+  const session = await getUserSession(event)
+  const params = await getValidatedRouterParams(
+    event,
+    z.object({ id: z.string() }).parse,
+  )
+
+  const where = and(eq(tables.threads.id, params.id), eq(tables.threads.userId, session.id))
+  const thread = await db.query.threads.findFirst({ where })
+
+  if (!thread) {
+    throw createError({ statusCode: 404, statusMessage: 'Thread not found' })
+  }
 
   const body = await readValidatedBody(
     event,
     z.object({
-      messages: z.array(z.custom<ChatUIMessage>()),
+      messages: z.array(z.custom<ChatUIMessage>()).nonempty(),
       jobs: z.array(JobSchema).optional(),
     }).parse,
   )
 
-  const { model, filters } = getConfig(event)
+  if (!thread.title || thread.title === 'Untitled') {
+    const message = body.messages[0]
+    const title = await generateTitle(message)
+    await db.update(tables.threads).set({ title }).where(where)
+  }
+
+  const { model } = getConfig(event)
   const startTime = Date.now()
 
   const stream = createUIMessageStream<ChatUIMessage>({
     originalMessages: body.messages,
     async execute({ writer }) {
-      const query = getText(body.messages.at(-1)!)
-
-      const modelMessages = convertToModelMessages(body.messages)
-
       const result = streamText({
         model: provider(model),
-        messages: modelMessages,
+        messages: convertToModelMessages(body.messages),
         experimental_transform: smoothStream({ chunking: 'word' }),
         tools: (() => {
           const toolbox = getToolbox(writer)
@@ -48,9 +61,12 @@ export default defineEventHandler(async (event) => {
         })(),
       })
 
+      // result.consumeStream()
+
       writer.merge(
         result.toUIMessageStream<ChatUIMessage>({
           sendStart: false,
+          sendReasoning: false,
           messageMetadata({ part }) {
             switch (part.type) {
               case 'finish-step':{
@@ -72,11 +88,13 @@ export default defineEventHandler(async (event) => {
         }),
       )
     },
+
     onError(error) {
       return error instanceof Error ? error.message : String(error)
     },
+
     async onFinish({ messages }) {
-      // await saveMessages(session, messages)
+      saveMessages(params.id, messages)
     },
   })
 

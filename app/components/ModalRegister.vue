@@ -6,7 +6,7 @@ import { UsernameSchema } from '~~/shared/schemas'
 const open = shallowRef(true)
 
 const schema = z.object({ username: UsernameSchema })
-const state = ref({ username: '' })
+const state = ref({ username: 'Phat Nguyen' })
 
 async function submit(event: FormSubmitEvent<z.infer<typeof schema>>) {
   await $fetch('/api/auth', {

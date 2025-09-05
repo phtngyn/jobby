@@ -1,9 +1,8 @@
 import type { ModelMessage } from 'ai'
 import type { H3Event } from 'h3'
-import type { ChatConfig, ChatUIMessage, Session } from '~~/shared/types'
-import { generateObject } from 'ai'
+import type { ChatConfig, ChatUIMessage } from '~~/shared/types'
+import { generateObject, generateText } from 'ai'
 import { destr } from 'destr'
-import { eq } from 'drizzle-orm'
 import { CHAT_CONFIG_COOKIE, JOB_WORKINGTIMES, LIGHT_MODEL, MODELS } from '~~/shared/constants'
 import { FiltersSchema } from '~~/shared/schemas'
 import { provider } from '../ai/llm'
@@ -25,12 +24,34 @@ export function getText(message: ChatUIMessage) {
   return message.parts.flatMap(p => p.type === 'text' ? [p.text.trim()] : []).join('')
 }
 
-export async function getChat(session: Session) {
-  const chat = await db.query.chats.findFirst({
-    where: eq(tables.chats.userId, session.id),
+export async function generateTitle(message: ChatUIMessage) {
+  const { text } = await generateText({
+    model: provider(LIGHT_MODEL),
+    system: `You are a title generator for a chat:
+        - Generate a short title based on the first user's message
+        - The title should be less than 30 characters long
+        - The title should be a meaningful and not too short
+        - The title should be a summary of the user's message
+        - Do not use quotes (' or ") or colons (:) or any other punctuation
+        - Do not use markdown, just plain text`,
+    prompt: JSON.stringify(message, null, 2),
   })
 
-  return chat
+  return text
+}
+
+export async function saveMessages(threadId: string, messages: ChatUIMessage[]) {
+  const results = await db.insert(tables.messages)
+    .values(messages.map(m => ({
+      threadId,
+      role: m.role,
+      parts: m.parts,
+      id: m.id,
+    })))
+    .onConflictDoNothing({ target: tables.messages.id })
+    .returning()
+
+  return results
 }
 
 export async function extractFilters(
@@ -87,11 +108,4 @@ Maximize the number of correct matches across all filter properties while stayin
   }
 
   return object
-}
-
-export async function saveMessages(session: Session, messages: ChatUIMessage[]) {
-  await db
-    .update(tables.chats)
-    .set({ messages })
-    .where(eq(tables.chats.userId, session.id))
 }

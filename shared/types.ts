@@ -1,8 +1,9 @@
 import type { UserSession, UserSessionRequired } from '#auth-utils'
 import type { createGoogleGenerativeAI } from '@ai-sdk/google'
-import type { InferUITools, ToolUIPart, UIMessage, UIMessagePart, UIMessageStreamWriter } from 'ai'
-import type { z, ZodType } from 'zod'
+import type { InferUITools, UIMessage, UIMessagePart, UIMessageStreamWriter } from 'ai'
+import type { z } from 'zod'
 import type { getToolbox } from '~~/server/ai/tools'
+import type { messages, threads } from '../server/db/schema/users'
 import type { ChatDataPartSchema, ChatMetadataSchema, FiltersSchema, JobSchema } from './schemas'
 
 export type Job = z.infer<typeof JobSchema>
@@ -27,10 +28,8 @@ export type ChatUIMessagePart = UIMessagePart<ChatDataPart, ChatToolSet>
 export type ChatUIMessage = UIMessage<ChatMetadata, ChatDataPart, ChatToolSet>
 export type ChatWriter = UIMessageStreamWriter<ChatUIMessage>
 
-// eslint-disable-next-line unused-imports/no-unused-vars
-type GetToolUIPartState<T extends ZodType> = ToolUIPart & {
-  state: ToolUIPart['state']
-  output?: z.infer<T>
+export type Thread = typeof threads.$inferSelect & {
+  messages: typeof messages.$inferSelect[]
 }
 
 export type Filters = z.infer<typeof FiltersSchema>

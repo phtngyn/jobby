@@ -105,7 +105,7 @@ function dragend() {
             v-if="data?.length"
             class="grid gap-6"
           >
-            <div class="grid grid-cols-1 @min-3xl:grid-cols-2 @min-6xl:grid-cols-3 gap-4 pb-[5%]">
+            <div class="grid grid-cols-1 @min-3xl:grid-cols-2 @min-6xl:grid-cols-3 gap-4 pb-[10%]">
               <NuxtLink
                 v-for="job in jobs"
                 :key="job.id"
@@ -176,7 +176,7 @@ function dragend() {
               </NuxtLink>
             </div>
 
-            <div class="sticky bottom-0 flex-center">
+            <div class="sticky -bottom-2 flex-center">
               <div class="ring ring-accented p-2 rounded-md backdrop-blur">
                 <UPagination
                   v-model:page="page"
